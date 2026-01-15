@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 public class ControlSub extends SubsystemBase {
     
     Shooter shooter = new Shooter();
+    Feeder feeder = new Feeder();
     
     private final CommandXboxController DriverController = new CommandXboxController(1);
     private final CommandXboxController ManipulatorController = new CommandXboxController(2);
@@ -47,10 +48,18 @@ public class ControlSub extends SubsystemBase {
             shooterSpeed = shooterSpeed + 10;
         }
 
+        // "Reset" button
         if (DriverController.b().getAsBoolean()) {
             shooter.stopShooting();
+            shooterSpeed = 0;
         } else {
             shooter.startShooting(shooterSpeed);
+        }
+
+        if (DriverController.x().getAsBoolean()) {
+            feeder.startFeeder();
+        } else {
+            feeder.stopFeeder();
         }
 
         SmartDashboard.putNumber("Shooter Target Speed", shooterSpeed);

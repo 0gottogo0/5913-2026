@@ -16,10 +16,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Shooter extends SubsystemBase {
 
   	private TalonFX shooter = new TalonFX(1); // create constants and change motor names
-
   	private TalonFXConfiguration shooterConfig = new TalonFXConfiguration();
 
-	private PIDController shooterSpeedPID = new PIDController(0.5, 0, 0); // tune
+	private PIDController shooterSpeedPID = new PIDController(0.50, 0, 0); // tune
 
   	private boolean shouldShoot = false; // replace with enum?
   	private double targetSpeed = 0;
