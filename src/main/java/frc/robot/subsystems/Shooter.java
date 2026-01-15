@@ -66,8 +66,8 @@ public class Shooter extends SubsystemBase {
 		return shooter1.getRotorVelocity().getValueAsDouble();
 	}
 
-  	public void startShooting(double speed) {
-  		targetSpeed = speed;
+  	public void startShooting(double speedInRPS) {
+  		targetSpeed = speedInRPS;
   	  	shouldShoot = true;
   	}
 
@@ -76,8 +76,8 @@ public class Shooter extends SubsystemBase {
   	  	shouldShoot = false;
   	}
 
-	public void shootOpenLoop(double speed) {
-		targetSpeed = speed;
+	public void shootOpenLoop(double speedInPercent) {
+		targetSpeed = speedInPercent;
 		shouldShoot = false; // again should we chang this to an enum, naming is misleading
 	}
 }

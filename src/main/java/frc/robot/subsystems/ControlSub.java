@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
@@ -30,16 +31,31 @@ public class ControlSub extends SubsystemBase {
     @Override
     public void periodic() {
         // Check for input then call subsystems
-
         if (!driverLastA && DriverController.a().getAsBoolean()) {
             --shooterSpeed;
         }
 
         if (!driverLastY && DriverController.y().getAsBoolean()) {
-            --shooterSpeed;
+            ++shooterSpeed;
         }
 
-        // Inputs are now "outdated" and can be compared with new ones next cycle
+        if (!driverLastPovDown && DriverController.povDown().getAsBoolean()) {
+            shooterSpeed = shooterSpeed - 10;
+        }
+
+        if (!driverLastPovUp && DriverController.povUp().getAsBoolean()) {
+            shooterSpeed = shooterSpeed + 10;
+        }
+
+        if (DriverController.b().getAsBoolean()) {
+            shooter.stopShooting();
+        } else {
+            shooter.startShooting(shooterSpeed);
+        }
+
+        SmartDashboard.putNumber("Shooter Target Speed", shooterSpeed)
+
+        // Inputs are now "outdated" and can be compared with new ones next scheduler run
         driverLastA = DriverController.a().getAsBoolean();
         driverLastB = DriverController.b().getAsBoolean();
         driverLastX = DriverController.x().getAsBoolean();
