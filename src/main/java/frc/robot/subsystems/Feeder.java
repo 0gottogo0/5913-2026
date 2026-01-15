@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Feeder extends SubsystemBase {
 
-    private TalonFX feeder = new TalonFX(1); // create constants and change motor names
+    private TalonFX feeder = new TalonFX(31); // create constants and change motor names
     private TalonFXConfiguration feederConfig = new TalonFXConfiguration();
 
     private boolean runFeeder = false;
@@ -30,7 +30,7 @@ public class Feeder extends SubsystemBase {
     @Override
     public void periodic() {
         if (runFeeder) {
-            feeder.set(0.60);
+            feeder.set(0.15);
         } else {
             feeder.set(0.00);
         }

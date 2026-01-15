@@ -4,12 +4,31 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.*;
+
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveRequest;
+
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import frc.robot.generated.TunerConstants;
 
 public class ControlSub extends SubsystemBase {
+
+    private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
     
+    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+
+    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+
     Shooter shooter = new Shooter();
     Feeder feeder = new Feeder();
     
@@ -26,26 +45,43 @@ public class ControlSub extends SubsystemBase {
     private double shooterSpeed = 0;
 
     public ControlSub() {
-
+    
     }
 
     @Override
     public void periodic() {
         // Check for input then call subsystems
+        drivetrain.applyRequest(() ->
+            drive.withVelocityX(-DriverController.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
+                .withVelocityY(-DriverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+                .withRotationalRate(-DriverController.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+            );
+
+        // Idle while the robot is disabled. This ensures the configured
+        // neutral mode is applied to the drive motors while disabled.
+        final var idle = new SwerveRequest.Idle();
+        if (DriverStation.isDisabled()) {
+            drivetrain.applyRequest(() -> idle).ignoringDisable(true);
+        }
+
+        if (DriverController.button(6).getAsBoolean()) {
+            drivetrain.seedFieldCentric();
+        }
+
         if (!driverLastA && DriverController.a().getAsBoolean()) {
-            --shooterSpeed;
-        }
-
-        if (!driverLastY && DriverController.y().getAsBoolean()) {
-            ++shooterSpeed;
-        }
-
-        if (!driverLastPovDown && DriverController.povDown().getAsBoolean()) {
             shooterSpeed = shooterSpeed - 10;
         }
 
-        if (!driverLastPovUp && DriverController.povUp().getAsBoolean()) {
+        if (!driverLastY && DriverController.y().getAsBoolean()) {
             shooterSpeed = shooterSpeed + 10;
+        }
+
+        if (!driverLastPovDown && DriverController.povDown().getAsBoolean()) {
+            shooterSpeed = shooterSpeed - 100;
+        }
+
+        if (!driverLastPovUp && DriverController.povUp().getAsBoolean()) {
+            shooterSpeed = shooterSpeed + 100;
         }
 
         // "Reset" button
