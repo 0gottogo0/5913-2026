@@ -15,11 +15,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Shooter extends SubsystemBase {
 
-  	private TalonFX shooter1 = new TalonFX(1); // create constants and change motor names
-  	private TalonFX shooter2 = new TalonFX(2);
-  	private TalonFX shooter3 = new TalonFX(3);
-  	private TalonFX shooter4 = new TalonFX(4);
-  	private TalonFX shooter5 = new TalonFX(5);
+  	private TalonFX shooter = new TalonFX(1); // create constants and change motor names
+
   	private TalonFXConfiguration shooterConfig = new TalonFXConfiguration();
 
 	private PIDController shooterSpeedPID = new PIDController(0.5, 0, 0); // tune
@@ -32,38 +29,24 @@ public class Shooter extends SubsystemBase {
   	  	shooterConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
   	  	shooterConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 		
-  	  	shooter1.clearStickyFaults();
-  	  	shooter1.getConfigurator().apply(shooterConfig);
-		
-  	  	shooter2.clearStickyFaults();
-  	  	shooter2.getConfigurator().apply(shooterConfig);
-		
-  	  	shooter3.clearStickyFaults();
-  	  	shooter3.getConfigurator().apply(shooterConfig);
-		
-  	  	shooter4.clearStickyFaults();
-  	  	shooter4.getConfigurator().apply(shooterConfig);
-		
-  	  	shooter5.clearStickyFaults();
-  	  	shooter5.getConfigurator().apply(shooterConfig);
-		
-  	  	//shooter2.setControl(new Follower(shooter1.getDeviceID(), false)); // <-- do this but with no errors
+  	  	shooter.clearStickyFaults();
+  	  	shooter.getConfigurator().apply(shooterConfig);
   	}
 
   	@Override
   	public void periodic() {
   	  	if (shouldShoot) {
 			shooterSpeedPIDOutput = shooterSpeedPID.calculate(getShooterSpeed(), targetSpeed);
-			shooter1.set(shooterSpeedPIDOutput);
+			shooter.set(shooterSpeedPIDOutput);
 		} else {
-			shooter1.set(targetSpeed);
+			shooter.set(targetSpeed);
 		}
 
 		SmartDashboard.putNumber("Shooter RPS", getShooterSpeed());
   	}
 
 	private double getShooterSpeed() {
-		return shooter1.getRotorVelocity().getValueAsDouble();
+		return shooter.getRotorVelocity().getValueAsDouble();
 	}
 
   	public void startShooting(double speedInRPS) {

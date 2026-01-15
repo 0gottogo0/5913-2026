@@ -53,7 +53,7 @@ public class ControlSub extends SubsystemBase {
             shooter.startShooting(shooterSpeed);
         }
 
-        SmartDashboard.putNumber("Shooter Target Speed", shooterSpeed)
+        SmartDashboard.putNumber("Shooter Target Speed", shooterSpeed);
 
         // Inputs are now "outdated" and can be compared with new ones next scheduler run
         driverLastA = DriverController.a().getAsBoolean();
