@@ -13,31 +13,26 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import frc.robot.generated.TunerConstants;
+import frc.robot.constants.TunerConstants;
 
 public class ControlSub extends SubsystemBase {
 
-    private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+    private double maxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    private double maxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
     
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+            .withDeadband(maxSpeed * 0.1).withRotationalDeadband(maxAngularRate * 0.1) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    Shooter shooter = new Shooter();
     Feeder feeder = new Feeder();
+    Shooter shooter = new Shooter();
     
-    private final CommandXboxController DriverController = new CommandXboxController(1);
-    private final CommandXboxController ManipulatorController = new CommandXboxController(2);
+    private final CommandXboxController DriverController = new CommandXboxController(0);
+    private final CommandXboxController ManipulatorController = new CommandXboxController(1);
 
     private boolean driverLastA = DriverController.a().getAsBoolean();
-    private boolean driverLastB = DriverController.b().getAsBoolean();
-    private boolean driverLastX = DriverController.x().getAsBoolean();
     private boolean driverLastY = DriverController.y().getAsBoolean();
     private boolean driverLastPovUp = DriverController.povUp().getAsBoolean();
     private boolean driverLastPovDown = DriverController.povDown().getAsBoolean();
@@ -51,23 +46,29 @@ public class ControlSub extends SubsystemBase {
     @Override
     public void periodic() {
         // Check for input then call subsystems
+
+        /* Driver Controls */
         drivetrain.applyRequest(() ->
-            drive.withVelocityX(-DriverController.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                .withVelocityY(-DriverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                .withRotationalRate(-DriverController.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
-            );
+            drive.withVelocityX(-DriverController.getLeftY() * maxSpeed) // Drive forward with negative Y (forward)
+                 .withVelocityY(-DriverController.getLeftX() * maxSpeed) // Drive left with negative X (left)
+                 .withRotationalRate(-DriverController.getRightX() * maxAngularRate) // Drive counterclockwise with negative X (left)
+        );
 
         // Idle while the robot is disabled. This ensures the configured
         // neutral mode is applied to the drive motors while disabled.
-        final var idle = new SwerveRequest.Idle();
         if (DriverStation.isDisabled()) {
-            drivetrain.applyRequest(() -> idle).ignoringDisable(true);
+            drivetrain.applyRequest(() -> new SwerveRequest.Idle()).ignoringDisable(true);
         }
 
-        if (DriverController.button(6).getAsBoolean()) {
+        if (DriverController.button(7).getAsBoolean()) {
             drivetrain.seedFieldCentric();
         }
 
+        if (DriverController.button(8).getAsBoolean()) {
+            drivetrain.applyRequest(() -> new SwerveRequest.SwerveDriveBrake());
+        }
+
+        // temp buttons
         if (!driverLastA && DriverController.a().getAsBoolean()) {
             shooterSpeed = shooterSpeed - 10;
         }
@@ -84,7 +85,7 @@ public class ControlSub extends SubsystemBase {
             shooterSpeed = shooterSpeed + 100;
         }
 
-        // "Reset" button
+        // "reset" button
         if (DriverController.b().getAsBoolean()) {
             shooter.stopShooting();
             shooterSpeed = 0;
@@ -102,8 +103,6 @@ public class ControlSub extends SubsystemBase {
 
         // Inputs are now "outdated" and can be compared with new ones next scheduler run
         driverLastA = DriverController.a().getAsBoolean();
-        driverLastB = DriverController.b().getAsBoolean();
-        driverLastX = DriverController.x().getAsBoolean();
         driverLastY = DriverController.y().getAsBoolean();
         driverLastPovUp = DriverController.povUp().getAsBoolean();
         driverLastPovDown = DriverController.povDown().getAsBoolean();
