@@ -9,6 +9,7 @@ import com.ctre.phoenix6.HootAutoReplay;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.AutoAim;
 
 public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
@@ -28,6 +29,9 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         m_timeAndJoystickReplay.update();
         CommandScheduler.getInstance().run(); 
+
+        m_robotContainer.control.autoAim.setAutoAimPos(m_robotContainer.control.drivetrain.getState().Pose.getX(), m_robotContainer.control.drivetrain.getState().Pose.getX(), m_robotContainer.control.drivetrain.getState().Pose.getRotation().getRotations());
+        m_robotContainer.control.autoAim.setAutoAimSpeed(m_robotContainer.control.drivetrain.getState().Speeds.vxMetersPerSecond, m_robotContainer.control.drivetrain.getState().Speeds.vyMetersPerSecond, m_robotContainer.control.drivetrain.getState().Speeds.omegaRadiansPerSecond); 
     }
 
     @Override

@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import org.opencv.core.Mat;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -51,21 +53,18 @@ public class Shooter extends SubsystemBase {
 		}
 
 		SmartDashboard.putNumber("Shooter RPS", getShooterSpeed());
+		SmartDashboard.putNumber("Shooter Target RPS", targetSpeed);
+		SmartDashboard.putNumber("Shooter Target Diff", targetSpeed - getShooterSpeed());
+		SmartDashboard.putNumber("Shooter PID Output", shooterSpeedPIDOutput);
+
+		SmartDashboard.putString("Shooter State", state.toString());
+
+		SmartDashboard.putBoolean("Shooter At Speed", isShooterAtSpeed());
   	}
 
 	private double getShooterSpeed() {
 		return shooter.getRotorVelocity().getValueAsDouble();
 	}
-
-  	public void startShooting(double speedInRPS) {
-  		targetSpeed = speedInRPS;
-  	  	state = State.Shoot;
-  	}
-
-  	public void stopShooting() {
-		targetSpeed = ShooterConstants.IdleRPS;
-  	  	state = State.Idle;
-  	}
 
 	public void setShooterState(State stateToChangeTo, double speedInRPS) {
 		state = stateToChangeTo;
@@ -75,5 +74,9 @@ public class Shooter extends SubsystemBase {
 	public void setShooterDumbControl(double speedInPercent) {
 		targetSpeed = speedInPercent;
 		state = State.DumbControl;
+	}
+
+	public boolean isShooterAtSpeed() {
+		return Math.abs(targetSpeed - getShooterSpeed()) < ShooterConstants.AtRPSThreshold;
 	}
 }

@@ -12,6 +12,7 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -30,8 +31,9 @@ public class ControlSub extends SubsystemBase {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    Feeder feeder = new Feeder();
-    Shooter shooter = new Shooter();
+    public AutoAim autoAim = new AutoAim();
+    public Feeder feeder = new Feeder();
+    public Shooter shooter = new Shooter();
     
     private final CommandXboxController DriverController = new CommandXboxController(Controllers.DriverControllerID);
     private final CommandXboxController ManipulatorController = new CommandXboxController(Controllers.ManipulatorControllerID);
@@ -102,6 +104,16 @@ public class ControlSub extends SubsystemBase {
             feeder.startFeeder();
         } else {
             feeder.stopFeeder();
+        }
+
+        if (shooter.isShooterAtSpeed()) {
+            DriverController.setRumble(RumbleType.kBothRumble, 0.1);
+        }
+
+        /* Manipulator Controls */
+
+        if (shooter.isShooterAtSpeed()) {
+            ManipulatorController.setRumble(RumbleType.kBothRumble, 0.1);
         }
 
         SmartDashboard.putNumber("Shooter Target Speed", shooterSpeed);

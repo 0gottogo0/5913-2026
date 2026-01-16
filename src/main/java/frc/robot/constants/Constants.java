@@ -1,6 +1,14 @@
 package frc.robot.constants;
 
 public final class Constants {
+    public static final class AutoAim {
+        public static final double BlueGoalPos[] = {0.00, 0.00};
+        public static final double RedGoalPos[] = {0.00, 0.00};
+
+        public static final double LeftTurretPos[] = {0.00, 0.00};
+        public static final double RightTurretPos[] = {0.00, 0.00};
+    }
+
     public static final class Controllers {
         public static final int DriverControllerID = 0;
         public static final int ManipulatorControllerID = 1;
@@ -47,5 +55,6 @@ public final class Constants {
 
         public static final double IdleRPS = 8.00;
         public static final double UnstickRPS = 15.00;
+        public static final double AtRPSThreshold = 5;
     }
 }
