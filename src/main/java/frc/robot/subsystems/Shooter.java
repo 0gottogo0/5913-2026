@@ -12,6 +12,8 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.constants.Constants.ShooterConstants;
+import frc.robot.constants.Constants.ShooterConstants.State;
 
 public class Shooter extends SubsystemBase {
 
@@ -20,9 +22,10 @@ public class Shooter extends SubsystemBase {
 
 	private PIDController shooterSpeedPID = new PIDController(0.01, 0, 0); // tune
 
-  	private boolean shouldShoot = false; // replace with enum?
   	private double targetSpeed = 0;
 	private double shooterSpeedPIDOutput = 0;
+
+	public State state = ShooterConstants.State.Idle;
 
   	public Shooter() {
   	  	shooterConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
@@ -34,8 +37,14 @@ public class Shooter extends SubsystemBase {
 
   	@Override
   	public void periodic() {
-  	  	if (shouldShoot) {
+  	  	if (state == State.Shoot) {
 			shooterSpeedPIDOutput = shooterSpeedPID.calculate(getShooterSpeed(), targetSpeed);
+			shooter.set(shooterSpeedPIDOutput);
+		} else if (state == State.Idle){
+			shooterSpeedPIDOutput = shooterSpeedPID.calculate(getShooterSpeed(), ShooterConstants.IdleRPS);
+			shooter.set(shooterSpeedPIDOutput);
+		} else if (state == State.Unstick){
+			shooterSpeedPIDOutput = shooterSpeedPID.calculate(getShooterSpeed(), ShooterConstants.UnstickRPS);
 			shooter.set(shooterSpeedPIDOutput);
 		} else {
 			shooter.set(targetSpeed);
@@ -50,16 +59,21 @@ public class Shooter extends SubsystemBase {
 
   	public void startShooting(double speedInRPS) {
   		targetSpeed = speedInRPS;
-  	  	shouldShoot = true;
+  	  	state = State.Shoot;
   	}
 
   	public void stopShooting() {
-		targetSpeed = 0;
-  	  	shouldShoot = false;
+		targetSpeed = ShooterConstants.IdleRPS;
+  	  	state = State.Idle;
   	}
 
-	public void shootOpenLoop(double speedInPercent) {
+	public void setShooterState(State stateToChangeTo, double speedInRPS) {
+		state = stateToChangeTo;
+		targetSpeed = speedInRPS;
+	}
+
+	public void setShooterDumbControl(double speedInPercent) {
 		targetSpeed = speedInPercent;
-		shouldShoot = false; // again should we chang this to an enum, naming is misleading
+		state = State.DumbControl;
 	}
 }
