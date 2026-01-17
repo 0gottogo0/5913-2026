@@ -11,13 +11,17 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.constants.Constants.FeederConstants;
+import frc.robot.constants.Constants.FeederConstants.State;
 
 public class Feeder extends SubsystemBase {
 
     private TalonFX feeder = new TalonFX(31); // create constants and change motor names
     private TalonFXConfiguration feederConfig = new TalonFXConfiguration();
 
-    private boolean runFeeder = false;
+    private double dumbSpeed = 0;
+
+    public State state = State.Idle;
 
     public Feeder() {
         feederConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -29,20 +33,27 @@ public class Feeder extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (runFeeder) {
-            feeder.set(0.30);
+
+        if (state == State.Idle) {
+            feeder.set(0);
+        } else if (state == State.Feed) {
+            feeder.set(FeederConstants.FeedingSpeed);
+        } else if (state == State.Unstick) {
+            feeder.set(FeederConstants.UnstickSpeed);
+        } else if (state == State.Outtake) {
+            feeder.set(FeederConstants.OuttakeSpeed);
         } else {
-            feeder.set(0.00);
+            feeder.set(dumbSpeed);
         }
-        
-        SmartDashboard.putBoolean("Feeder Running", runFeeder);
+
+        SmartDashboard.putString("Feeder State", state.toString());
     }
 
-    public void startFeeder() {
-        runFeeder = true;
+    public void SetFeederState(State stateToChangeTo) {
+        state = stateToChangeTo;
     }
 
-    public void stopFeeder() {
-        runFeeder = false;
+    public void SetFeederDumbControl(double speed) {
+        dumbSpeed = speed;
     }
 }

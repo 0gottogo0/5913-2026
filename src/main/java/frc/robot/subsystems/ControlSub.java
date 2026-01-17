@@ -17,7 +17,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.constants.Constants.Controllers;
-import frc.robot.constants.Constants.ShooterConstants.State;
+import frc.robot.constants.Constants.ShooterConstants;
+import frc.robot.constants.Constants.FeederConstants;
 import frc.robot.constants.TunerConstants;
 
 public class ControlSub extends SubsystemBase {
@@ -39,11 +40,14 @@ public class ControlSub extends SubsystemBase {
     private final CommandXboxController ManipulatorController = new CommandXboxController(Controllers.ManipulatorControllerID);
 
     private boolean driverLastA = DriverController.a().getAsBoolean();
+    private boolean driverLastB = DriverController.b().getAsBoolean();
     private boolean driverLastY = DriverController.y().getAsBoolean();
     private boolean driverLastPovUp = DriverController.povUp().getAsBoolean();
     private boolean driverLastPovDown = DriverController.povDown().getAsBoolean();
 
+    // temp vars
     private double shooterSpeed = 0;
+    private boolean weAreIdlingYo = true;
 
     public ControlSub() {
     
@@ -93,17 +97,24 @@ public class ControlSub extends SubsystemBase {
         }
 
         // "reset" button
-        if (DriverController.b().getAsBoolean()) {
-            shooter.setShooterState(State.Idle, 0);
-            shooterSpeed = 0;
-        } else {
-            shooter.setShooterState(State.Shoot, shooterSpeed);
+        if (!driverLastB && DriverController.b().getAsBoolean()) {
+            if (weAreIdlingYo) {
+                weAreIdlingYo = false;
+            } else {
+                weAreIdlingYo = true;
+            }
         }
 
-        if (DriverController.x().getAsBoolean()) {
-            feeder.startFeeder();
+        if (weAreIdlingYo) {
+            feeder.SetFeederState(FeederConstants.State.Idle);
+            shooter.setShooterState(ShooterConstants.State.Idle, 0);
+            shooterSpeed = 0;
+        } else if (DriverController.x().getAsBoolean()) {
+            feeder.SetFeederState(FeederConstants.State.Feed);
+            shooter.setShooterState(ShooterConstants.State.Shoot, shooterSpeed);
         } else {
-            feeder.stopFeeder();
+            feeder.SetFeederState(FeederConstants.State.Idle);
+            shooter.setShooterState(ShooterConstants.State.Spinup, shooterSpeed);
         }
 
         if (shooter.isShooterAtSpeed()) {
@@ -120,8 +131,11 @@ public class ControlSub extends SubsystemBase {
             ManipulatorController.setRumble(RumbleType.kBothRumble, 0.00);
         }
 
+        SmartDashboard.putBoolean("Idle", weAreIdlingYo);
+
         // Inputs are now "outdated" and can be compared with new ones next scheduler run
         driverLastA = DriverController.a().getAsBoolean();
+        driverLastB = DriverController.b().getAsBoolean();
         driverLastY = DriverController.y().getAsBoolean();
         driverLastPovUp = DriverController.povUp().getAsBoolean();
         driverLastPovDown = DriverController.povDown().getAsBoolean();

@@ -48,13 +48,24 @@ public final class Constants {
     public static final class ShooterConstants {
         public static enum State {
             Idle,
+            Spinup,
             Shoot,
+            OverTorque,
             Unstick,
             DumbControl
         }
 
-        public static final double IdleRPS = 0.00;
+        public static final double RPSThreshold = 2.00;
+        public static final double ShootRPSAdjustment = 1.00;
+        public static final double RPSThresholdToOverTorque = 2.50;
+        public static final double OverTorqueRPSAdjustment = 4.00;
         public static final double UnstickRPS = 15.00;
-        public static final double AtRPSThreshold = 5;
+
+        public static final double PIDkV = 0.00;
+        public static final double PIDkP = 0.10;
+        public static final double PIDkI = 0.00;
+        public static final double PIDkD = 0.00;
+
+        public static final int MotorID = 30;
     }
 }
