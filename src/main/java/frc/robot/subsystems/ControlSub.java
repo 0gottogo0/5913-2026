@@ -77,19 +77,19 @@ public class ControlSub extends SubsystemBase {
 
         // temp buttons
         if (!driverLastA && DriverController.a().getAsBoolean()) {
-            shooterSpeed = shooterSpeed - 10;
+            shooterSpeed = shooterSpeed - 1;
         }
 
         if (!driverLastY && DriverController.y().getAsBoolean()) {
-            shooterSpeed = shooterSpeed + 10;
+            shooterSpeed = shooterSpeed + 1;
         }
 
         if (!driverLastPovDown && DriverController.povDown().getAsBoolean()) {
-            shooterSpeed = shooterSpeed - 100;
+            shooterSpeed = shooterSpeed - 25;
         }
 
         if (!driverLastPovUp && DriverController.povUp().getAsBoolean()) {
-            shooterSpeed = shooterSpeed + 100;
+            shooterSpeed = shooterSpeed + 25;
         }
 
         // "reset" button
@@ -107,16 +107,18 @@ public class ControlSub extends SubsystemBase {
         }
 
         if (shooter.isShooterAtSpeed()) {
-            DriverController.setRumble(RumbleType.kBothRumble, 0.1);
+            DriverController.setRumble(RumbleType.kBothRumble, 0.10);
+        } else {
+            DriverController.setRumble(RumbleType.kBothRumble, 0.00);
         }
 
         /* Manipulator Controls */
 
         if (shooter.isShooterAtSpeed()) {
-            ManipulatorController.setRumble(RumbleType.kBothRumble, 0.1);
+            ManipulatorController.setRumble(RumbleType.kBothRumble, 0.10);
+        } else {
+            ManipulatorController.setRumble(RumbleType.kBothRumble, 0.00);
         }
-
-        SmartDashboard.putNumber("Shooter Target Speed", shooterSpeed);
 
         // Inputs are now "outdated" and can be compared with new ones next scheduler run
         driverLastA = DriverController.a().getAsBoolean();

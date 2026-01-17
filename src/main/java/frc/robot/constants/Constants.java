@@ -53,7 +53,7 @@ public final class Constants {
             DumbControl
         }
 
-        public static final double IdleRPS = 8.00;
+        public static final double IdleRPS = 0.00;
         public static final double UnstickRPS = 15.00;
         public static final double AtRPSThreshold = 5;
     }

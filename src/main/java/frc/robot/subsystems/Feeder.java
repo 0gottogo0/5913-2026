@@ -30,7 +30,7 @@ public class Feeder extends SubsystemBase {
     @Override
     public void periodic() {
         if (runFeeder) {
-            feeder.set(0.15);
+            feeder.set(0.30);
         } else {
             feeder.set(0.00);
         }

@@ -22,7 +22,7 @@ public class Shooter extends SubsystemBase {
   	private TalonFX shooter = new TalonFX(30); // create constants and change motor names
   	private TalonFXConfiguration shooterConfig = new TalonFXConfiguration();
 
-	private PIDController shooterSpeedPID = new PIDController(0.01, 0, 0); // tune
+	private PIDController shooterSpeedPID = new PIDController(0.03, 0, 0); // tune
 
   	private double targetSpeed = 0;
 	private double shooterSpeedPIDOutput = 0;
@@ -44,7 +44,7 @@ public class Shooter extends SubsystemBase {
 			shooter.set(shooterSpeedPIDOutput);
 		} else if (state == State.Idle){
 			shooterSpeedPIDOutput = shooterSpeedPID.calculate(getShooterSpeed(), ShooterConstants.IdleRPS);
-			shooter.set(shooterSpeedPIDOutput);
+			shooter.set(shooterSpeedPIDOutput / 10);
 		} else if (state == State.Unstick){
 			shooterSpeedPIDOutput = shooterSpeedPID.calculate(getShooterSpeed(), ShooterConstants.UnstickRPS);
 			shooter.set(shooterSpeedPIDOutput);
@@ -77,6 +77,10 @@ public class Shooter extends SubsystemBase {
 	}
 
 	public boolean isShooterAtSpeed() {
-		return Math.abs(targetSpeed - getShooterSpeed()) < ShooterConstants.AtRPSThreshold;
+		if (state == State.Shoot) {
+			return Math.abs(targetSpeed - getShooterSpeed()) < ShooterConstants.AtRPSThreshold;
+		} else {
+			return false;
+		}
 	}
 }
