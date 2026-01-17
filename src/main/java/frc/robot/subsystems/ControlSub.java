@@ -11,6 +11,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -89,12 +90,14 @@ public class ControlSub extends SubsystemBase {
         }
 
         if (!driverLastPovDown && DriverController.povDown().getAsBoolean()) {
-            shooterSpeed = shooterSpeed - 25;
+            shooterSpeed = shooterSpeed - 10;
         }
 
         if (!driverLastPovUp && DriverController.povUp().getAsBoolean()) {
-            shooterSpeed = shooterSpeed + 25;
+            shooterSpeed = shooterSpeed + 10;
         }
+        
+        shooterSpeed = MathUtil.clamp(shooterSpeed, 20, 500);
 
         // "reset" button
         if (!driverLastB && DriverController.b().getAsBoolean()) {

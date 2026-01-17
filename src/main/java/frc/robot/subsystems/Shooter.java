@@ -37,16 +37,10 @@ public class Shooter extends SubsystemBase {
 
   	  	shooter.clearStickyFaults();
   	  	shooter.getConfigurator().apply(shooterConfig);
-  	}
+	}
 
   	@Override
   	public void periodic() {
-
-		// Shooter has slowed down considerably
-		if (state == State.Shoot && targetSpeed - getShooterSpeed() > ShooterConstants.RPSThresholdToOverTorque) {
-			state = State.OverTorque;
-		}
-
   	  	if (state == State.Idle) {
 			shooter.set(0.00);
 		} else if (state == State.Spinup) {
@@ -59,7 +53,7 @@ public class Shooter extends SubsystemBase {
 			// Really overshoot target RPS due to many balls doing many slowing
 			shooter.setControl(shooterVelocityVoltage.withVelocity(targetSpeed + ShooterConstants.OverTorqueRPSAdjustment));
 		} else if (state == State.Unstick){
-			// Rotate shooter incase of stuck ball
+			// Shoot shooter incase of stuck ball
 			shooter.setControl(shooterVelocityVoltage.withVelocity(ShooterConstants.UnstickRPS));
 		} else {
 			shooter.set(targetSpeed);
@@ -68,6 +62,7 @@ public class Shooter extends SubsystemBase {
 		SmartDashboard.putNumber("Shooter RPS", getShooterSpeed());
 		SmartDashboard.putNumber("Shooter Target RPS", targetSpeed);
 		SmartDashboard.putNumber("Shooter Target Diff", targetSpeed - getShooterSpeed());
+		SmartDashboard.putNumber("Shooter Target Percentage", Math.abs(getShooterSpeed() / targetSpeed - 1));
 		SmartDashboard.putNumber("Shooter PID Output", shooterSpeedPIDOutput);
 
 		SmartDashboard.putString("Shooter State", state.toString());
@@ -90,8 +85,8 @@ public class Shooter extends SubsystemBase {
 	}
 
 	public boolean isShooterAtSpeed() {
-		if (state == State.Spinup) {
-			return Math.abs(targetSpeed - getShooterSpeed()) < ShooterConstants.RPSThreshold;
+		if (state == State.Spinup || state == State.Shoot) {
+			return Math.abs(getShooterSpeed() / targetSpeed - 1) < ShooterConstants.RPSThresholdPercent;
 		} else {
 			return false;
 		}

@@ -27,9 +27,17 @@ public final class Constants {
             DumbControl
         }
 
-        public static final double FeedingSpeed = 0.15;
-        public static final double UnstickSpeed = 0.30;
-        public static final double OuttakeSpeed = 0.40;
+        public static final double FeedingSpeed = 45;
+        public static final double UnstickSpeed = 30;
+        public static final double OuttakeSpeed = -40;
+
+        public static final double PIDkV = 0.00;
+        public static final double PIDkP = 0.30;
+        public static final double PIDkI = 0.00;
+        public static final double PIDkD = 0.00;
+
+
+        public static final int MotorID = 31;
     }
 
     public static final class IntakeConstants {
@@ -42,7 +50,7 @@ public final class Constants {
         }
 
         public static final double IntakingSpeed = 0.30;
-        public static final double OuttakingSpeed = 0.45;
+        public static final double OuttakingSpeed = -0.45;
     }
 
     public static final class ShooterConstants {
@@ -55,14 +63,13 @@ public final class Constants {
             DumbControl
         }
 
-        public static final double RPSThreshold = 2.00;
-        public static final double ShootRPSAdjustment = 1.00;
-        public static final double RPSThresholdToOverTorque = 2.50;
-        public static final double OverTorqueRPSAdjustment = 4.00;
-        public static final double UnstickRPS = 15.00;
+        public static final double RPSThresholdPercent = 0.20;
+        public static final double ShootRPSAdjustment = 4.00;
+        public static final double OverTorqueRPSAdjustment = 0.00;
+        public static final double UnstickRPS = 20.00;
 
         public static final double PIDkV = 0.00;
-        public static final double PIDkP = 0.10;
+        public static final double PIDkP = 0.45;
         public static final double PIDkI = 0.00;
         public static final double PIDkD = 0.00;
 
