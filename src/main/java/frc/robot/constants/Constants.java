@@ -27,12 +27,12 @@ public final class Constants {
             DumbControl
         }
 
-        public static final double FeedingSpeed = 45;
+        public static final double FeedingSpeed = 0;
         public static final double UnstickSpeed = 30;
         public static final double OuttakeSpeed = -40;
 
         public static final double PIDkV = 0.00;
-        public static final double PIDkP = 0.30;
+        public static final double PIDkP = 0.20;
         public static final double PIDkI = 0.00;
         public static final double PIDkD = 0.00;
 

@@ -29,7 +29,7 @@ public class Shooter extends SubsystemBase {
 
   	public Shooter() {
   	  	shooterConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-  	  	shooterConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+  	  	shooterConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 		shooterConfig.Slot0.kV = ShooterConstants.PIDkV;
 		shooterConfig.Slot0.kP = ShooterConstants.PIDkP;
 		shooterConfig.Slot0.kI = ShooterConstants.PIDkI;
