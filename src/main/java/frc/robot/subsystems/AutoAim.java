@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class AutoAim extends SubsystemBase {
@@ -17,7 +18,8 @@ public class AutoAim extends SubsystemBase {
 
     @Override
     public void periodic() {
-      
+        SmartDashboard.putNumber("Robot X", robotPos[0]);
+        SmartDashboard.putNumber("Robot Y", robotPos[1]);
     }
 
     public void setAutoAimPos(double x, double y, double rot) {

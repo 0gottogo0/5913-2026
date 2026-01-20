@@ -30,8 +30,8 @@ public class Robot extends TimedRobot {
         m_timeAndJoystickReplay.update();
         CommandScheduler.getInstance().run(); 
 
-        //m_robotContainer.control.autoAim.setAutoAimPos(m_robotContainer.control.drivetrain.getState().Pose.getX(), m_robotContainer.control.drivetrain.getState().Pose.getX(), m_robotContainer.control.drivetrain.getState().Pose.getRotation().getRotations());
-        //m_robotContainer.control.autoAim.setAutoAimSpeed(m_robotContainer.control.drivetrain.getState().Speeds.vxMetersPerSecond, m_robotContainer.control.drivetrain.getState().Speeds.vyMetersPerSecond, m_robotContainer.control.drivetrain.getState().Speeds.omegaRadiansPerSecond); 
+        m_robotContainer.control.autoAim.setAutoAimPos(m_robotContainer.control.drivetrain.getState().Pose.getX(), m_robotContainer.control.drivetrain.getState().Pose.getY(), m_robotContainer.control.drivetrain.getState().Pose.getRotation().getRotations());
+        m_robotContainer.control.autoAim.setAutoAimSpeed(m_robotContainer.control.drivetrain.getState().Speeds.vxMetersPerSecond, m_robotContainer.control.drivetrain.getState().Speeds.vyMetersPerSecond, m_robotContainer.control.drivetrain.getState().Speeds.omegaRadiansPerSecond); 
     }
 
     @Override

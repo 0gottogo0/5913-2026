@@ -11,7 +11,6 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -51,7 +50,14 @@ public class ControlSub extends SubsystemBase {
     private boolean weAreIdlingYo = true;
 
     public ControlSub() {
-    
+        drivetrain.setDefaultCommand(
+            // Drivetrain will execute this command periodically
+            drivetrain.applyRequest(() ->
+                drive.withVelocityX(-DriverController.getLeftY() * maxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(-DriverController.getLeftX() * maxSpeed) // Drive left with negative X (left)
+                    .withRotationalRate(-DriverController.getRightX() * maxAngularRate) // Drive counterclockwise with negative X (left)
+            )
+        );
     }
 
     @Override
@@ -59,12 +65,7 @@ public class ControlSub extends SubsystemBase {
         // Check for input then call subsystems
 
         /* Driver Controls */
-        drivetrain.applyRequest(() ->
-            drive.withVelocityX(-DriverController.getLeftY() * maxSpeed) // Drive forward with negative Y (forward)
-                 .withVelocityY(-DriverController.getLeftX() * maxSpeed) // Drive left with negative X (left)
-                 .withRotationalRate(-DriverController.getRightX() * maxAngularRate) // Drive counterclockwise with negative X (left)
-        );
-
+        
         // Apply neutral mode while disabled.
         if (DriverStation.isDisabled()) {
             drivetrain.applyRequest(() -> new SwerveRequest.Idle()).ignoringDisable(true);
@@ -90,14 +91,12 @@ public class ControlSub extends SubsystemBase {
         }
 
         if (!driverLastPovDown && DriverController.povDown().getAsBoolean()) {
-            shooterSpeed = shooterSpeed - 10;
+            shooterSpeed = shooterSpeed - 25;
         }
 
         if (!driverLastPovUp && DriverController.povUp().getAsBoolean()) {
-            shooterSpeed = shooterSpeed + 10;
+            shooterSpeed = shooterSpeed + 25;
         }
-        
-        shooterSpeed = MathUtil.clamp(shooterSpeed, 20, 500);
 
         // "reset" button
         if (!driverLastB && DriverController.b().getAsBoolean()) {
