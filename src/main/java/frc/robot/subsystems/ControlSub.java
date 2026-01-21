@@ -26,8 +26,8 @@ public class ControlSub extends SubsystemBase {
     private double maxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double maxAngularRate = RotationsPerSecond.of(Controllers.RotateMagnitude).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
     
-    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(maxSpeed * 0.1).withRotationalDeadband(maxAngularRate * 0.1) // Add a 10% deadband
+    private final SwerveRequest.FieldCentric Controllerdrive = new SwerveRequest.FieldCentric()
+            .withDeadband(maxSpeed * Controllers.StickDeadzone).withRotationalDeadband(maxAngularRate * Controllers.StickDeadzone) // Add deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
@@ -50,14 +50,7 @@ public class ControlSub extends SubsystemBase {
     private boolean weAreIdlingYo = true;
 
     public ControlSub() {
-        drivetrain.setDefaultCommand(
-            // Drivetrain will execute this command periodically
-            drivetrain.applyRequest(() ->
-                drive.withVelocityX(-DriverController.getLeftY() * maxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(-DriverController.getLeftX() * maxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-DriverController.getRightX() * maxAngularRate) // Drive counterclockwise with negative X (left)
-            )
-        );
+        drivetrainApplyRequest();
     }
 
     @Override
@@ -108,14 +101,14 @@ public class ControlSub extends SubsystemBase {
         }
 
         if (weAreIdlingYo) {
-            feeder.SetFeederState(FeederConstants.State.Idle);
+            feeder.setFeederState(FeederConstants.State.Idle, 0);
             shooter.setShooterState(ShooterConstants.State.Idle, 0);
             shooterSpeed = 0;
         } else if (DriverController.x().getAsBoolean()) {
-            feeder.SetFeederState(FeederConstants.State.Feed);
+            feeder.setFeederState(FeederConstants.State.Feed, shooterSpeed);
             shooter.setShooterState(ShooterConstants.State.Shoot, shooterSpeed);
         } else {
-            feeder.SetFeederState(FeederConstants.State.Idle);
+            feeder.setFeederState(FeederConstants.State.Idle, shooterSpeed);
             shooter.setShooterState(ShooterConstants.State.Spinup, shooterSpeed);
         }
 
@@ -141,5 +134,25 @@ public class ControlSub extends SubsystemBase {
         driverLastY = DriverController.y().getAsBoolean();
         driverLastPovUp = DriverController.povUp().getAsBoolean();
         driverLastPovDown = DriverController.povDown().getAsBoolean();
+    }
+
+    /**
+     * Apply drivetrain request
+     * <p>
+     * Uses setDefaultCommand() so do not call this function
+     * every scheduler run.
+     */
+    private void drivetrainApplyRequest() {
+        drivetrain.removeDefaultCommand();
+        
+        // Add different "modes" (tracking and stuff)
+        drivetrain.setDefaultCommand(
+            // Drivetrain will execute this command periodically
+            drivetrain.applyRequest(() ->
+                Controllerdrive.withVelocityX(-DriverController.getLeftY() * maxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(-DriverController.getLeftX() * maxSpeed) // Drive left with negative X (left)
+                    .withRotationalRate(-DriverController.getRightX() * maxAngularRate) // Drive counterclockwise with negative X (left)
+            )
+        );
     }
 }

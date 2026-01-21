@@ -18,6 +18,19 @@ public final class Constants {
         public static final double StickDeadzone = 0.02;
     }
     
+    public static final class IntakeConstants {
+        public static enum State {
+            Idle,
+            Intake,
+            Agitate,
+            Outtake,
+            DumbControl
+        }
+        
+        public static final double IntakingSpeed = 0.30;
+        public static final double OuttakingSpeed = -0.45;
+    }
+    
     public static final class FeederConstants {
         public static enum State {
             Idle,
@@ -27,7 +40,8 @@ public final class Constants {
             DumbControl
         }
 
-        public static final double FeedingSpeed = 0;
+        // How fast should the feeder be going compared to the shooter
+        public static final double FeedingRatio = 0.85;
         public static final double UnstickSpeed = 30;
         public static final double OuttakeSpeed = -40;
 
@@ -40,32 +54,20 @@ public final class Constants {
         public static final int MotorID = 31;
     }
 
-    public static final class IntakeConstants {
-        public static enum State {
-            Idle,
-            Intake,
-            Agitate,
-            Outtake,
-            DumbControl
-        }
-
-        public static final double IntakingSpeed = 0.30;
-        public static final double OuttakingSpeed = -0.45;
-    }
-
     public static final class ShooterConstants {
         public static enum State {
             Idle,
             Spinup,
             Shoot,
-            OverTorque,
             Unstick,
             DumbControl
         }
 
-        public static final double RPSThresholdPercent = 0.20;
-        public static final double ShootRPSAdjustment = 4.00;
-        public static final double OverTorqueRPSAdjustment = 0.00;
+        // Used in determing if shooter is up to speed
+        public static final double RPSThreshold = 0.20;
+        // How much faster should the shooter go to account for ball
+        // compression slowing down shooter
+        public static final double ShootRPSAdjustment = 0.75;
         public static final double UnstickRPS = 20.00;
 
         public static final double PIDkV = 0.00;

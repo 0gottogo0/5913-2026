@@ -45,7 +45,7 @@ public class Feeder extends SubsystemBase {
         if (state == State.Idle) {
             feeder.set(0.00);
         } else if (state == State.Feed) {
-            feeder.setControl(feederVelocityVoltage.withVelocity(FeederConstants.FeedingSpeed));
+            feeder.setControl(feederVelocityVoltage.withVelocity(targetSpeed));
         } else if (state == State.Unstick) {
             feeder.setControl(feederVelocityVoltage.withVelocity(FeederConstants.UnstickSpeed));
         } else if (state == State.Outtake) {
@@ -59,12 +59,35 @@ public class Feeder extends SubsystemBase {
         SmartDashboard.putString("Feeder State", state.toString());
     }
 
-    public void SetFeederState(State stateToChangeTo) {
+    /**
+	 * Sets the state of the feeder.
+	 * <p> 
+	 * If wanting to control the feeder without PID
+	 * then use setFeederDumbControl()
+	 * 
+	 * @param stateToChangeTo Using FeederConstants.State	
+     * @param speedInRPS The target speed to set in rps.
+     *                   The feed ratio is applied later so
+     *                   doesnt need to be used when determining
+	 * 					 speed. When setting the state other
+     *                   then feed, the target speed is not
+     *                   used and can be set to 0.
+	 */
+    public void setFeederState(State stateToChangeTo, double speedInRPS) {
+        targetSpeed = speedInRPS * FeederConstants.FeedingRatio;
         state = stateToChangeTo;
-
     }
 
-    public void SetFeederDumbControl(double speedInPercent) {
+	/**
+	 * Sets the state of the feeder to DumbControl
+	 * <p>
+	 * Used if want to control the feeder open loop without
+	 * the PID. Uses the TalonFX .set() function 
+	 * 
+	 * @param speedInPercent The speed to control the feeder
+	 * 						 motor in percent
+	 */
+    public void setFeederDumbControl(double speedInPercent) {
         targetSpeed = speedInPercent;
         state = State.DumbControl;
     }

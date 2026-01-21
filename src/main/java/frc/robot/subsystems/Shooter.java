@@ -49,9 +49,6 @@ public class Shooter extends SubsystemBase {
 		} else if (state == State.Shoot) {
 			// Overshoot target RPS due to heavy ball compression slowing down shooter
 			shooter.setControl(shooterVelocityVoltage.withVelocity(targetSpeed + ShooterConstants.ShootRPSAdjustment));
-		} else if (state == State.OverTorque){
-			// Really overshoot target RPS due to many balls doing many slowing
-			shooter.setControl(shooterVelocityVoltage.withVelocity(targetSpeed + ShooterConstants.OverTorqueRPSAdjustment));
 		} else if (state == State.Unstick){
 			// Shoot shooter incase of stuck ball
 			shooter.setControl(shooterVelocityVoltage.withVelocity(ShooterConstants.UnstickRPS));
@@ -70,23 +67,55 @@ public class Shooter extends SubsystemBase {
 		SmartDashboard.putBoolean("Shooter At Speed", isShooterAtSpeed());
   	}
 
+	/**
+	 * Returns the speed of the shooter motor
+	 * 
+	 * @return Speed in RPS
+	 */
 	private double getShooterSpeed() {
 		return shooter.getRotorVelocity().getValueAsDouble();
 	}
 
+	/**
+	 * Sets the state of the shooter.
+	 * <p> 
+	 * If wanting to control the shooter without PID
+	 * then use setShooterDumbControl()
+	 * 
+	 * @param stateToChangeTo Using ShooterConstants.State
+	 * @param speedInRPS The target speed to set in rps.
+	 * 					 When setting the state to idle,
+	 * 					 target speed is not used and can
+	 * 					 be set to 0.	
+	 */
 	public void setShooterState(State stateToChangeTo, double speedInRPS) {
-		state = stateToChangeTo;
 		targetSpeed = speedInRPS;
+		state = stateToChangeTo;
 	}
 
+	/**
+	 * Sets the state of the shooter to DumbControl
+	 * <p>
+	 * Used if want to control the shooter open loop without
+	 * the PID. Uses the TalonFX .set() function 
+	 * 
+	 * @param speedInPercent The speed to control the shooter
+	 * 						 motor in percent
+	 */
 	public void setShooterDumbControl(double speedInPercent) {
 		targetSpeed = speedInPercent;
 		state = State.DumbControl;
 	}
 
+	/**
+	 * Checks if the shooter is up to speed then
+	 * returns a boolean
+	 * 
+	 * @return If the shooter is up to speed
+	 */
 	public boolean isShooterAtSpeed() {
 		if (state == State.Spinup || state == State.Shoot) {
-			return Math.abs(getShooterSpeed() / targetSpeed - 1) < ShooterConstants.RPSThresholdPercent;
+			return Math.abs(getShooterSpeed() - targetSpeed) < ShooterConstants.RPSThreshold;
 		} else {
 			return false;
 		}
