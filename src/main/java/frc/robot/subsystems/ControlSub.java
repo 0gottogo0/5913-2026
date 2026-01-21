@@ -11,14 +11,15 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.constants.Constants.Controllers;
-import frc.robot.constants.Constants.ShooterConstants;
 import frc.robot.constants.Constants.FeederConstants;
+import frc.robot.constants.Constants.ShooterConstants;
 import frc.robot.constants.TunerConstants;
 
 public class ControlSub extends SubsystemBase {
@@ -149,9 +150,9 @@ public class ControlSub extends SubsystemBase {
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
-                Controllerdrive.withVelocityX(-DriverController.getLeftY() * maxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(-DriverController.getLeftX() * maxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-DriverController.getRightX() * maxAngularRate) // Drive counterclockwise with negative X (left)
+                Controllerdrive.withVelocityX(MathUtil.applyDeadband((-DriverController.getLeftY() * maxSpeed), Controllers.StickDeadzone)) // Drive forward with negative Y (forward)
+                               .withVelocityY(MathUtil.applyDeadband(-DriverController.getLeftX() * maxSpeed, Controllers.StickDeadzone)) // Drive left with negative X (left)
+                               .withRotationalRate(MathUtil.applyDeadband(-DriverController.getRightX() * maxAngularRate, Controllers.StickDeadzone)) // Drive counterclockwise with negative X (left)
             )
         );
     }
