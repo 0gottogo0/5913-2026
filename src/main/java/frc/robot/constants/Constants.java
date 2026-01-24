@@ -1,15 +1,14 @@
 package frc.robot.constants;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 
 public final class Constants {
     public static final class AutoAim {
-        public static final Transform2d BlueGoalPos = new Transform2d(1, 1, new Rotation2d(0));
-        public static final Transform2d RedGoalPos = new Transform2d();
-
-        public static final Transform2d LeftTurretPos = new Transform2d();
-        public static final Transform2d RightTurretPos = new Transform2d();
+        public static final Pose2d BlueGoal = new Pose2d(0, 0, new Rotation2d(0));
+        public static final Pose2d RedGoal = new Pose2d(0, 0, new Rotation2d(0));
+        public static final Transform2d TurretRotatePoint = new Transform2d(1, 0, new Rotation2d(0));
     }
 
     public static final class Controllers {

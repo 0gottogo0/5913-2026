@@ -6,16 +6,19 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class AutoAim extends SubsystemBase {
 
-    Pose2d robotPos = new Pose2d();
+    Pose2d robotPose = new Pose2d();
     ChassisSpeeds robotSpeed = new ChassisSpeeds();
 
-    Pose2d leftTurretPose = new Pose2d();
-    Pose2d rightTurretPose = new Pose2d();
+    Pose2d TurretRotatePointPose = new Pose2d();
+
+    Pose2d goalPose = new Pose2d();
 
     public AutoAim() {
 
@@ -23,15 +26,26 @@ public class AutoAim extends SubsystemBase {
 
     @Override
     public void periodic() {
-        leftTurretPose = robotPos.plus(frc.robot.constants.Constants.AutoAim.LeftTurretPos);
-        rightTurretPose = robotPos.plus(frc.robot.constants.Constants.AutoAim.RightTurretPos);
+        try {
+            if (DriverStation.getAlliance().get() == Alliance.Blue) {
+                goalPose = frc.robot.constants.Constants.AutoAim.BlueGoal;
+            } else {
+                goalPose = frc.robot.constants.Constants.AutoAim.RedGoal;
+            }
+        } catch (Exception e) {
+            goalPose = frc.robot.constants.Constants.AutoAim.RedGoal;
+        }
 
-        SmartDashboard.putNumber("Robot X", robotPos.getX());
-        SmartDashboard.putNumber("Robot Y", robotPos.getY());
-        SmartDashboard.putNumber("Left Turret X", leftTurretPose.getX());
-        SmartDashboard.putNumber("Left Turret Y", leftTurretPose.getY());
-        SmartDashboard.putNumber("Right Turret X", rightTurretPose.getX());
-        SmartDashboard.putNumber("Right Turret Y", rightTurretPose.getY());
+        TurretRotatePointPose = robotPose.plus(frc.robot.constants.Constants.AutoAim.TurretRotatePoint);
+
+        SmartDashboard.putNumber("Robot X", robotPose.getX());
+        SmartDashboard.putNumber("Robot Y", robotPose.getY());
+        SmartDashboard.putNumber("Robot ROt", robotPose.getRotation().getDegrees());
+        SmartDashboard.putNumber("Turret X", TurretRotatePointPose.getX());
+        SmartDashboard.putNumber("Turret Y", TurretRotatePointPose.getY());
+
+        SmartDashboard.putNumber("Target Angle", getAimTargetInDegrees());
+        SmartDashboard.putNumber("Target Distance", getAimTargetInDistance());
     }
 
     /**
@@ -41,7 +55,7 @@ public class AutoAim extends SubsystemBase {
      * @param drivetrainSpeed The robots speed
      */
     public void setAutoAimDrivetrainState(Pose2d drivetrainPos, ChassisSpeeds drivetrainSpeed) {
-        robotPos = drivetrainPos;
+        robotPose = drivetrainPos;
         robotSpeed = drivetrainSpeed;
     }
 
@@ -51,7 +65,7 @@ public class AutoAim extends SubsystemBase {
      * @return Aim tagret in degrees
      */
     public double getAimTargetInDegrees() {
-        return 0.00;
+        //return robotPose.getRotation().getDegrees() - Math.tan(TurretRotatePointPose.minus(goalPose).getY() / TurretRotatePointPose.minus(goalPose).getX());
     }
     
     /**
@@ -59,7 +73,7 @@ public class AutoAim extends SubsystemBase {
      * 
      * @return Aim target in meters? prob should check what the units are lol
      */
-    public double getAimTargetInDistace() {
-        return 0.00;
+    public double getAimTargetInDistance() {
+        return Math.abs(Math.sqrt(Math.pow(TurretRotatePointPose.minus(goalPose).getX(), 2) + Math.pow(TurretRotatePointPose.minus(goalPose).getY(), 2)));
     }
 }
