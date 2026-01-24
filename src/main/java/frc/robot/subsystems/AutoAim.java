@@ -66,6 +66,7 @@ public class AutoAim extends SubsystemBase {
      */
     public double getAimTargetInDegrees() {
         //return robotPose.getRotation().getDegrees() - Math.tan(TurretRotatePointPose.minus(goalPose).getY() / TurretRotatePointPose.minus(goalPose).getX());
+        return 0.00;
     }
     
     /**
