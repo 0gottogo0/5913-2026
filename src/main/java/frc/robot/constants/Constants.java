@@ -1,12 +1,15 @@
 package frc.robot.constants;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+
 public final class Constants {
     public static final class AutoAim {
-        public static final double BlueGoalPos[] = {0.00, 0.00};
-        public static final double RedGoalPos[] = {0.00, 0.00};
+        public static final Transform2d BlueGoalPos = new Transform2d(1, 1, new Rotation2d(0));
+        public static final Transform2d RedGoalPos = new Transform2d();
 
-        public static final double LeftTurretPos[] = {0.00, 0.00};
-        public static final double RightTurretPos[] = {0.00, 0.00};
+        public static final Transform2d LeftTurretPos = new Transform2d();
+        public static final Transform2d RightTurretPos = new Transform2d();
     }
 
     public static final class Controllers {
@@ -64,7 +67,7 @@ public final class Constants {
         }
 
         // Used in determing if shooter is up to speed
-        public static final double RPSThreshold = 0.20;
+        public static final double RPSThreshold = 1.00;
         // How much faster should the shooter go to account for ball
         // compression slowing down shooter
         public static final double ShootRPSAdjustment = 0.75;

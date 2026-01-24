@@ -11,7 +11,6 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -59,6 +58,7 @@ public class ControlSub extends SubsystemBase {
 
         /* Driver Controls */
         
+        /* FIX ME
         // Apply neutral mode while disabled.
         if (DriverStation.isDisabled()) {
             drivetrain.applyRequest(() -> new SwerveRequest.Idle()).ignoringDisable(true);
@@ -72,7 +72,7 @@ public class ControlSub extends SubsystemBase {
         // Stop Swerve
         if (DriverController.button(8).getAsBoolean()) {
             drivetrain.applyRequest(() -> new SwerveRequest.SwerveDriveBrake());
-        }
+        }*/
 
         // temp buttons
         if (!driverLastA && DriverController.a().getAsBoolean()) {
@@ -125,6 +125,12 @@ public class ControlSub extends SubsystemBase {
         } else {
             ManipulatorController.setRumble(RumbleType.kBothRumble, 0.00);
         }
+
+        /* Auto Aim Control */
+
+        autoAim.setAutoAimDrivetrainState(drivetrain.getState().Pose, drivetrain.getState().Speeds);
+
+        /* Output */
 
         SmartDashboard.putBoolean("Idle", weAreIdlingYo);
 
