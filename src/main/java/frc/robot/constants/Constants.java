@@ -18,7 +18,7 @@ public final class Constants {
         public static final double MoveSlewRateLimiter = 12.00;
         public static final double RotateSlewRateLimiter = 40.00;
         public static final double RotateMagnitude = 0.90;
-        public static final double StickDeadzone = 0.02;
+        public static final double StickDeadzone = 0.2;
     }
     
     public static final class IntakeConstants {
