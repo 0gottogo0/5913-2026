@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.constants.Constants.Controllers;
 import frc.robot.constants.Constants.FeederConstants;
 import frc.robot.constants.Constants.ShooterConstants;
@@ -23,34 +24,53 @@ import frc.robot.constants.TunerConstants;
 
 public class ControlSub extends SubsystemBase {
 
-    private double maxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double maxAngularRate = RotationsPerSecond.of(Controllers.RotateMagnitude).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
-    
-    private final SwerveRequest.FieldCentric Controllerdrive = new SwerveRequest.FieldCentric()
-            .withDeadband(maxSpeed * Controllers.StickDeadzone).withRotationalDeadband(maxAngularRate * Controllers.StickDeadzone) // Add deadband
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    public AutoAim autoAim = new AutoAim();
-    public Feeder feeder = new Feeder();
-    public Shooter shooter = new Shooter();
+    private double maxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
+    private double maxAngularRate = RotationsPerSecond.of(Controllers.RotateMagnitude).in(RadiansPerSecond);
     
+    // Drive with controller request
+    private final SwerveRequest.FieldCentric Controllerdrive = new SwerveRequest.FieldCentric()
+            //.withDeadband(maxSpeed * Controllers.StickDeadzone).withRotationalDeadband(maxAngularRate * Controllers.StickDeadzone)
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+
+    // Stop request
+    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+
     private final CommandXboxController DriverController = new CommandXboxController(Controllers.DriverControllerID);
     private final CommandXboxController ManipulatorController = new CommandXboxController(Controllers.ManipulatorControllerID);
-
+    
     private boolean driverLastA = DriverController.a().getAsBoolean();
     private boolean driverLastB = DriverController.b().getAsBoolean();
     private boolean driverLastY = DriverController.y().getAsBoolean();
     private boolean driverLastPovUp = DriverController.povUp().getAsBoolean();
     private boolean driverLastPovDown = DriverController.povDown().getAsBoolean();
+    
+    public AutoAim autoAim = new AutoAim();
+    public Feeder feeder = new Feeder();
+    public Shooter shooter = new Shooter();
 
     // temp vars
     private double shooterSpeed = 0;
     private boolean weAreIdlingYo = true;
 
     public ControlSub() {
+
+        /* Driver Controls */
         drivetrainApplyRequest();
+
+        DriverController.button(7).onTrue(
+            drivetrain.runOnce(drivetrain::seedFieldCentric)
+        );
+
+        DriverController.button(8).whileTrue(
+            drivetrain.applyRequest(() -> brake)
+        );
+
+        // Idle while the robot is disabled.
+        RobotModeTriggers.disabled().whileTrue(
+            drivetrain.applyRequest(() -> new SwerveRequest.Idle()).ignoringDisable(true)
+        );
     }
 
     @Override
@@ -58,22 +78,6 @@ public class ControlSub extends SubsystemBase {
         // Check for input then call subsystems
 
         /* Driver Controls */
-        
-        /* FIX ME
-        // Apply neutral mode while disabled.
-        if (DriverStation.isDisabled()) {
-            drivetrain.applyRequest(() -> new SwerveRequest.Idle()).ignoringDisable(true);
-        }
-
-        // Set Field Centric
-        if (DriverController.button(7).getAsBoolean()) {
-            drivetrain.seedFieldCentric();
-        }
-
-        // Stop Swerve
-        if (DriverController.button(8).getAsBoolean()) {
-            drivetrain.applyRequest(() -> new SwerveRequest.SwerveDriveBrake());
-        }*/
 
         // temp buttons
         if (!driverLastA && DriverController.a().getAsBoolean()) {
@@ -111,12 +115,6 @@ public class ControlSub extends SubsystemBase {
         } else {
             feeder.setFeederState(FeederConstants.State.Idle, shooterSpeed);
             shooter.setShooterState(ShooterConstants.State.Spinup, shooterSpeed);
-        }
-
-        if (shooter.isShooterAtSpeed()) {
-            DriverController.setRumble(RumbleType.kBothRumble, 0.10);
-        } else {
-            DriverController.setRumble(RumbleType.kBothRumble, 0.00);
         }
 
         /* Manipulator Controls */
