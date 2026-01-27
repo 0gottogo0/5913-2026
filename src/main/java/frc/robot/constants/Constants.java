@@ -13,10 +13,16 @@ public final class Constants {
         public static final Pose2d RedGoal = new Pose2d(0, 0, new Rotation2d(0));
         public static final Transform2d TurretRotatePoint = new Transform2d(1, 0, new Rotation2d(0));
 
-        // Meters, Speed
+        // Meters, RPS
         public static final InterpolatingDoubleTreeMap ShooterSpeedByDistance = InterpolatingDoubleTreeMap.ofEntries(
            Map.entry(0.00, 0.00),
            Map.entry(0.00, 0.00)
+        );
+
+        // Meters, Seconds
+        public static final InterpolatingDoubleTreeMap TimeOfFlightByDistance = InterpolatingDoubleTreeMap.ofEntries(
+            Map.entry(0.00, 0.00),
+            Map.entry(0.00, 0.00)
         );
     }
 

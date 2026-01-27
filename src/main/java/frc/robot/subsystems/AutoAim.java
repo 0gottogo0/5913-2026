@@ -4,7 +4,11 @@
 
 package frc.robot.subsystems;
 
+import static frc.robot.constants.Constants.AutoAim.*;
+
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -28,19 +32,26 @@ public class AutoAim extends SubsystemBase {
     public void periodic() {
         try {
             if (DriverStation.getAlliance().get() == Alliance.Blue) {
-                goalPose = frc.robot.constants.Constants.AutoAim.BlueGoal;
+                goalPose = BlueGoal;
             } else {
-                goalPose = frc.robot.constants.Constants.AutoAim.RedGoal;
+                goalPose = RedGoal;
             }
         } catch (Exception e) {
-            goalPose = frc.robot.constants.Constants.AutoAim.RedGoal;
+            goalPose = RedGoal;
         }
 
-        TurretRotatePointPose = robotPose.plus(frc.robot.constants.Constants.AutoAim.TurretRotatePoint);
+        // Change this to get distance without calling distant functions??
+        // and add rotation too? 
+        goalPose = goalPose.plus(new Transform2d(robotSpeed.vxMetersPerSecond, robotSpeed.vyMetersPerSecond, new Rotation2d()).times(TimeOfFlightByDistance.get(getAimTargetInDistance())));
+
+        TurretRotatePointPose = robotPose.plus(TurretRotatePoint);
 
         SmartDashboard.putNumber("Robot X", robotPose.getX());
         SmartDashboard.putNumber("Robot Y", robotPose.getY());
-        SmartDashboard.putNumber("Robot ROt", robotPose.getRotation().getDegrees());
+        SmartDashboard.putNumber("Robot Rot", robotPose.getRotation().getDegrees());
+        SmartDashboard.putNumber("Robot Speed X", robotSpeed.vxMetersPerSecond);
+        SmartDashboard.putNumber("Robot Speed Y", robotSpeed.vyMetersPerSecond);
+        SmartDashboard.putNumber("Robot Speed Rot", Math.toDegrees(robotSpeed.omegaRadiansPerSecond));
         SmartDashboard.putNumber("Turret X", TurretRotatePointPose.getX());
         SmartDashboard.putNumber("Turret Y", TurretRotatePointPose.getY());
 
@@ -66,7 +77,6 @@ public class AutoAim extends SubsystemBase {
      */
     public double getAimTargetInDegrees() {
         return robotPose.getRotation().getDegrees() - Math.atan(TurretRotatePointPose.minus(goalPose).getX() / TurretRotatePointPose.minus(goalPose).getY());
-        
     }
     
     /**
