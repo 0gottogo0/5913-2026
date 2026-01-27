@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.constants.Constants.ControllerConstants;
 import frc.robot.constants.Constants.FeederConstants;
 import frc.robot.constants.Constants.ShooterConstants;
+import frc.robot.constants.Constants.ClimberConstants.State;
 import frc.robot.constants.TunerConstants;
 
 public class ControlSub extends SubsystemBase {
@@ -47,6 +48,7 @@ public class ControlSub extends SubsystemBase {
     private boolean driverLastPovDown = DriverController.povDown().getAsBoolean();
     
     public AutoAim autoAim = new AutoAim();
+    public Climber climber = new Climber();
     public Feeder feeder = new Feeder();
     public Shooter shooter = new Shooter();
 
@@ -117,6 +119,14 @@ public class ControlSub extends SubsystemBase {
             shooter.setShooterState(ShooterConstants.State.Spinup, shooterSpeed);
         }
 
+        if (DriverController.povLeft().getAsBoolean()) {
+            climber.setElevatorDumbControl(0.40);
+        } else if (DriverController.povRight().getAsBoolean()) {
+            climber.setElevatorDumbControl(-0.40);
+        } else {
+            climber.setElevatorState(State.Idle, 0.00);
+        }
+
         /* Manipulator Controls */
 
         if (shooter.isShooterAtSpeed()) {
@@ -139,6 +149,7 @@ public class ControlSub extends SubsystemBase {
         driverLastY = DriverController.y().getAsBoolean();
         driverLastPovUp = DriverController.povUp().getAsBoolean();
         driverLastPovDown = DriverController.povDown().getAsBoolean();
+
     }
 
     /**

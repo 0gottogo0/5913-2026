@@ -4,7 +4,7 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.constants.Constants.FeederConstants.*;
+import static frc.robot.constants.Constants.ClimberConstants.*;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -13,7 +13,6 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.constants.Constants.FeederConstants.State;
 
 public class Climber extends SubsystemBase {
 
@@ -49,6 +48,20 @@ public class Climber extends SubsystemBase {
     }
 
     /**
+	 * Sets the state of the elevator.
+	 * <p> 
+	 * If wanting to control the elevator without PID
+	 * then use setElevatorDumbControl()
+	 * 
+	 * @param stateToChangeTo Using elevatorConstants.State
+	 * @param temp Not implimented yet
+	 */
+	public void setElevatorState(State stateToChangeTo, double temp) {
+		targetSpeed = temp;
+		state = stateToChangeTo;
+	}
+
+    /**
 	 * Sets the state of the elevator to DumbControl
 	 * <p>
 	 * Used if want to control the elevator open loop without
@@ -57,7 +70,7 @@ public class Climber extends SubsystemBase {
 	 * @param speedInPercent The speed to control the elevator
 	 * 						 motor in percent
 	 */
-    public void setFeederDumbControl(double speedInPercent) {
+    public void setElevatorDumbControl(double speedInPercent) {
         targetSpeed = speedInPercent;
         state = State.DumbControl;
     }
