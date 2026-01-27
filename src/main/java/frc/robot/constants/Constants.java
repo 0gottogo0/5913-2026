@@ -8,7 +8,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 
 public final class Constants {
-    public static final class AutoAim {
+    public static final class AutoAimConstants {
         public static final Pose2d BlueGoal = new Pose2d(0, 0, new Rotation2d(0));
         public static final Pose2d RedGoal = new Pose2d(0, 0, new Rotation2d(0));
         public static final Transform2d TurretRotatePoint = new Transform2d(1, 0, new Rotation2d(0));
@@ -26,7 +26,24 @@ public final class Constants {
         );
     }
 
-    public static final class Controllers {
+    public static final class ClimberConstants {
+        public static enum State {
+            Idle,
+            ClimbUp,
+            ClimbDown,
+            Hold,
+            DumbControl
+        }
+
+        public static final double PIDkV = 0.00;
+        public static final double PIDkP = 0.00;
+        public static final double PIDkI = 0.00;
+        public static final double PIDkD = 0.00;
+
+        public static final int MotorID = 32;
+    }
+
+    public static final class ControllerConstants {
         public static final int DriverControllerID = 0;
         public static final int ManipulatorControllerID = 1;
         public static final double MoveSlewRateLimiter = 12.00;

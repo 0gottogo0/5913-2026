@@ -4,7 +4,7 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.constants.Constants.AutoAim.*;
+import static frc.robot.constants.Constants.AutoAimConstants.*;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -25,7 +25,7 @@ public class AutoAim extends SubsystemBase {
     Pose2d goalPose = new Pose2d();
 
     public AutoAim() {
-
+        
     }
 
     @Override

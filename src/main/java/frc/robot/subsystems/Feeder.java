@@ -41,7 +41,6 @@ public class Feeder extends SubsystemBase {
 
     @Override
     public void periodic() {
-
         if (state == State.Idle) {
             feeder.set(0.00);
         } else if (state == State.Feed) {

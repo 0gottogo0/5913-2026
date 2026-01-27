@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import frc.robot.constants.Constants.Controllers;
+import frc.robot.constants.Constants.ControllerConstants;
 import frc.robot.constants.Constants.FeederConstants;
 import frc.robot.constants.Constants.ShooterConstants;
 import frc.robot.constants.TunerConstants;
@@ -27,7 +27,7 @@ public class ControlSub extends SubsystemBase {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     private double maxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
-    private double maxAngularRate = RotationsPerSecond.of(Controllers.RotateMagnitude).in(RadiansPerSecond);
+    private double maxAngularRate = RotationsPerSecond.of(ControllerConstants.RotateMagnitude).in(RadiansPerSecond);
     
     // Drive with controller request
     private final SwerveRequest.FieldCentric Controllerdrive = new SwerveRequest.FieldCentric()
@@ -37,8 +37,8 @@ public class ControlSub extends SubsystemBase {
     // Stop request
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
 
-    private final CommandXboxController DriverController = new CommandXboxController(Controllers.DriverControllerID);
-    private final CommandXboxController ManipulatorController = new CommandXboxController(Controllers.ManipulatorControllerID);
+    private final CommandXboxController DriverController = new CommandXboxController(ControllerConstants.DriverControllerID);
+    private final CommandXboxController ManipulatorController = new CommandXboxController(ControllerConstants.ManipulatorControllerID);
     
     private boolean driverLastA = DriverController.a().getAsBoolean();
     private boolean driverLastB = DriverController.b().getAsBoolean();
@@ -154,9 +154,9 @@ public class ControlSub extends SubsystemBase {
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
-                Controllerdrive.withVelocityX(MathUtil.applyDeadband((-DriverController.getLeftY() * maxSpeed), Controllers.StickDeadzone)) // Drive forward with negative Y (forward)
-                               .withVelocityY(MathUtil.applyDeadband(-DriverController.getLeftX() * maxSpeed, Controllers.StickDeadzone)) // Drive left with negative X (left)
-                               .withRotationalRate(MathUtil.applyDeadband(-DriverController.getRightX() * maxAngularRate, Controllers.StickDeadzone)) // Drive counterclockwise with negative X (left)
+                Controllerdrive.withVelocityX(MathUtil.applyDeadband((-DriverController.getLeftY() * maxSpeed), ControllerConstants.StickDeadzone)) // Drive forward with negative Y (forward)
+                               .withVelocityY(MathUtil.applyDeadband(-DriverController.getLeftX() * maxSpeed, ControllerConstants.StickDeadzone)) // Drive left with negative X (left)
+                               .withRotationalRate(MathUtil.applyDeadband(-DriverController.getRightX() * maxAngularRate, ControllerConstants.StickDeadzone)) // Drive counterclockwise with negative X (left)
             )
         );
     }

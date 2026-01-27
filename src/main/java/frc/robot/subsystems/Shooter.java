@@ -23,7 +23,6 @@ public class Shooter extends SubsystemBase {
 	private VelocityVoltage shooterVelocityVoltage = new VelocityVoltage(0);
 
   	private double targetSpeed = 0;
-	private double shooterSpeedPIDOutput = 0;
 
 	public State state = ShooterConstants.State.Idle;
 
@@ -60,7 +59,6 @@ public class Shooter extends SubsystemBase {
 		SmartDashboard.putNumber("Shooter Target RPS", targetSpeed);
 		SmartDashboard.putNumber("Shooter Target Diff", targetSpeed - getShooterSpeed());
 		SmartDashboard.putNumber("Shooter Target Percentage", Math.abs(getShooterSpeed() / targetSpeed - 1));
-		SmartDashboard.putNumber("Shooter PID Output", shooterSpeedPIDOutput);
 
 		SmartDashboard.putString("Shooter State", state.toString());
 
