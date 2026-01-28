@@ -7,28 +7,31 @@ package frc.robot.subsystems;
 import static frc.robot.constants.Constants.ClimberConstants.*;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.constants.Constants.ClimberConstants;
+import frc.robot.constants.Constants.ClimberConstants.State;
 
 public class Climber extends SubsystemBase {
 
     private TalonFX elevator = new TalonFX(MotorID); // create constants and change motor names
     private TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
 
-	private VelocityVoltage elevatorVelocityVoltage = new VelocityVoltage(0);
+	private PositionVoltage elevatorPositionVoltage = new PositionVoltage(0);
 
     private double targetSpeed = 0;
+	private boolean solenoidExtension = false;
 
     public State state = State.Idle;
 
     public Climber() {
         elevatorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
   	  	elevatorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-		elevatorConfig.Slot0.kV = PIDkV;
+		elevatorConfig.Slot0.kG = PIDkG;
 		elevatorConfig.Slot0.kP = PIDkP;
 		elevatorConfig.Slot0.kI = PIDkI;
 		elevatorConfig.Slot0.kD = PIDkD;
@@ -42,7 +45,17 @@ public class Climber extends SubsystemBase {
     public void periodic() {
         if (state == State.Idle) {
             elevator.set(0);
-        } else if (state == State.DumbControl) {
+			solenoidExtension = false;
+		} else if (state == State.ClimbUp) {
+			elevator.setControl(elevatorPositionVoltage.withPosition(ClimberConstants.ClimbUpSetpoint));
+			solenoidExtension = true;
+		} else if (state == State.ClimbDown) {
+			elevator.setControl(elevatorPositionVoltage.withPosition(ClimberConstants.ClimbDownSetpoint));
+			solenoidExtension = true;
+		} else if (state == State.Hold) {
+			elevator.setControl(elevatorPositionVoltage.withPosition(ClimberConstants.HoldSetpoint));
+			solenoidExtension = true;
+		} else {
             elevator.set(targetSpeed);
         }
     }
@@ -53,11 +66,11 @@ public class Climber extends SubsystemBase {
 	 * If wanting to control the elevator without PID
 	 * then use setElevatorDumbControl()
 	 * 
-	 * @param stateToChangeTo Using elevatorConstants.State
-	 * @param temp Not implimented yet
+	 * @param stateToChangeTo Using elevatorConstants.State 
+	 * 						  Note: ClimbUp refers to the
+	 * 						  elevator moving down
 	 */
-	public void setElevatorState(State stateToChangeTo, double temp) {
-		targetSpeed = temp;
+	public void setElevatorState(State stateToChangeTo) {
 		state = stateToChangeTo;
 	}
 
@@ -69,9 +82,11 @@ public class Climber extends SubsystemBase {
 	 * 
 	 * @param speedInPercent The speed to control the elevator
 	 * 						 motor in percent
+	 * @param shouldSolenoidExtend Should the solenoid extend
 	 */
-    public void setElevatorDumbControl(double speedInPercent) {
+    public void setElevatorDumbControl(double speedInPercent, boolean shouldSolenoidExtend) {
         targetSpeed = speedInPercent;
+		solenoidExtension = shouldSolenoidExtend;
         state = State.DumbControl;
     }
 }

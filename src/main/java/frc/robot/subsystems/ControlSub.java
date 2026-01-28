@@ -120,11 +120,11 @@ public class ControlSub extends SubsystemBase {
         }
 
         if (DriverController.povLeft().getAsBoolean()) {
-            climber.setElevatorDumbControl(0.40);
+            climber.setElevatorDumbControl(0.40, false);
         } else if (DriverController.povRight().getAsBoolean()) {
-            climber.setElevatorDumbControl(-0.40);
+            climber.setElevatorDumbControl(-0.40, false);
         } else {
-            climber.setElevatorState(State.Idle, 0.00);
+            climber.setElevatorState(State.Idle);
         }
 
         /* Manipulator Controls */
