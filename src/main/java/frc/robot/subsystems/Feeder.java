@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import static frc.robot.constants.Constants.FeederConstants.*;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -12,12 +14,10 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.constants.Constants.FeederConstants;
-import frc.robot.constants.Constants.FeederConstants.State;
 
 public class Feeder extends SubsystemBase {
 
-    private TalonFX feeder = new TalonFX(FeederConstants.MotorID); // create constants and change motor names
+    private TalonFX feeder = new TalonFX(MotorID);
     private TalonFXConfiguration feederConfig = new TalonFXConfiguration();
 
 	private VelocityVoltage feederVelocityVoltage = new VelocityVoltage(0);
@@ -29,10 +29,10 @@ public class Feeder extends SubsystemBase {
     public Feeder() {
         feederConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
   	  	feederConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-		feederConfig.Slot0.kV = FeederConstants.PIDkV;
-		feederConfig.Slot0.kP = FeederConstants.PIDkP;
-		feederConfig.Slot0.kI = FeederConstants.PIDkI;
-		feederConfig.Slot0.kD = FeederConstants.PIDkD;
+		feederConfig.Slot0.kV = PIDkV;
+		feederConfig.Slot0.kP = PIDkP;
+		feederConfig.Slot0.kI = PIDkI;
+		feederConfig.Slot0.kD = PIDkD;
 
 
   	  	feeder.clearStickyFaults();
@@ -46,9 +46,9 @@ public class Feeder extends SubsystemBase {
         } else if (state == State.Feed) {
             feeder.setControl(feederVelocityVoltage.withVelocity(targetSpeed));
         } else if (state == State.Unstick) {
-            feeder.setControl(feederVelocityVoltage.withVelocity(FeederConstants.UnstickSpeed));
+            feeder.setControl(feederVelocityVoltage.withVelocity(UnstickSpeed));
         } else if (state == State.Outtake) {
-            feeder.setControl(feederVelocityVoltage.withVelocity(FeederConstants.OuttakeSpeed));
+            feeder.setControl(feederVelocityVoltage.withVelocity(OuttakeSpeed));
         } else {
             feeder.set(targetSpeed);
         }
@@ -73,7 +73,7 @@ public class Feeder extends SubsystemBase {
      *                   used and can be set to 0.
 	 */
     public void setFeederState(State stateToChangeTo, double speedInRPS) {
-        targetSpeed = speedInRPS * FeederConstants.FeedingRatio;
+        targetSpeed = speedInRPS * FeedingRatio;
         state = stateToChangeTo;
     }
 

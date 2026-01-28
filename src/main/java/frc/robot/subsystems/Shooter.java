@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import static frc.robot.constants.Constants.ShooterConstants.*;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -12,27 +14,25 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.constants.Constants.ShooterConstants;
-import frc.robot.constants.Constants.ShooterConstants.State;
 
 public class Shooter extends SubsystemBase {
 
-  	private TalonFX shooter = new TalonFX(ShooterConstants.MotorID);
+  	private TalonFX shooter = new TalonFX(MotorID);
   	private TalonFXConfiguration shooterConfig = new TalonFXConfiguration();
 
 	private VelocityVoltage shooterVelocityVoltage = new VelocityVoltage(0);
 
   	private double targetSpeed = 0;
 
-	public State state = ShooterConstants.State.Idle;
+	public State state = State.Idle;
 
   	public Shooter() {
   	  	shooterConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
   	  	shooterConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-		shooterConfig.Slot0.kV = ShooterConstants.PIDkV;
-		shooterConfig.Slot0.kP = ShooterConstants.PIDkP;
-		shooterConfig.Slot0.kI = ShooterConstants.PIDkI;
-		shooterConfig.Slot0.kD = ShooterConstants.PIDkD;
+		shooterConfig.Slot0.kV = PIDkV;
+		shooterConfig.Slot0.kP = PIDkP;
+		shooterConfig.Slot0.kI = PIDkI;
+		shooterConfig.Slot0.kD = PIDkD;
 
   	  	shooter.clearStickyFaults();
   	  	shooter.getConfigurator().apply(shooterConfig);
@@ -47,10 +47,10 @@ public class Shooter extends SubsystemBase {
 			shooter.setControl(shooterVelocityVoltage.withVelocity(targetSpeed));
 		} else if (state == State.Shoot) {
 			// Overshoot target RPS due to heavy ball compression slowing down shooter
-			shooter.setControl(shooterVelocityVoltage.withVelocity(targetSpeed + ShooterConstants.ShootRPSAdjustment));
+			shooter.setControl(shooterVelocityVoltage.withVelocity(targetSpeed + ShootRPSAdjustment));
 		} else if (state == State.Unstick){
 			// Shoot shooter incase of stuck ball
-			shooter.setControl(shooterVelocityVoltage.withVelocity(ShooterConstants.UnstickRPS));
+			shooter.setControl(shooterVelocityVoltage.withVelocity(UnstickRPS));
 		} else {
 			shooter.set(targetSpeed);
 		}
@@ -113,7 +113,7 @@ public class Shooter extends SubsystemBase {
 	 */
 	public boolean isShooterAtSpeed() {
 		if (state == State.Spinup || state == State.Shoot) {
-			return Math.abs(getShooterSpeed() - targetSpeed) < ShooterConstants.RPSThreshold;
+			return Math.abs(getShooterSpeed() - targetSpeed) < RPSThreshold;
 		} else {
 			return false;
 		}

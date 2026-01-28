@@ -50,6 +50,8 @@ public class ControlSub extends SubsystemBase {
     public AutoAim autoAim = new AutoAim();
     public Climber climber = new Climber();
     public Feeder feeder = new Feeder();
+    public Intake intake = new Intake();
+    public Pneumatics pneumatics = new Pneumatics();
     public Shooter shooter = new Shooter();
 
     // temp vars
