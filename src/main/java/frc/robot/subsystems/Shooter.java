@@ -43,13 +43,11 @@ public class Shooter extends SubsystemBase {
   	  	if (state == State.Idle) {
 			shooter.set(0.00);
 		} else if (state == State.Spinup) {
-			// Get to target RPS
 			shooter.setControl(shooterVelocityVoltage.withVelocity(targetSpeed));
 		} else if (state == State.Shoot) {
 			// Overshoot target RPS due to heavy ball compression slowing down shooter
 			shooter.setControl(shooterVelocityVoltage.withVelocity(targetSpeed + ShootRPSAdjustment));
 		} else if (state == State.Unstick){
-			// Shoot shooter incase of stuck ball
 			shooter.setControl(shooterVelocityVoltage.withVelocity(UnstickRPS));
 		} else {
 			shooter.set(targetSpeed);

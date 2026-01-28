@@ -64,19 +64,6 @@ public final class Constants {
         public static final double StickDeadzone = 0.2;
     }
     
-    public static final class IntakeConstants {
-        public static enum State {
-            Idle,
-            Intake,
-            Agitate,
-            Outtake,
-            DumbControl
-        }
-        
-        public static final double IntakingSpeed = 0.30;
-        public static final double OuttakingSpeed = -0.45;
-    }
-    
     public static final class FeederConstants {
         public static enum State {
             Idle,
@@ -90,16 +77,36 @@ public final class Constants {
         public static final double FeedingRatio = 0.85;
         public static final double UnstickSpeed = 30;
         public static final double OuttakeSpeed = -40;
-
+        
+        public static final double PIDkV = 0.00;
+        public static final double PIDkP = 0.20;
+        public static final double PIDkI = 0.00;
+        public static final double PIDkD = 0.00;
+        
+        
+        public static final int MotorID = 31;
+    }
+    
+    public static final class IntakeConstants {
+        public static enum State {
+            Idle,
+            Intake,
+            Unstick,
+            Outtake,
+            DumbControl
+        }
+        
         public static final double PIDkV = 0.00;
         public static final double PIDkP = 0.20;
         public static final double PIDkI = 0.00;
         public static final double PIDkD = 0.00;
 
+        public static final double IntakingSpeed = 30.00;
+        public static final double OuttakingSpeed = -45.00;
 
-        public static final int MotorID = 31;
+        public static final int MotorID = 34;
     }
-
+    
     public static final class PneumaticConstants {
         public static final double MaxPressure = 120.00;
         public static final double MinPressure = 110.00;
