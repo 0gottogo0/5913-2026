@@ -98,6 +98,13 @@ public final class Constants {
         public static final int MotorID = 31;
     }
 
+    public static final class PneumaticConstants {
+        public static final double MaxPressure = 120.00;
+        public static final double MinPressure = 110.00;
+
+        public static final int PneumaticsHubID = 33;
+    }
+
     public static final class ShooterConstants {
         public static enum State {
             Idle,
