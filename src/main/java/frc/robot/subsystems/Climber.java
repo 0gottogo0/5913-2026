@@ -15,9 +15,8 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticHub;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.constants.Constants.ClimberConstants;
-import frc.robot.constants.Constants.ClimberConstants.State;
 
 public class Climber extends SubsystemBase {
 
@@ -54,13 +53,13 @@ public class Climber extends SubsystemBase {
             elevator.set(0);
 			solenoidExtension = false;
 		} else if (state == State.ClimbUp) {
-			elevator.setControl(elevatorPositionVoltage.withPosition(ClimberConstants.ClimbUpSetpoint));
+			elevator.setControl(elevatorPositionVoltage.withPosition(ClimbUpSetpoint));
 			solenoidExtension = true;
 		} else if (state == State.ClimbDown) {
-			elevator.setControl(elevatorPositionVoltage.withPosition(ClimberConstants.ClimbDownSetpoint));
+			elevator.setControl(elevatorPositionVoltage.withPosition(ClimbDownSetpoint));
 			solenoidExtension = true;
 		} else if (state == State.Hold) {
-			elevator.setControl(elevatorPositionVoltage.withPosition(ClimberConstants.HoldSetpoint));
+			elevator.setControl(elevatorPositionVoltage.withPosition(HoldSetpoint));
 			solenoidExtension = true;
 		} else {
             elevator.set(targetSpeed);
@@ -71,6 +70,10 @@ public class Climber extends SubsystemBase {
 		} else {
 			hookSolenoid.set(DoubleSolenoid.Value.kReverse);
 		}
+
+		SmartDashboard.putNumber("Elevator Pos", elevator.getPosition().getValueAsDouble());
+
+		SmartDashboard.putString("Climber State", state.toString());
     }
 
     /**

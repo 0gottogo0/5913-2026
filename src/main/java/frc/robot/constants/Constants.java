@@ -46,7 +46,7 @@ public final class Constants {
         public static final double HoldSetpoint = 0.00;
 
         public static final double PIDkG = 0.00;
-        public static final double PIDkP = 0.00;
+        public static final double PIDkP = 0.20;
         public static final double PIDkI = 0.00;
         public static final double PIDkD = 0.00;
 
