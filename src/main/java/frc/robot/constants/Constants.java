@@ -51,6 +51,8 @@ public final class Constants {
         public static final double PIDkD = 0.00;
 
         public static final int MotorID = 32;
+        public static final int HooksOutID = 1;
+        public static final int HooksInID = 2;
     }
 
     public static final class ControllerConstants {

@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import static frc.robot.constants.Constants.ClimberConstants.*;
+import static frc.robot.constants.Constants.PneumaticConstants.*;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -12,6 +13,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Constants.ClimberConstants;
 import frc.robot.constants.Constants.ClimberConstants.State;
@@ -20,6 +23,8 @@ public class Climber extends SubsystemBase {
 
     private TalonFX elevator = new TalonFX(MotorID); // create constants and change motor names
     private TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
+	private PneumaticHub pneumaticHub = new PneumaticHub(PneumaticsHubID);
+	private DoubleSolenoid hookSolenoid = pneumaticHub.makeDoubleSolenoid(HooksInID, HooksOutID);
 
 	private PositionVoltage elevatorPositionVoltage = new PositionVoltage(0);
 
@@ -39,6 +44,8 @@ public class Climber extends SubsystemBase {
 
   	  	elevator.clearStickyFaults();
   	  	elevator.getConfigurator().apply(elevatorConfig);
+
+		hookSolenoid.set(DoubleSolenoid.Value.kForward);
     }
 
     @Override
@@ -58,6 +65,12 @@ public class Climber extends SubsystemBase {
 		} else {
             elevator.set(targetSpeed);
         }
+
+		if (solenoidExtension) {
+			hookSolenoid.set(DoubleSolenoid.Value.kForward);
+		} else {
+			hookSolenoid.set(DoubleSolenoid.Value.kReverse);
+		}
     }
 
     /**
