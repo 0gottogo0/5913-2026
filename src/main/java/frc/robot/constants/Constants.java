@@ -96,15 +96,24 @@ public final class Constants {
             DumbControl
         }
         
-        public static final double PIDkV = 0.00;
-        public static final double PIDkP = 0.20;
-        public static final double PIDkI = 0.00;
-        public static final double PIDkD = 0.00;
+        public static final double IntakePIDkV = 0.00;
+        public static final double IntakePIDkP = 0.20;
+        public static final double IntakePIDkI = 0.00;
+        public static final double IntakePIDkD = 0.00;
+
+        public static final double PivotPIDkG = 0.00;
+        public static final double PivotPIDkP = 0.20;
+        public static final double PivotPIDkI = 0.00;
+        public static final double PivotPIDkD = 0.00;
 
         public static final double IntakingSpeed = 30.00;
         public static final double OuttakingSpeed = -45.00;
 
-        public static final int MotorID = 34;
+        public static final double PivotInPos = 0.00;
+        public static final double PivotOutPos = 0.00;
+
+        public static final int IntakeID = 34;
+        public static final int PivotID = 35;
     }
     
     public static final class PneumaticConstants {

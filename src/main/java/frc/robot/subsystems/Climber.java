@@ -40,7 +40,6 @@ public class Climber extends SubsystemBase {
 		elevatorConfig.Slot0.kI = PIDkI;
 		elevatorConfig.Slot0.kD = PIDkD;
 
-
   	  	elevator.clearStickyFaults();
   	  	elevator.getConfigurator().apply(elevatorConfig);
 
