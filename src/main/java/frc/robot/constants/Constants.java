@@ -60,16 +60,22 @@ public final class Constants {
             BabyMode,
             SlowTC,
             EventTC,
-            GoCrazyGoStupid // Thank you team 4539 for this great
-                            // name at the 2025 NMRC Chamionship       
+            GoCrazyGoStupid, // Thank you team 4539 for this great
+                            // name idea at the 2025 NMRC Chamionship
+            TrackingTemplate       
         }
 
-        public static final int DriverControllerID = 0;
-        public static final int ManipulatorControllerID = 1;
         public static final double MoveSlewRateLimiter = 12.00;
         public static final double RotateSlewRateLimiter = 40.00;
         public static final double RotateMagnitude = 0.90;
         public static final double StickDeadzone = 0.2;
+
+        public static final int XboxMenuButtonID = 7;
+        public static final int XboxShareButtonID = 8;
+
+        public static final int DriverControllerID = 0;
+        public static final int ManipulatorControllerID = 1;
+
     }
     
     public static final class FeederConstants {

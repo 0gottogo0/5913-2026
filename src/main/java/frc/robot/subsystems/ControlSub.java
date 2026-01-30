@@ -10,6 +10,7 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -30,12 +31,15 @@ public class ControlSub extends SubsystemBase {
     private double maxAngularRate = RotationsPerSecond.of(ControllerConstants.RotateMagnitude).in(RadiansPerSecond);
     
     // Drive with controller request
-    private final SwerveRequest.FieldCentric Controllerdrive = new SwerveRequest.FieldCentric()
-            //.withDeadband(maxSpeed * Controllers.StickDeadzone).withRotationalDeadband(maxAngularRate * Controllers.StickDeadzone)
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+    private final SwerveRequest.FieldCentric ControllerDrive = new SwerveRequest.FieldCentric()
+        //.withDeadband(maxSpeed * Controllers.StickDeadzone).withRotationalDeadband(maxAngularRate * Controllers.StickDeadzone)
+        .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
-    // Stop request
-    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+    private final SwerveRequest.RobotCentric TrackDrive = new SwerveRequest.RobotCentric()
+        .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+
+    private final SlewRateLimiter MoveSlewRateLimiter = new SlewRateLimiter(ControllerConstants.MoveSlewRateLimiter);
+    private final SlewRateLimiter RotateSlewRateLimiter = new SlewRateLimiter(ControllerConstants.RotateSlewRateLimiter);
 
     private final CommandXboxController DriverController = new CommandXboxController(ControllerConstants.DriverControllerID);
     private final CommandXboxController ManipulatorController = new CommandXboxController(ControllerConstants.ManipulatorControllerID);
@@ -64,12 +68,12 @@ public class ControlSub extends SubsystemBase {
         /* Driver Controls */
         drivetrainApplyRequest(DrivetrainState.EventTC);
 
-        DriverController.button(7).onTrue(
+        DriverController.button(ControllerConstants.XboxMenuButtonID).onTrue(
             drivetrain.runOnce(drivetrain::seedFieldCentric)
         );
 
-        DriverController.button(8).whileTrue(
-            drivetrain.applyRequest(() -> brake)
+        DriverController.button(ControllerConstants.XboxShareButtonID).whileTrue(
+            drivetrain.applyRequest(() -> new SwerveRequest.SwerveDriveBrake())
         );
 
         // Idle while the robot is disabled.
@@ -168,19 +172,49 @@ public class ControlSub extends SubsystemBase {
         drivetrain.removeDefaultCommand();
         switch (stateToChangeTo) {
             case BabyMode:
+                drivetrain.setDefaultCommand(
+                    drivetrain.applyRequest(() -> ControllerDrive
+                        .withVelocityX(MathUtil.applyDeadband(-DriverController.getLeftY() * (maxSpeed / 6), ControllerConstants.StickDeadzone)) // Drive forward with negative Y (forward)
+                        .withVelocityY(MathUtil.applyDeadband(-DriverController.getLeftX() * (maxSpeed / 6), ControllerConstants.StickDeadzone)) // Drive left with negative X (left)
+                        .withRotationalRate(MathUtil.applyDeadband(-DriverController.getRightX() * maxAngularRate, ControllerConstants.StickDeadzone)) // Drive counterclockwise with negative X (left)
+                    )
+                );
                 break;
             case SlowTC:
+                drivetrain.setDefaultCommand(
+                    drivetrain.applyRequest(() -> ControllerDrive
+                        .withVelocityX(MoveSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getLeftY() * (maxSpeed / 2), ControllerConstants.StickDeadzone))) // Drive forward with negative Y (forward)
+                        .withVelocityY(MoveSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getLeftX() * (maxSpeed / 2), ControllerConstants.StickDeadzone))) // Drive left with negative X (left)
+                        .withRotationalRate(RotateSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getRightX() * maxAngularRate, ControllerConstants.StickDeadzone))) // Drive counterclockwise with negative X (left)
+                    )
+                );
                 break;
             case EventTC:
                 drivetrain.setDefaultCommand(
-                    drivetrain.applyRequest(() ->
-                        Controllerdrive.withVelocityX(MathUtil.applyDeadband(-DriverController.getLeftY() * maxSpeed, ControllerConstants.StickDeadzone)) // Drive forward with negative Y (forward)
-                                       .withVelocityY(MathUtil.applyDeadband(-DriverController.getLeftX() * maxSpeed, ControllerConstants.StickDeadzone)) // Drive left with negative X (left)
-                                       .withRotationalRate(MathUtil.applyDeadband(-DriverController.getRightX() * maxAngularRate, ControllerConstants.StickDeadzone)) // Drive counterclockwise with negative X (left)
+                    drivetrain.applyRequest(() -> ControllerDrive
+                        .withVelocityX(MoveSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getLeftY() * maxSpeed, ControllerConstants.StickDeadzone))) // Drive forward with negative Y (forward)
+                        .withVelocityY(MoveSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getLeftX() * maxSpeed, ControllerConstants.StickDeadzone))) // Drive left with negative X (left)
+                        .withRotationalRate(RotateSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getRightX() * maxAngularRate, ControllerConstants.StickDeadzone))) // Drive counterclockwise with negative X (left)
                     )
                 );
                 break;
             case GoCrazyGoStupid:
+                drivetrain.setDefaultCommand(
+                    drivetrain.applyRequest(() -> ControllerDrive
+                        .withVelocityX(MathUtil.applyDeadband(-DriverController.getLeftY() * maxSpeed, ControllerConstants.StickDeadzone)) // Drive forward with negative Y (forward)
+                        .withVelocityY(MathUtil.applyDeadband(-DriverController.getLeftX() * maxSpeed, ControllerConstants.StickDeadzone)) // Drive left with negative X (left)
+                        .withRotationalRate(MathUtil.applyDeadband(-DriverController.getRightX() * maxAngularRate, ControllerConstants.StickDeadzone)) // Drive counterclockwise with negative X (left)
+                    )
+                );
+                break;
+            case TrackingTemplate:
+                drivetrain.setDefaultCommand(
+                    drivetrain.applyRequest(() -> TrackDrive
+                        .withVelocityX(0.50 * maxSpeed) // Drive forward with negative Y (forward)
+                        .withVelocityY(0.50 * maxSpeed) // Drive left with negative X (left)
+                        .withRotationalRate(0.50 * maxSpeed) // Drive counterclockwise with negative X (left)
+                    )
+                );
                 break;
         }
     }
