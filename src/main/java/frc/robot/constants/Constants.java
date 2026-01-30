@@ -56,6 +56,14 @@ public final class Constants {
     }
 
     public static final class ControllerConstants {
+        public static enum DrivetrainState {
+            BabyMode,
+            SlowTC,
+            EventTC,
+            GoCrazyGoStupid // Thank you team 4539 for this great
+                            // name at the 2025 NMRC Chamionship       
+        }
+
         public static final int DriverControllerID = 0;
         public static final int ManipulatorControllerID = 1;
         public static final double MoveSlewRateLimiter = 12.00;

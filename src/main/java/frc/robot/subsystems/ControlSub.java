@@ -4,9 +4,7 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -21,6 +19,7 @@ import frc.robot.constants.Constants.ControllerConstants;
 import frc.robot.constants.Constants.FeederConstants;
 import frc.robot.constants.Constants.ShooterConstants;
 import frc.robot.constants.Constants.ClimberConstants.State;
+import frc.robot.constants.Constants.ControllerConstants.DrivetrainState;
 import frc.robot.constants.TunerConstants;
 
 public class ControlSub extends SubsystemBase {
@@ -58,10 +57,12 @@ public class ControlSub extends SubsystemBase {
     private double shooterSpeed = 0;
     private boolean weAreIdlingYo = true;
 
+    public DrivetrainState drivetrainState = DrivetrainState.EventTC;
+
     public ControlSub() {
 
         /* Driver Controls */
-        drivetrainApplyRequest();
+        drivetrainApplyRequest(DrivetrainState.EventTC);
 
         DriverController.button(7).onTrue(
             drivetrain.runOnce(drivetrain::seedFieldCentric)
@@ -155,22 +156,32 @@ public class ControlSub extends SubsystemBase {
     }
 
     /**
-     * Apply drivetrain request
+     * Apply drivetrain request with state
      * <p>
      * Uses setDefaultCommand() so do not call this function
      * every scheduler run.
+     * 
+     * @param stateToChangeTo State to change the drivetrain to
      */
-    private void drivetrainApplyRequest() {
+    private void drivetrainApplyRequest(DrivetrainState stateToChangeTo) {
+        // Setting default command has drivetrain run request periodically
         drivetrain.removeDefaultCommand();
-        
-        // Add different "modes" (tracking and stuff)
-        drivetrain.setDefaultCommand(
-            // Drivetrain will execute this command periodically
-            drivetrain.applyRequest(() ->
-                Controllerdrive.withVelocityX(MathUtil.applyDeadband((-DriverController.getLeftY() * maxSpeed), ControllerConstants.StickDeadzone)) // Drive forward with negative Y (forward)
-                               .withVelocityY(MathUtil.applyDeadband(-DriverController.getLeftX() * maxSpeed, ControllerConstants.StickDeadzone)) // Drive left with negative X (left)
-                               .withRotationalRate(MathUtil.applyDeadband(-DriverController.getRightX() * maxAngularRate, ControllerConstants.StickDeadzone)) // Drive counterclockwise with negative X (left)
-            )
-        );
+        switch (stateToChangeTo) {
+            case BabyMode:
+                break;
+            case SlowTC:
+                break;
+            case EventTC:
+                drivetrain.setDefaultCommand(
+                    drivetrain.applyRequest(() ->
+                        Controllerdrive.withVelocityX(MathUtil.applyDeadband(-DriverController.getLeftY() * maxSpeed, ControllerConstants.StickDeadzone)) // Drive forward with negative Y (forward)
+                                       .withVelocityY(MathUtil.applyDeadband(-DriverController.getLeftX() * maxSpeed, ControllerConstants.StickDeadzone)) // Drive left with negative X (left)
+                                       .withRotationalRate(MathUtil.applyDeadband(-DriverController.getRightX() * maxAngularRate, ControllerConstants.StickDeadzone)) // Drive counterclockwise with negative X (left)
+                    )
+                );
+                break;
+            case GoCrazyGoStupid:
+                break;
+        }
     }
 }
