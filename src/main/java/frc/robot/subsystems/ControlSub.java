@@ -67,7 +67,7 @@ public class ControlSub extends SubsystemBase {
     public ControlSub() {
 
         /* Driver Controls */
-        drivetrainApplyRequest(DrivetrainState.EventTC);
+        //drivetrainApplyRequest(DrivetrainState.EventTC);
 
         DriverController.button(ControllerConstants.XboxMenuButtonID).onTrue(
             drivetrain.runOnce(drivetrain::seedFieldCentric)
@@ -119,6 +119,7 @@ public class ControlSub extends SubsystemBase {
             feeder.setFeederState(FeederConstants.State.Idle, 0);
             shooter.setShooterState(ShooterConstants.State.Idle, 0, 0);
             bottomShooterSpeed = 0;
+            topShooterSpeed = 0;
         } else if (DriverController.x().getAsBoolean()) {
             feeder.setFeederState(FeederConstants.State.Feed, bottomShooterSpeed);
             shooter.setShooterState(ShooterConstants.State.Shoot, bottomShooterSpeed, topShooterSpeed);
