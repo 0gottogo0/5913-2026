@@ -58,7 +58,8 @@ public class ControlSub extends SubsystemBase {
     public Shooter shooter = new Shooter();
 
     // temp vars
-    private double shooterSpeed = 0;
+    private double bottomShooterSpeed = 0;
+    private double topShooterSpeed = 0;
     private boolean weAreIdlingYo = true;
 
     public DrivetrainState drivetrainState = DrivetrainState.EventTC;
@@ -90,19 +91,19 @@ public class ControlSub extends SubsystemBase {
 
         // temp buttons
         if (!driverLastA && DriverController.a().getAsBoolean()) {
-            shooterSpeed = shooterSpeed - 1;
+            bottomShooterSpeed = bottomShooterSpeed - 5;
         }
 
         if (!driverLastY && DriverController.y().getAsBoolean()) {
-            shooterSpeed = shooterSpeed + 1;
+            bottomShooterSpeed = bottomShooterSpeed + 5;
         }
 
         if (!driverLastPovDown && DriverController.povDown().getAsBoolean()) {
-            shooterSpeed = shooterSpeed - 25;
+            topShooterSpeed = topShooterSpeed - 5;
         }
 
         if (!driverLastPovUp && DriverController.povUp().getAsBoolean()) {
-            shooterSpeed = shooterSpeed + 25;
+            topShooterSpeed = topShooterSpeed + 5;
         }
 
         // "reset" button
@@ -116,14 +117,14 @@ public class ControlSub extends SubsystemBase {
 
         if (weAreIdlingYo) {
             feeder.setFeederState(FeederConstants.State.Idle, 0);
-            shooter.setShooterState(ShooterConstants.State.Idle, 0);
-            shooterSpeed = 0;
+            shooter.setShooterState(ShooterConstants.State.Idle, 0, 0);
+            bottomShooterSpeed = 0;
         } else if (DriverController.x().getAsBoolean()) {
-            feeder.setFeederState(FeederConstants.State.Feed, shooterSpeed);
-            shooter.setShooterState(ShooterConstants.State.Shoot, shooterSpeed);
+            feeder.setFeederState(FeederConstants.State.Feed, bottomShooterSpeed);
+            shooter.setShooterState(ShooterConstants.State.Shoot, bottomShooterSpeed, topShooterSpeed);
         } else {
-            feeder.setFeederState(FeederConstants.State.Idle, shooterSpeed);
-            shooter.setShooterState(ShooterConstants.State.Spinup, shooterSpeed);
+            feeder.setFeederState(FeederConstants.State.Idle, bottomShooterSpeed);
+            shooter.setShooterState(ShooterConstants.State.Spinup, bottomShooterSpeed, topShooterSpeed);
         }
 
         if (DriverController.povLeft().getAsBoolean()) {

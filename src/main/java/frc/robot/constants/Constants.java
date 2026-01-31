@@ -158,6 +158,7 @@ public final class Constants {
         public static final double PIDkI = 0.00;
         public static final double PIDkD = 0.00;
 
-        public static final int MotorID = 30;
+        public static final int BottomMotorID = 30;
+        public static final int TopMotorID = 29;
     }
 }

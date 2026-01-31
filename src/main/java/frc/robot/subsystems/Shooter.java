@@ -4,59 +4,88 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.constants.Constants.ShooterConstants.*;
+import static frc.robot.constants.Constants.ShooterConstants.BottomMotorID;
+import static frc.robot.constants.Constants.ShooterConstants.PIDkD;
+import static frc.robot.constants.Constants.ShooterConstants.PIDkI;
+import static frc.robot.constants.Constants.ShooterConstants.PIDkP;
+import static frc.robot.constants.Constants.ShooterConstants.PIDkV;
+import static frc.robot.constants.Constants.ShooterConstants.RPSThreshold;
+import static frc.robot.constants.Constants.ShooterConstants.ShootRPSAdjustment;
+import static frc.robot.constants.Constants.ShooterConstants.TopMotorID;
+import static frc.robot.constants.Constants.ShooterConstants.UnstickRPS;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.constants.Constants.ShooterConstants.State;
 
 public class Shooter extends SubsystemBase {
 
-  	private TalonFX shooter = new TalonFX(MotorID);
-  	private TalonFXConfiguration shooterConfig = new TalonFXConfiguration();
+  	private TalonFX bottomShooter = new TalonFX(BottomMotorID);
+  	private TalonFXConfiguration bottomShooterConfig = new TalonFXConfiguration();
+
+	private TalonSRX topShooter = new TalonSRX(TopMotorID);
 
 	private VelocityVoltage shooterVelocityVoltage = new VelocityVoltage(0);
 
-  	private double targetSpeed = 0;
+	private PIDController topPIDController = new PIDController(0.1, 0.00, 0.0);
+
+  	private double bottomTargetSpeed = 0;
+	private double topTargetSpeed = 0;
+	private double pidOutput = 0;
 
 	public State state = State.Idle;
 
   	public Shooter() {
-  	  	shooterConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-  	  	shooterConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-		shooterConfig.Slot0.kV = PIDkV;
-		shooterConfig.Slot0.kP = PIDkP;
-		shooterConfig.Slot0.kI = PIDkI;
-		shooterConfig.Slot0.kD = PIDkD;
+  	  	bottomShooterConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+  	  	bottomShooterConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+		bottomShooterConfig.Slot0.kV = PIDkV;
+		bottomShooterConfig.Slot0.kP = PIDkP;
+		bottomShooterConfig.Slot0.kI = PIDkI;
+		bottomShooterConfig.Slot0.kD = PIDkD;
 
-  	  	shooter.clearStickyFaults();
-  	  	shooter.getConfigurator().apply(shooterConfig);
+  	  	bottomShooter.clearStickyFaults();
+  	  	bottomShooter.getConfigurator().apply(bottomShooterConfig);
+
+    	topShooter.clearStickyFaults();
+		topShooter.setNeutralMode(NeutralMode.Coast);
 	}
 
   	@Override
   	public void periodic() {
+		pidOutput = topPIDController.calculate(topShooter.getSelectedSensorVelocity(), topTargetSpeed);
+
   	  	if (state == State.Idle) {
-			shooter.set(0.00);
+			bottomShooter.set(0.00);
+			topShooter.set(ControlMode.PercentOutput, 0.00);
 		} else if (state == State.Spinup) {
-			shooter.setControl(shooterVelocityVoltage.withVelocity(targetSpeed));
+			bottomShooter.setControl(shooterVelocityVoltage.withVelocity(bottomTargetSpeed));
+			topShooter.set(ControlMode.PercentOutput, pidOutput);
 		} else if (state == State.Shoot) {
 			// Overshoot target RPS due to heavy ball compression slowing down shooter
-			shooter.setControl(shooterVelocityVoltage.withVelocity(targetSpeed + ShootRPSAdjustment));
+			bottomShooter.setControl(shooterVelocityVoltage.withVelocity(bottomTargetSpeed + ShootRPSAdjustment));
+			topShooter.set(ControlMode.PercentOutput, pidOutput);
 		} else if (state == State.Unstick){
-			shooter.setControl(shooterVelocityVoltage.withVelocity(UnstickRPS));
+			bottomShooter.setControl(shooterVelocityVoltage.withVelocity(UnstickRPS));
+			topShooter.set(ControlMode.PercentOutput, pidOutput);
 		} else {
-			shooter.set(targetSpeed);
+			bottomShooter.set(bottomTargetSpeed);
+			topShooter.set(ControlMode.PercentOutput, pidOutput);
 		}
 
-		SmartDashboard.putNumber("Shooter RPS", getShooterSpeed());
-		SmartDashboard.putNumber("Shooter Target RPS", targetSpeed);
-		SmartDashboard.putNumber("Shooter Target Diff", targetSpeed - getShooterSpeed());
-		SmartDashboard.putNumber("Shooter Target Percentage", Math.abs(getShooterSpeed() / targetSpeed - 1));
+		SmartDashboard.putNumber("Bottom Shooter RPS", getShooterSpeed());
+		SmartDashboard.putNumber("Bottom Shooter Target RPS", bottomTargetSpeed);
+		SmartDashboard.putNumber("Bottom Shooter Target Diff", bottomTargetSpeed - getShooterSpeed());
+		SmartDashboard.putNumber("Bottom Shooter Target Percentage", Math.abs(getShooterSpeed() / bottomTargetSpeed - 1));
 
 		SmartDashboard.putString("Shooter State", state.toString());
 
@@ -69,7 +98,7 @@ public class Shooter extends SubsystemBase {
 	 * @return Speed in RPS
 	 */
 	private double getShooterSpeed() {
-		return shooter.getRotorVelocity().getValueAsDouble();
+		return bottomShooter.getRotorVelocity().getValueAsDouble();
 	}
 
 	/**
@@ -84,8 +113,9 @@ public class Shooter extends SubsystemBase {
 	 * 					 target speed is not used and can
 	 * 					 be set to 0.	
 	 */
-	public void setShooterState(State stateToChangeTo, double speedInRPS) {
-		targetSpeed = speedInRPS;
+	public void setShooterState(State stateToChangeTo, double bottomSpeedInRPS, double topSpeedInRPS) {
+		bottomTargetSpeed = bottomSpeedInRPS;
+		topTargetSpeed = topSpeedInRPS;
 		state = stateToChangeTo;
 	}
 
@@ -98,8 +128,8 @@ public class Shooter extends SubsystemBase {
 	 * @param speedInPercent The speed to control the shooter
 	 * 						 motor in percent
 	 */
-	public void setShooterDumbControl(double speedInPercent) {
-		targetSpeed = speedInPercent;
+	public void setShooterDumbControl(double bottomSpeedInPercent) {
+		bottomTargetSpeed = bottomSpeedInPercent;
 		state = State.DumbControl;
 	}
 
@@ -111,7 +141,7 @@ public class Shooter extends SubsystemBase {
 	 */
 	public boolean isShooterAtSpeed() {
 		if (state == State.Spinup || state == State.Shoot) {
-			return Math.abs(getShooterSpeed() - targetSpeed) < RPSThreshold;
+			return Math.abs(getShooterSpeed() - bottomTargetSpeed) < RPSThreshold;
 		} else {
 			return false;
 		}
