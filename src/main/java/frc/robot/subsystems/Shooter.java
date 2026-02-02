@@ -76,6 +76,9 @@ public class Shooter extends SubsystemBase {
 		SmartDashboard.putNumber("Bottom Shooter Target Diff", bottomTargetSpeed - getShooterSpeed());
 		SmartDashboard.putNumber("Bottom Shooter Target Percentage", Math.abs(getShooterSpeed() / bottomTargetSpeed - 1));
 
+		SmartDashboard.putNumber("Top Shooter RPS", topShooter.getSelectedSensorVelocity());
+		SmartDashboard.putNumber("Top Shooter Target RPS", topTargetSpeed);
+
 		SmartDashboard.putString("Shooter State", state.toString());
 
 		SmartDashboard.putBoolean("Shooter At Speed", isShooterAtSpeed());
