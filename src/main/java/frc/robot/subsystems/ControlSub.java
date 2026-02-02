@@ -38,7 +38,8 @@ public class ControlSub extends SubsystemBase {
     private final SwerveRequest.RobotCentric TrackDrive = new SwerveRequest.RobotCentric()
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
-    private final SlewRateLimiter MoveSlewRateLimiter = new SlewRateLimiter(ControllerConstants.MoveSlewRateLimiter);
+    private final SlewRateLimiter XSlewRateLimiter = new SlewRateLimiter(ControllerConstants.XSlewRateLimiter);
+    private final SlewRateLimiter YSlewRateLimiter = new SlewRateLimiter(ControllerConstants.YSlewRateLimiter);
     private final SlewRateLimiter RotateSlewRateLimiter = new SlewRateLimiter(ControllerConstants.RotateSlewRateLimiter);
 
     private final CommandXboxController DriverController = new CommandXboxController(ControllerConstants.DriverControllerID);
@@ -67,7 +68,7 @@ public class ControlSub extends SubsystemBase {
     public ControlSub() {
 
         /* Driver Controls */
-        //drivetrainApplyRequest(DrivetrainState.EventTC);
+        drivetrainApplyRequest(DrivetrainState.EventTC);
 
         DriverController.button(ControllerConstants.XboxMenuButtonID).onTrue(
             drivetrain.runOnce(drivetrain::seedFieldCentric)
@@ -173,6 +174,9 @@ public class ControlSub extends SubsystemBase {
         // Setting default command has drivetrain run request periodically
         drivetrain.removeDefaultCommand();
         switch (stateToChangeTo) {
+            case DisabledDrivetrain:
+                // WHERES THE VAN
+                // THEY SAID IT WAS GONNA BE HERE
             case BabyMode:
                 drivetrain.setDefaultCommand(
                     drivetrain.applyRequest(() -> ControllerDrive
@@ -185,8 +189,8 @@ public class ControlSub extends SubsystemBase {
             case SlowTC:
                 drivetrain.setDefaultCommand(
                     drivetrain.applyRequest(() -> ControllerDrive
-                        .withVelocityX(MoveSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getLeftY() * (maxSpeed / 2), ControllerConstants.StickDeadzone))) // Drive forward with negative Y (forward)
-                        .withVelocityY(MoveSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getLeftX() * (maxSpeed / 2), ControllerConstants.StickDeadzone))) // Drive left with negative X (left)
+                        .withVelocityX(XSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getLeftY() * (maxSpeed / 2), ControllerConstants.StickDeadzone))) // Drive forward with negative Y (forward)
+                        .withVelocityY(YSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getLeftX() * (maxSpeed / 2), ControllerConstants.StickDeadzone))) // Drive left with negative X (left)
                         .withRotationalRate(RotateSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getRightX() * maxAngularRate, ControllerConstants.StickDeadzone))) // Drive counterclockwise with negative X (left)
                     )
                 );
@@ -194,8 +198,8 @@ public class ControlSub extends SubsystemBase {
             case EventTC:
                 drivetrain.setDefaultCommand(
                     drivetrain.applyRequest(() -> ControllerDrive
-                        .withVelocityX(MoveSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getLeftY() * maxSpeed, ControllerConstants.StickDeadzone))) // Drive forward with negative Y (forward)
-                        .withVelocityY(MoveSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getLeftX() * maxSpeed, ControllerConstants.StickDeadzone))) // Drive left with negative X (left)
+                        .withVelocityX(XSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getLeftY() * maxSpeed, ControllerConstants.StickDeadzone))) // Drive forward with negative Y (forward)
+                        .withVelocityY(YSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getLeftX() * maxSpeed, ControllerConstants.StickDeadzone))) // Drive left with negative X (left)
                         .withRotationalRate(RotateSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getRightX() * maxAngularRate, ControllerConstants.StickDeadzone))) // Drive counterclockwise with negative X (left)
                     )
                 );
