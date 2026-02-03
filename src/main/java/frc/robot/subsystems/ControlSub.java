@@ -4,7 +4,9 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -12,15 +14,16 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import frc.robot.constants.Constants.ClimberConstants.State;
 import frc.robot.constants.Constants.ControllerConstants;
+import frc.robot.constants.Constants.ControllerConstants.DrivetrainState;
 import frc.robot.constants.Constants.FeederConstants;
 import frc.robot.constants.Constants.ShooterConstants;
-import frc.robot.constants.Constants.ClimberConstants.State;
-import frc.robot.constants.Constants.ControllerConstants.DrivetrainState;
 import frc.robot.constants.TunerConstants;
 
 public class ControlSub extends SubsystemBase {
@@ -45,11 +48,15 @@ public class ControlSub extends SubsystemBase {
     private final CommandXboxController DriverController = new CommandXboxController(ControllerConstants.DriverControllerID);
     private final CommandXboxController ManipulatorController = new CommandXboxController(ControllerConstants.ManipulatorControllerID);
     
+    private final SendableChooser<DrivetrainState> DrivetrainChooser = new SendableChooser<>();
+
     private boolean driverLastA = DriverController.a().getAsBoolean();
     private boolean driverLastB = DriverController.b().getAsBoolean();
     private boolean driverLastY = DriverController.y().getAsBoolean();
     private boolean driverLastPovUp = DriverController.povUp().getAsBoolean();
     private boolean driverLastPovDown = DriverController.povDown().getAsBoolean();
+
+    private DrivetrainState drivetrainStateLastChose = DrivetrainChooser.getSelected();
     
     public AutoAim autoAim = new AutoAim();
     public Climber climber = new Climber();
@@ -63,12 +70,18 @@ public class ControlSub extends SubsystemBase {
     private double topShooterSpeed = 0;
     private boolean weAreIdlingYo = true;
 
-    public DrivetrainState drivetrainState = DrivetrainState.EventTC;
-
     public ControlSub() {
 
         /* Driver Controls */
-        drivetrainApplyRequest(DrivetrainState.EventTC);
+        DrivetrainChooser.setDefaultOption("Disable Drivetrain", DrivetrainState.DisabledDrivetrain);
+        DrivetrainChooser.addOption("Baby Movement", DrivetrainState.BabyMode);
+        DrivetrainChooser.addOption("Slow Traction Control", DrivetrainState.SlowTC);
+        DrivetrainChooser.addOption("Event Traction Control", DrivetrainState.EventTC);
+        DrivetrainChooser.addOption("Defence Mode", DrivetrainState.GoCrazyGoStupid);
+        
+        SmartDashboard.putData("Drivetrain Mode", DrivetrainChooser);
+
+        drivetrainApplyRequest(DrivetrainChooser.getSelected());
 
         DriverController.button(ControllerConstants.XboxMenuButtonID).onTrue(
             drivetrain.runOnce(drivetrain::seedFieldCentric)
@@ -90,6 +103,10 @@ public class ControlSub extends SubsystemBase {
 
         /* Driver Controls */
 
+        if (drivetrainStateLastChose != DrivetrainChooser.getSelected()) {
+            drivetrainApplyRequest(DrivetrainChooser.getSelected());
+        }
+
         // temp buttons
         if (!driverLastA && DriverController.a().getAsBoolean()) {
             bottomShooterSpeed = bottomShooterSpeed - 5;
@@ -107,7 +124,7 @@ public class ControlSub extends SubsystemBase {
             topShooterSpeed = topShooterSpeed + 5;
         }
 
-        // "reset" button
+        // "reset/idle" button
         if (!driverLastB && DriverController.b().getAsBoolean()) {
             if (weAreIdlingYo) {
                 weAreIdlingYo = false;
@@ -160,6 +177,7 @@ public class ControlSub extends SubsystemBase {
         driverLastPovUp = DriverController.povUp().getAsBoolean();
         driverLastPovDown = DriverController.povDown().getAsBoolean();
 
+        drivetrainStateLastChose = DrivetrainChooser.getSelected();
     }
 
     /**
@@ -171,7 +189,9 @@ public class ControlSub extends SubsystemBase {
      * @param stateToChangeTo State to change the drivetrain to
      */
     private void drivetrainApplyRequest(DrivetrainState stateToChangeTo) {
-        // Setting default command has drivetrain run request periodically
+        // Setting default command has drivetrain run set request periodically
+        System.out.println("Setting new drivetrain request");
+
         drivetrain.removeDefaultCommand();
         switch (stateToChangeTo) {
             case DisabledDrivetrain:
@@ -189,18 +209,18 @@ public class ControlSub extends SubsystemBase {
             case SlowTC:
                 drivetrain.setDefaultCommand(
                     drivetrain.applyRequest(() -> ControllerDrive
-                        .withVelocityX(XSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getLeftY() * (maxSpeed / 2), ControllerConstants.StickDeadzone))) // Drive forward with negative Y (forward)
-                        .withVelocityY(YSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getLeftX() * (maxSpeed / 2), ControllerConstants.StickDeadzone))) // Drive left with negative X (left)
-                        .withRotationalRate(RotateSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getRightX() * maxAngularRate, ControllerConstants.StickDeadzone))) // Drive counterclockwise with negative X (left)
+                        .withVelocityX(MathUtil.applyDeadband(XSlewRateLimiter.calculate(-DriverController.getLeftY() * (maxSpeed / 2)), ControllerConstants.StickDeadzone)) // Drive forward with negative Y (forward)
+                        .withVelocityY(MathUtil.applyDeadband(YSlewRateLimiter.calculate(-DriverController.getLeftX() * (maxSpeed / 2)), ControllerConstants.StickDeadzone)) // Drive left with negative X (left)
+                        .withRotationalRate(MathUtil.applyDeadband(RotateSlewRateLimiter.calculate(-DriverController.getRightX() * maxAngularRate), ControllerConstants.StickDeadzone)) // Drive counterclockwise with negative X (left)
                     )
                 );
                 break;
             case EventTC:
                 drivetrain.setDefaultCommand(
                     drivetrain.applyRequest(() -> ControllerDrive
-                        .withVelocityX(XSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getLeftY() * maxSpeed, ControllerConstants.StickDeadzone))) // Drive forward with negative Y (forward)
-                        .withVelocityY(YSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getLeftX() * maxSpeed, ControllerConstants.StickDeadzone))) // Drive left with negative X (left)
-                        .withRotationalRate(RotateSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getRightX() * maxAngularRate, ControllerConstants.StickDeadzone))) // Drive counterclockwise with negative X (left)
+                        .withVelocityX(MathUtil.applyDeadband(XSlewRateLimiter.calculate(-DriverController.getLeftY() * maxSpeed), ControllerConstants.StickDeadzone)) // Drive forward with negative Y (forward)
+                        .withVelocityY(MathUtil.applyDeadband(YSlewRateLimiter.calculate(-DriverController.getLeftX() * maxSpeed), ControllerConstants.StickDeadzone)) // Drive left with negative X (left)
+                        .withRotationalRate(MathUtil.applyDeadband(RotateSlewRateLimiter.calculate(-DriverController.getRightX() * maxAngularRate), ControllerConstants.StickDeadzone)) // Drive counterclockwise with negative X (left)
                     )
                 );
                 break;
