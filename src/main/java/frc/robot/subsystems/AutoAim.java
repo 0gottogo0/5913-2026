@@ -4,10 +4,7 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.constants.Constants.AutoAimConstants.BlueGoal;
-import static frc.robot.constants.Constants.AutoAimConstants.RedGoal;
-import static frc.robot.constants.Constants.AutoAimConstants.TimeOfFlightByDistance;
-import static frc.robot.constants.Constants.AutoAimConstants.TurretRotatePoint;
+import static frc.robot.constants.Constants.AutoAimConstants.*;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -28,7 +25,7 @@ public class AutoAim extends SubsystemBase {
     Pose2d goalPose = new Pose2d();
     Pose2d adjustedGoalPose = new Pose2d();
 
-    double calculatedShot[] = {0.00, 0.00, 0.00};
+    double calculatedShot[] = {0.00, 0.00, 0.00, 0.00, 0.00};
 
     public AutoAim() {
         
@@ -46,9 +43,13 @@ public class AutoAim extends SubsystemBase {
             goalPose = RedGoal;
         }
 
-        adjustedGoalPose = goalPose.plus(new Transform2d(robotSpeed.vxMetersPerSecond, robotSpeed.vyMetersPerSecond, new Rotation2d()).times(TimeOfFlightByDistance.get(getAimTargetInDistance())));
-
         TurretRotatePointPose = robotPose.plus(TurretRotatePoint);
+
+        // To adjust the goal pose when shooting on the
+        // move, first take robot speed and times that
+        // by our time of flight, then add that new
+        // transform to the goal pose and it should work
+        adjustedGoalPose = goalPose.plus(new Transform2d(robotSpeed.vxMetersPerSecond, robotSpeed.vyMetersPerSecond, new Rotation2d()).times(TimeOfFlightByDistance.get(getAimTargetInDistance())));
 
         SmartDashboard.putNumber("Robot X", robotPose.getX());
         SmartDashboard.putNumber("Robot Y", robotPose.getY());
@@ -56,6 +57,8 @@ public class AutoAim extends SubsystemBase {
         SmartDashboard.putNumber("Robot Speed X", robotSpeed.vxMetersPerSecond);
         SmartDashboard.putNumber("Robot Speed Y", robotSpeed.vyMetersPerSecond);
         SmartDashboard.putNumber("Robot Speed Rot", Math.toDegrees(robotSpeed.omegaRadiansPerSecond));
+        
+        // These are useless if we dont have a turret ;-;
         SmartDashboard.putNumber("Turret X", TurretRotatePointPose.getX());
         SmartDashboard.putNumber("Turret Y", TurretRotatePointPose.getY());
 
@@ -64,8 +67,11 @@ public class AutoAim extends SubsystemBase {
         SmartDashboard.putNumber("Target Time Of Flight", TimeOfFlightByDistance.get(getAimTargetInDistance()));
         
         SmartDashboard.putNumber("Adjusted Target Angle", getShootOnMoveAimTarget()[0]);
-        SmartDashboard.putNumber("Adjusted Target Speed", getShootOnMoveAimTarget()[1]);
-        SmartDashboard.putNumber("Adjusted Target Time Of Flight", getShootOnMoveAimTarget()[2]);
+        SmartDashboard.putNumber("Adjusted Target Distance", getShootOnMoveAimTarget()[1]);
+        SmartDashboard.putNumber("Adjusted Target Bottom Shooter Speed", getShootOnMoveAimTarget()[2]);
+        SmartDashboard.putNumber("Adjusted Target Top Shooter Speed", getShootOnMoveAimTarget()[3]);
+        SmartDashboard.putNumber("Adjusted Target Time Of Flight", getShootOnMoveAimTarget()[4]);
+        SmartDashboard.putNumberArray("Adjusted Target Data", getShootOnMoveAimTarget());
     }
 
     /**
@@ -102,13 +108,22 @@ public class AutoAim extends SubsystemBase {
      * flight to shoot into the target on the
      * move
      * 
-     * @return An array with degrees, rps, and
-     *         secconds
+     * @return An array with degrees, distance in meters,
+     *         bottom rps, top rps, and seconds
      */
     public double[] getShootOnMoveAimTarget() {
-        calculatedShot[0] = robotPose.getRotation().getDegrees() - Math.atan(TurretRotatePointPose.minus(adjustedGoalPose).getX() / TurretRotatePointPose.minus(adjustedGoalPose).getY());
+        // Code used for if we have a turret
+        //calculatedShot[0] = robotPose.getRotation().getDegrees() - Math.atan(TurretRotatePointPose.minus(adjustedGoalPose).getX() / TurretRotatePointPose.minus(adjustedGoalPose).getY());
+        // Code used for if we do not have a turret
+        calculatedShot[0] = Math.atan(TurretRotatePointPose.minus(adjustedGoalPose).getX() / TurretRotatePointPose.minus(adjustedGoalPose).getY());
+        // Gets distance
         calculatedShot[1] = Math.abs(Math.sqrt(Math.pow(TurretRotatePointPose.minus(adjustedGoalPose).getX(), 2) + Math.pow(TurretRotatePointPose.minus(adjustedGoalPose).getY(), 2)));
-        calculatedShot[2] = TimeOfFlightByDistance.get(calculatedShot[1]);
+        // Interpolates for bottom shooter
+        calculatedShot[2] = BottomShooterSpeedByDistance.get(calculatedShot[1]);
+        // Interpolates for top shooter
+        calculatedShot[3] = TopShooterSpeedByDistance.get(calculatedShot[1]);
+        // Interpolates time of flight
+        calculatedShot[4] = TimeOfFlightByDistance.get(calculatedShot[1]);
         return calculatedShot;
     }
 }

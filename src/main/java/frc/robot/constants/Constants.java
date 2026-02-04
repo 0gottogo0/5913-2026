@@ -11,13 +11,19 @@ public final class Constants {
     public static final class AutoAimConstants {
         public static final Pose2d BlueGoal = new Pose2d(0, 0, new Rotation2d(0));
         public static final Pose2d RedGoal = new Pose2d(0, 0, new Rotation2d(0));
-        
+
         // Set to x:0, y:0, r:0 for no turret because
         // the "turret" is just our swerve
         public static final Transform2d TurretRotatePoint = new Transform2d(0, 0, new Rotation2d(0));
 
         // Meters, RPS
-        public static final InterpolatingDoubleTreeMap ShooterSpeedByDistance = InterpolatingDoubleTreeMap.ofEntries(
+        public static final InterpolatingDoubleTreeMap TopShooterSpeedByDistance = InterpolatingDoubleTreeMap.ofEntries(
+           Map.entry(0.00, 0.00),
+           Map.entry(0.00, 0.00)
+        );
+
+        // Meters, RPS
+        public static final InterpolatingDoubleTreeMap BottomShooterSpeedByDistance = InterpolatingDoubleTreeMap.ofEntries(
            Map.entry(0.00, 0.00),
            Map.entry(0.00, 0.00)
         );
