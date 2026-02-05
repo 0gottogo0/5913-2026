@@ -40,7 +40,6 @@ public final class Constants {
             Idle,
             ClimbUp,
             ClimbDown,
-            Hold,
             DumbControl
         }
 

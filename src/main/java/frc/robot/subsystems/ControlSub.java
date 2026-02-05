@@ -147,9 +147,9 @@ public class ControlSub extends SubsystemBase {
         }
 
         if (DriverController.povLeft().getAsBoolean()) {
-            climber.setElevatorDumbControl(0.40, false);
+            climber.setElevatorDumbControl(0.40);
         } else if (DriverController.povRight().getAsBoolean()) {
-            climber.setElevatorDumbControl(-0.40, false);
+            climber.setElevatorDumbControl(-0.40);
         } else {
             climber.setElevatorState(State.Idle);
         }

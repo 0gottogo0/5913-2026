@@ -20,57 +20,40 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Climber extends SubsystemBase {
 
-    private TalonFX elevator = new TalonFX(MotorID); // create constants and change motor names
-    private TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
-	private PneumaticHub pneumaticHub = new PneumaticHub(PneumaticsHubID);
-	private DoubleSolenoid hookSolenoid = pneumaticHub.makeDoubleSolenoid(HooksInID, HooksOutID);
+    private TalonFX pivot = new TalonFX(MotorID);
+    private TalonFXConfiguration pivotConfig = new TalonFXConfiguration();
 
-	private PositionVoltage elevatorPositionVoltage = new PositionVoltage(0);
+	private PositionVoltage pivotPositionVoltage = new PositionVoltage(0);
 
     private double targetSpeed = 0;
-	private boolean solenoidExtension = false;
 
     public State state = State.Idle;
 
     public Climber() {
-        elevatorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-  	  	elevatorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-		elevatorConfig.Slot0.kG = PIDkG;
-		elevatorConfig.Slot0.kP = PIDkP;
-		elevatorConfig.Slot0.kI = PIDkI;
-		elevatorConfig.Slot0.kD = PIDkD;
+        pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+  	  	pivotConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+		pivotConfig.Slot0.kG = PIDkG;
+		pivotConfig.Slot0.kP = PIDkP;
+		pivotConfig.Slot0.kI = PIDkI;
+		pivotConfig.Slot0.kD = PIDkD;
 
-  	  	elevator.clearStickyFaults();
-  	  	elevator.getConfigurator().apply(elevatorConfig);
-
-		hookSolenoid.set(DoubleSolenoid.Value.kForward);
+  	  	pivot.clearStickyFaults();
+  	  	pivot.getConfigurator().apply(pivotConfig);
     }
 
     @Override
     public void periodic() {
         if (state == State.Idle) {
-            elevator.set(0);
-			solenoidExtension = false;
+            pivot.set(0);
 		} else if (state == State.ClimbUp) {
-			elevator.setControl(elevatorPositionVoltage.withPosition(ClimbUpSetpoint));
-			solenoidExtension = true;
+			pivot.setControl(pivotPositionVoltage.withPosition(ClimbUpSetpoint));
 		} else if (state == State.ClimbDown) {
-			elevator.setControl(elevatorPositionVoltage.withPosition(ClimbDownSetpoint));
-			solenoidExtension = true;
-		} else if (state == State.Hold) {
-			elevator.setControl(elevatorPositionVoltage.withPosition(HoldSetpoint));
-			solenoidExtension = true;
+			pivot.setControl(pivotPositionVoltage.withPosition(ClimbDownSetpoint));
 		} else {
-            elevator.set(targetSpeed);
+            pivot.set(targetSpeed);
         }
 
-		if (solenoidExtension) {
-			hookSolenoid.set(DoubleSolenoid.Value.kForward);
-		} else {
-			hookSolenoid.set(DoubleSolenoid.Value.kReverse);
-		}
-
-		SmartDashboard.putNumber("Elevator Pos", elevator.getPosition().getValueAsDouble());
+		SmartDashboard.putNumber("Pivot Pos", pivot.getPosition().getValueAsDouble());
 
 		SmartDashboard.putString("Climber State", state.toString());
     }
@@ -97,11 +80,9 @@ public class Climber extends SubsystemBase {
 	 * 
 	 * @param speedInPercent The speed to control the elevator
 	 * 						 motor in percent
-	 * @param shouldSolenoidExtend Should the solenoid extend
 	 */
-    public void setElevatorDumbControl(double speedInPercent, boolean shouldSolenoidExtend) {
+    public void setElevatorDumbControl(double speedInPercent) {
         targetSpeed = speedInPercent;
-		solenoidExtension = shouldSolenoidExtend;
         state = State.DumbControl;
     }
 }
