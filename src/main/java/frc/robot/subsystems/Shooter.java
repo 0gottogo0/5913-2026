@@ -21,63 +21,82 @@ import frc.robot.constants.Constants.ShooterConstants.State;
 
 public class Shooter extends SubsystemBase {
 
-  	private TalonFX bottomShooter = new TalonFX(BottomMotorID);
-  	private TalonFXConfiguration bottomShooterConfig = new TalonFXConfiguration();
+	private TalonFX bottomShooter = new TalonFX(BottomMotorID);
+    private TalonFXConfiguration bottomShooterConfig = new TalonFXConfiguration();
+
+  	private TalonFX topShooter = new TalonFX(TopMotorID);
+  	private TalonFXConfiguration topShooterConfig = new TalonFXConfiguration();
 
 	// Sadly we cant put a pid on the top shooter motor because we
 	// have no encoder on it, percent output should be good enough
 	// for our purposes though
-	private TalonSRX topShooter = new TalonSRX(TopMotorID);
+	private TalonSRX hoodShooter = new TalonSRX(HoodMotorID);
 
-	private VelocityVoltage shooterVelocityVoltage = new VelocityVoltage(0);
+    private VelocityVoltage bottomShooterVelocityVoltage = new VelocityVoltage(0);
+	private VelocityVoltage topShooterVelocityVoltage = new VelocityVoltage(0);
 
-  	private double bottomTargetSpeed = 0;
-	private double topTargetSpeed = 0;
+	private double bottomTargetSpeed = 0.00;
+  	private double topTargetSpeed = 0.00;
+	private double hoodTargetSpeed = 0.00;
 
 	public State state = State.Idle;
 
   	public Shooter() {
-  	  	bottomShooterConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        bottomShooterConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
   	  	bottomShooterConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-		bottomShooterConfig.Slot0.kV = PIDkV;
-		bottomShooterConfig.Slot0.kP = PIDkP;
-		bottomShooterConfig.Slot0.kI = PIDkI;
-		bottomShooterConfig.Slot0.kD = PIDkD;
+		bottomShooterConfig.Slot0.kV = BottomShooterPIDkV;
+		bottomShooterConfig.Slot0.kP = BottomShooterPIDkP;
+		bottomShooterConfig.Slot0.kI = BottomShooterPIDkI;
+		bottomShooterConfig.Slot0.kD = BottomShooterPIDkD;
 
-  	  	bottomShooter.clearStickyFaults();
+        bottomShooter.clearStickyFaults();
   	  	bottomShooter.getConfigurator().apply(bottomShooterConfig);
 
-    	topShooter.clearStickyFaults();
-		topShooter.setNeutralMode(NeutralMode.Coast);
+  	  	topShooterConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+  	  	topShooterConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+		topShooterConfig.Slot0.kV = TopShooterPIDkV;
+		topShooterConfig.Slot0.kP = TopShooterPIDkP;
+		topShooterConfig.Slot0.kI = TopShooterPIDkI;
+		topShooterConfig.Slot0.kD = TopShooterPIDkD;
+
+  	  	topShooter.clearStickyFaults();
+  	  	topShooter.getConfigurator().apply(topShooterConfig);
+
+    	hoodShooter.clearStickyFaults();
+		hoodShooter.setNeutralMode(NeutralMode.Coast);
 	}
 
   	@Override
   	public void periodic() {
   	  	if (state == State.Idle) {
-			bottomShooter.set(0.00);
-			topShooter.set(ControlMode.PercentOutput, 0.00);
-		} else if (state == State.Spinup) {
-			bottomShooter.setControl(shooterVelocityVoltage.withVelocity(bottomTargetSpeed));
-			topShooter.set(ControlMode.PercentOutput, topTargetSpeed);
+            bottomShooter.set(0.00);
+			topShooter.set(0.00);
+			hoodShooter.set(ControlMode.PercentOutput, 0.00);
 		} else if (state == State.Shoot) {
-			// Overshoot target RPS due to heavy ball compression slowing down shooter
-			bottomShooter.setControl(shooterVelocityVoltage.withVelocity(bottomTargetSpeed + ShootRPSAdjustment));
-			topShooter.set(ControlMode.PercentOutput, topTargetSpeed);
+            bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(topTargetSpeed * BottomRatio));
+			topShooter.setControl(topShooterVelocityVoltage.withVelocity(topTargetSpeed));
+			hoodShooter.set(ControlMode.PercentOutput, hoodTargetSpeed);
 		} else if (state == State.Unstick){
-			bottomShooter.setControl(shooterVelocityVoltage.withVelocity(UnstickRPS));
-			topShooter.set(ControlMode.PercentOutput, topTargetSpeed);
+            bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(UnstickRPS));
+			topShooter.setControl(topShooterVelocityVoltage.withVelocity(UnstickRPS));
+			hoodShooter.set(ControlMode.PercentOutput, hoodTargetSpeed);
 		} else {
-			bottomShooter.set(bottomTargetSpeed);
-			topShooter.set(ControlMode.PercentOutput, topTargetSpeed);
+            bottomShooter.set(bottomTargetSpeed);
+			topShooter.set(topTargetSpeed);
+			hoodShooter.set(ControlMode.PercentOutput, hoodTargetSpeed);
 		}
 
-		SmartDashboard.putNumber("Bottom Shooter RPS", getShooterSpeed());
-		SmartDashboard.putNumber("Bottom Shooter Target RPS", bottomTargetSpeed);
-		SmartDashboard.putNumber("Bottom Shooter Target Diff", bottomTargetSpeed - getShooterSpeed());
-		SmartDashboard.putNumber("Bottom Shooter Target Percentage", Math.abs(getShooterSpeed() / bottomTargetSpeed - 1));
+        SmartDashboard.putNumber("Bottom Shooter RPS", getBottomShooterSpeed());
+		SmartDashboard.putNumber("Bottom Shooter Target RPS", topTargetSpeed * BottomRatio);
+		SmartDashboard.putNumber("Bottom Shooter Target Diff", (topTargetSpeed * BottomRatio) - getBottomShooterSpeed());
+		SmartDashboard.putNumber("Bottom Shooter Target Percentage", Math.abs(getBottomShooterSpeed() / (topTargetSpeed * BottomRatio) - 1));
 
-		SmartDashboard.putNumber("Top Shooter RPS", topShooter.getSelectedSensorVelocity());
+		SmartDashboard.putNumber("Top Shooter RPS", getTopShooterSpeed());
 		SmartDashboard.putNumber("Top Shooter Target RPS", topTargetSpeed);
+		SmartDashboard.putNumber("Top Shooter Target Diff", topTargetSpeed - getTopShooterSpeed());
+		SmartDashboard.putNumber("Top Shooter Target Percentage", Math.abs(getTopShooterSpeed() / topTargetSpeed - 1));
+
+		SmartDashboard.putNumber("Hood Shooter Speed", hoodTargetSpeed);
 
 		SmartDashboard.putString("Shooter State", state.toString());
 
@@ -85,11 +104,20 @@ public class Shooter extends SubsystemBase {
   	}
 
 	/**
-	 * Returns the speed of the shooter motor
+	 * Returns the speed of the top shooter motor
 	 * 
 	 * @return Speed in RPS
 	 */
-	private double getShooterSpeed() {
+	private double getTopShooterSpeed() {
+		return topShooter.getRotorVelocity().getValueAsDouble();
+	}
+
+    /**
+	 * Returns the speed of the bottom shooter motor
+	 * 
+	 * @return Speed in RPS
+	 */
+	private double getBottomShooterSpeed() {
 		return bottomShooter.getRotorVelocity().getValueAsDouble();
 	}
 
@@ -100,18 +128,18 @@ public class Shooter extends SubsystemBase {
 	 * then use setShooterDumbControl()
 	 * 
 	 * @param stateToChangeTo Using ShooterConstants.State
-	 * @param bottomSpeedInRPS The target speed to set in rps.
-	 * 					 	   When setting the state to idle,
-	 * 					 	   target speed is not used and can
-	 * 						   be set to 0.	
-	 * @param topSpeedInRPS The target speed to set in percent.
-	 * 					   When setting the state to idle,
-	 * 					   target speed is not used and can
-	 * 					   be set to 0.
+	 * @param SpeedInRPS The target speed to set in rps.
+	 * 					 When setting the state to idle,
+	 * 					 target speed is not used and can
+	 * 					 be set to 0.	
+	 * @param hoodSpeedInRPS The target speed to set in percent.
+	 * 					     When setting the state to idle,
+	 * 					     target speed is not used and can
+	 * 					     be set to 0.
 	 */
-	public void setShooterState(State stateToChangeTo, double bottomSpeedInRPS, double topSpeedInRPS) {
-		bottomTargetSpeed = bottomSpeedInRPS;
-		topTargetSpeed = topSpeedInRPS;
+	public void setShooterState(State stateToChangeTo, double SpeedInRPS, double hoodSpeedInRPS) {
+        topTargetSpeed = SpeedInRPS;
+		hoodTargetSpeed = hoodSpeedInRPS;
 		state = stateToChangeTo;
 	}
 
@@ -121,12 +149,30 @@ public class Shooter extends SubsystemBase {
 	 * Used if want to control the shooter open loop without
 	 * the PID. Uses the TalonFX .set() function 
 	 * 
-	 * @param bottomSpeedInPercent The speed to control in percent
 	 * @param topSpeedInPercent The speed to control in percent
+	 * @param hoodSpeedInPercent The speed to control in percent
 	 */
-	public void setShooterDumbControl(double bottomSpeedInPercent, double topSpeedInPercent) {
-		bottomTargetSpeed = bottomSpeedInPercent;
+	public void setShooterDumbControl(double topSpeedInPercent, double hoodSpeedInPercent) {
+		bottomTargetSpeed = topSpeedInPercent;
+        topTargetSpeed = topSpeedInPercent;
+		hoodTargetSpeed = hoodSpeedInPercent;
+		state = State.DumbControl;
+	}
+
+	/**
+	 * Sets the state of the shooter to DumbControl
+	 * <p>
+	 * Used if want to control the shooter open loop without
+	 * the PID. Uses the TalonFX .set() function 
+	 * 
+	 * @param topSpeedInPercent The speed to control in percent
+	 * @param hoodSpeedInPercent The speed to control in percent
+	 * @param bottomSpeedInPercent The speed to control in percent
+	 */
+	public void setShooterDumbControl(double topSpeedInPercent, double hoodSpeedInPercent, double bottomSpeedInPercent) {
+        bottomTargetSpeed = bottomSpeedInPercent;
 		topTargetSpeed = topSpeedInPercent;
+		hoodTargetSpeed = hoodSpeedInPercent;
 		state = State.DumbControl;
 	}
 
@@ -141,8 +187,8 @@ public class Shooter extends SubsystemBase {
 	 * @return True if the shooter is up to speed
 	 */
 	public boolean isShooterAtSpeed() {
-		if (state == State.Spinup || state == State.Shoot) {
-			return Math.abs(getShooterSpeed() - bottomTargetSpeed) < RPSThreshold;
+		if (state == State.Shoot) {
+			return Math.abs(getTopShooterSpeed() - topTargetSpeed) < RPSThreshold;
 		} else {
 			return false;
 		}
