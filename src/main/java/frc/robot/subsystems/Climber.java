@@ -5,7 +5,6 @@
 package frc.robot.subsystems;
 
 import static frc.robot.constants.Constants.ClimberConstants.*;
-import static frc.robot.constants.Constants.PneumaticConstants.*;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -13,47 +12,45 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Climber extends SubsystemBase {
 
-    private TalonFX pivot = new TalonFX(MotorID);
-    private TalonFXConfiguration pivotConfig = new TalonFXConfiguration();
+    private TalonFX hookPivot = new TalonFX(MotorID);
+    private TalonFXConfiguration hootPivotConfig = new TalonFXConfiguration();
 
-	private PositionVoltage pivotPositionVoltage = new PositionVoltage(0);
+	private PositionVoltage hootPivotPositionVoltage = new PositionVoltage(0);
 
     private double targetSpeed = 0;
 
     public State state = State.Idle;
 
     public Climber() {
-        pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-  	  	pivotConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-		pivotConfig.Slot0.kG = PIDkG;
-		pivotConfig.Slot0.kP = PIDkP;
-		pivotConfig.Slot0.kI = PIDkI;
-		pivotConfig.Slot0.kD = PIDkD;
+        hootPivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+  	  	hootPivotConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+		hootPivotConfig.Slot0.kG = PIDkG;
+		hootPivotConfig.Slot0.kP = PIDkP;
+		hootPivotConfig.Slot0.kI = PIDkI;
+		hootPivotConfig.Slot0.kD = PIDkD;
 
-  	  	pivot.clearStickyFaults();
-  	  	pivot.getConfigurator().apply(pivotConfig);
+  	  	hookPivot.clearStickyFaults();
+  	  	hookPivot.getConfigurator().apply(hootPivotConfig);
     }
 
     @Override
     public void periodic() {
         if (state == State.Idle) {
-            pivot.set(0);
+            hookPivot.set(0);
 		} else if (state == State.ClimbUp) {
-			pivot.setControl(pivotPositionVoltage.withPosition(ClimbUpSetpoint));
+			hookPivot.setControl(hootPivotPositionVoltage.withPosition(ClimbUpSetpoint));
 		} else if (state == State.ClimbDown) {
-			pivot.setControl(pivotPositionVoltage.withPosition(ClimbDownSetpoint));
+			hookPivot.setControl(hootPivotPositionVoltage.withPosition(ClimbDownSetpoint));
 		} else {
-            pivot.set(targetSpeed);
+            hookPivot.set(targetSpeed);
         }
 
-		SmartDashboard.putNumber("Pivot Pos", pivot.getPosition().getValueAsDouble());
+		SmartDashboard.putNumber("Pivot Pos", hookPivot.getPosition().getValueAsDouble());
 
 		SmartDashboard.putString("Climber State", state.toString());
     }
@@ -64,11 +61,9 @@ public class Climber extends SubsystemBase {
 	 * If wanting to control the elevator without PID
 	 * then use setElevatorDumbControl()
 	 * 
-	 * @param stateToChangeTo Using elevatorConstants.State 
-	 * 						  Note: ClimbUp refers to the
-	 * 						  elevator moving down
+	 * @param stateToChangeTo Using elevatorConstants.State
 	 */
-	public void setElevatorState(State stateToChangeTo) {
+	public void setClimberState(State stateToChangeTo) {
 		state = stateToChangeTo;
 	}
 
@@ -81,7 +76,7 @@ public class Climber extends SubsystemBase {
 	 * @param speedInPercent The speed to control the elevator
 	 * 						 motor in percent
 	 */
-    public void setElevatorDumbControl(double speedInPercent) {
+    public void setClimberDumbControl(double speedInPercent) {
         targetSpeed = speedInPercent;
         state = State.DumbControl;
     }
