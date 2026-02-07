@@ -27,13 +27,12 @@ public class Shooter extends SubsystemBase {
   	private TalonFX topShooter = new TalonFX(TopMotorID);
   	private TalonFXConfiguration topShooterConfig = new TalonFXConfiguration();
 
-	// Sadly we cant put a pid on the top shooter motor because we
-	// have no encoder on it, percent output should be good enough
-	// for our purposes though
-	private TalonSRX hoodShooter = new TalonSRX(HoodMotorID);
+	private TalonFX hoodShooter = new TalonFX(HoodMotorID);
+  	private TalonFXConfiguration hoodShooterConfig = new TalonFXConfiguration();
 
     private VelocityVoltage bottomShooterVelocityVoltage = new VelocityVoltage(0);
 	private VelocityVoltage topShooterVelocityVoltage = new VelocityVoltage(0);
+    private VelocityVoltage hoodShooterVelocityVoltage = new VelocityVoltage(0);
 
 	private double bottomTargetSpeed = 0.00;
   	private double topTargetSpeed = 0.00;
@@ -62,8 +61,15 @@ public class Shooter extends SubsystemBase {
   	  	topShooter.clearStickyFaults();
   	  	topShooter.getConfigurator().apply(topShooterConfig);
 
-    	hoodShooter.clearStickyFaults();
-		hoodShooter.setNeutralMode(NeutralMode.Coast);
+        hoodShooterConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+  	  	hoodShooterConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+		hoodShooterConfig.Slot0.kV = HoodShooterPIDkV;
+		hoodShooterConfig.Slot0.kP = HoodShooterPIDkP;
+		hoodShooterConfig.Slot0.kI = HoodShooterPIDkI;
+		hoodShooterConfig.Slot0.kD = HoodShooterPIDkD;
+
+  	  	hoodShooter.clearStickyFaults();
+  	  	hoodShooter.getConfigurator().apply(hoodShooterConfig);
 	}
 
   	@Override
@@ -71,19 +77,19 @@ public class Shooter extends SubsystemBase {
   	  	if (state == State.Idle) {
             bottomShooter.set(0.00);
 			topShooter.set(0.00);
-			hoodShooter.set(ControlMode.PercentOutput, 0.00);
+			hoodShooter.set(0.00);
 		} else if (state == State.Shoot) {
             bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(topTargetSpeed * BottomRatio));
 			topShooter.setControl(topShooterVelocityVoltage.withVelocity(topTargetSpeed));
-			hoodShooter.set(ControlMode.PercentOutput, hoodTargetSpeed);
+			hoodShooter.setControl(hoodShooterVelocityVoltage.withVelocity(hoodTargetSpeed));
 		} else if (state == State.Unstick){
             bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(UnstickRPS));
 			topShooter.setControl(topShooterVelocityVoltage.withVelocity(UnstickRPS));
-			hoodShooter.set(ControlMode.PercentOutput, hoodTargetSpeed);
+			hoodShooter.setControl(hoodShooterVelocityVoltage.withVelocity(UnstickRPS));
 		} else {
             bottomShooter.set(bottomTargetSpeed);
 			topShooter.set(topTargetSpeed);
-			hoodShooter.set(ControlMode.PercentOutput, hoodTargetSpeed);
+			hoodShooter.set(hoodTargetSpeed);
 		}
 
         SmartDashboard.putNumber("Bottom Shooter RPS", getBottomShooterSpeed());
@@ -96,12 +102,24 @@ public class Shooter extends SubsystemBase {
 		SmartDashboard.putNumber("Top Shooter Target Diff", topTargetSpeed - getTopShooterSpeed());
 		SmartDashboard.putNumber("Top Shooter Target Percentage", Math.abs(getTopShooterSpeed() / topTargetSpeed - 1));
 
-		SmartDashboard.putNumber("Hood Shooter Speed", hoodTargetSpeed);
-
+		SmartDashboard.putNumber("Top Shooter RPS", getHoodShooterSpeed());
+		SmartDashboard.putNumber("Top Shooter Target RPS", hoodTargetSpeed);
+		SmartDashboard.putNumber("Top Shooter Target Diff", hoodTargetSpeed - getHoodShooterSpeed());
+		SmartDashboard.putNumber("Top Shooter Target Percentage", Math.abs(getHoodShooterSpeed() / hoodTargetSpeed - 1));
+        
 		SmartDashboard.putString("Shooter State", state.toString());
 
 		SmartDashboard.putBoolean("Shooter At Speed", isShooterAtSpeed());
   	}
+      
+    /**
+     * Returns the speed of the bottom shooter motor
+     * 
+     * @return Speed in RPS
+     */
+    private double getBottomShooterSpeed() {
+        return bottomShooter.getRotorVelocity().getValueAsDouble();
+    }
 
 	/**
 	 * Returns the speed of the top shooter motor
@@ -113,12 +131,12 @@ public class Shooter extends SubsystemBase {
 	}
 
     /**
-	 * Returns the speed of the bottom shooter motor
+	 * Returns the speed of the top shooter motor
 	 * 
 	 * @return Speed in RPS
 	 */
-	private double getBottomShooterSpeed() {
-		return bottomShooter.getRotorVelocity().getValueAsDouble();
+	private double getHoodShooterSpeed() {
+		return hoodShooter.getRotorVelocity().getValueAsDouble();
 	}
 
 	/**
@@ -132,7 +150,7 @@ public class Shooter extends SubsystemBase {
 	 * 					 When setting the state to idle,
 	 * 					 target speed is not used and can
 	 * 					 be set to 0.	
-	 * @param hoodSpeedInRPS The target speed to set in percent.
+	 * @param hoodSpeedInRPS The target speed to set in rps.
 	 * 					     When setting the state to idle,
 	 * 					     target speed is not used and can
 	 * 					     be set to 0.

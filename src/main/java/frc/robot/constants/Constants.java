@@ -149,6 +149,11 @@ public final class Constants {
         public static final double TopShooterPIDkI = 0.00;
         public static final double TopShooterPIDkD = 0.00;
 
+        public static final double HoodShooterPIDkV = 0.00;
+        public static final double HoodShooterPIDkP = 0.45;
+        public static final double HoodShooterPIDkI = 0.00;
+        public static final double HoodShooterPIDkD = 0.00;
+
         public static final int BottomMotorID = 31;
         public static final int TopMotorID = 30;
         public static final int HoodMotorID = 29;
