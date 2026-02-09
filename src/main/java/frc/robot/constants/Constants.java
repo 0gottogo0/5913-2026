@@ -43,15 +43,12 @@ public final class Constants {
             DumbControl
         }
 
-        // How many rotations of the elevator motor does it take
-        // to move the elevator an inch
-        public static final double ElevatorRotationsToInches = 0.00;
+        // How many rotations of the pivot motor does it take
+        // to move the hooks a degree 
+        public static final double PivotMotorRotationsToOneDegree = 0.00;
 
-        // Note, these are in inches and "ClimbUp" refers to the
-        // elevator going down pushing to robot up
         public static final double ClimbUpSetpoint =  0.00;
         public static final double ClimbDownSetpoint = 0.00;
-        public static final double HoldSetpoint = 0.00;
 
         public static final double PIDkG = 0.00;
         public static final double PIDkP = 0.20;
@@ -59,8 +56,6 @@ public final class Constants {
         public static final double PIDkD = 0.00;
 
         public static final int MotorID = 32;
-        public static final int HooksOutID = 1;
-        public static final int HooksInID = 2;
     }
 
     public static final class ControllerConstants {

@@ -43,9 +43,9 @@ public class Climber extends SubsystemBase {
         if (state == State.Idle) {
             hookPivot.set(0);
 		} else if (state == State.ClimbUp) {
-			hookPivot.setControl(hootPivotPositionVoltage.withPosition(ClimbUpSetpoint));
+			hookPivot.setControl(hootPivotPositionVoltage.withPosition(ClimbUpSetpoint * PivotMotorRotationsToOneDegree));
 		} else if (state == State.ClimbDown) {
-			hookPivot.setControl(hootPivotPositionVoltage.withPosition(ClimbDownSetpoint));
+			hookPivot.setControl(hootPivotPositionVoltage.withPosition(ClimbDownSetpoint * PivotMotorRotationsToOneDegree));
 		} else {
             hookPivot.set(targetSpeed);
         }
