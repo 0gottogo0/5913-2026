@@ -4,7 +4,14 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.constants.Constants.HopperConstants.*;
+import static frc.robot.constants.Constants.HopperConstants.HopperFullnessAmountByTA;
+import static frc.robot.constants.Constants.HopperConstants.IntakeingSpeed;
+import static frc.robot.constants.Constants.HopperConstants.LimelightHopper;
+import static frc.robot.constants.Constants.HopperConstants.MotorID;
+import static frc.robot.constants.Constants.HopperConstants.PIDkD;
+import static frc.robot.constants.Constants.HopperConstants.PIDkI;
+import static frc.robot.constants.Constants.HopperConstants.PIDkP;
+import static frc.robot.constants.Constants.HopperConstants.PIDkV;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -13,6 +20,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.LimelightHelpers;
 import frc.robot.constants.Constants.HopperConstants.State;
 
 public class Hopper extends SubsystemBase {
@@ -23,6 +31,7 @@ public class Hopper extends SubsystemBase {
     private VelocityVoltage hopperVelocityVoltage = new VelocityVoltage(0);
 
     private double targetSpeed = 0.00;
+    private double hopperLLTA = LimelightHelpers.getTA(LimelightHopper);
 
     public State state = State.Idle;
 
@@ -49,6 +58,18 @@ public class Hopper extends SubsystemBase {
         } else {
             hopper.set(targetSpeed);
         }
+    }
+
+    /**
+     * Gets the predicted hopper fullness amount 
+     * using the hopper limelight.
+     * <p>
+     * Yes, real term
+     * 
+     * @return The hopper fullness amount
+     */
+    public double getPredictedHopperFullnessAmount() {
+        return HopperFullnessAmountByTA.get(hopperLLTA);
     }
 
     /**

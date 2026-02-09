@@ -120,6 +120,12 @@ public final class Constants {
             DumbControl
         }
 
+        // TA, Hopper Fullness (yes this is now a real term)
+        public static final InterpolatingDoubleTreeMap HopperFullnessAmountByTA = InterpolatingDoubleTreeMap.ofEntries(
+            Map.entry(0.00, 0.00),
+            Map.entry(0.00, 0.00)
+        );
+
         public static final double PIDkV = 0.00;
         public static final double PIDkP = 0.20;
         public static final double PIDkI = 0.00;
@@ -128,6 +134,7 @@ public final class Constants {
         public static final double IntakeingSpeed = 20.00;
 
         public static final int MotorID = 38;
+        public static final String LimelightHopper = "llhopper";
     }
     
     public static final class IntakeConstants {
