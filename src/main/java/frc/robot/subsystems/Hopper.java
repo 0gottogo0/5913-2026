@@ -29,7 +29,6 @@ public class Hopper extends SubsystemBase {
 		hopperConfig.Slot0.kI = PIDkI;
 		hopperConfig.Slot0.kD = PIDkD;
 
-
   	  	hopper.clearStickyFaults();
   	  	hopper.getConfigurator().apply(hopperConfig);
     }
