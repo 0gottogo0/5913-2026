@@ -13,6 +13,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.constants.Constants.HopperConstants.State;
 
 public class Hopper extends SubsystemBase {
 
@@ -20,6 +21,10 @@ public class Hopper extends SubsystemBase {
     private TalonFXConfiguration hopperConfig = new TalonFXConfiguration();
 
     private VelocityVoltage hopperVelocityVoltage = new VelocityVoltage(0);
+
+    private double targetSpeed = 0.00;
+
+    public State state = State.Idle;
 
     public Hopper() {
         hopperConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -35,6 +40,40 @@ public class Hopper extends SubsystemBase {
 
     @Override
     public void periodic() {
-        
+         if (state == State.Idle) {
+            hopper.set(0.00);
+        } else if (state == State.Intake) {
+            hopper.setControl(hopperVelocityVoltage.withVelocity(IntakeingSpeed));
+        } else if (state == State.Outtake) {
+            hopper.setControl(hopperVelocityVoltage.withVelocity(-IntakeingSpeed));
+        } else {
+            hopper.set(targetSpeed);
+        }
+    }
+
+    /**
+	 * Sets the state of the hopper.
+	 * <p> 
+	 * If wanting to control the hopper without PID
+	 * then use setHopperDumbControl()
+	 * 
+	 * @param stateToChangeTo Using HopperConstants.State
+	 */
+    public void setHopperState(State stateToChangeTo) {
+        state = stateToChangeTo;
+    }
+
+	/**
+	 * Sets the state of the hopper to DumbControl
+	 * <p>
+	 * Used if want to control the hopper open loop without
+	 * the PID. Uses the TalonFX .set() function 
+	 * 
+	 * @param speedInPercent The speed to control the hopper
+	 * 						 motor in percent
+	 */
+    public void setHopperDumbControl(double speedInPercent) {
+        targetSpeed = speedInPercent;
+        state = State.DumbControl;
     }
 }

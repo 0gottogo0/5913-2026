@@ -117,7 +117,7 @@ public final class Constants {
             Idle,
             Intake,
             Outtake,
-            DoumbControl
+            DumbControl
         }
 
         public static final double PIDkV = 0.00;
