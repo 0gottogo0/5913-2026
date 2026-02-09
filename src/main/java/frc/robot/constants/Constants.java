@@ -111,6 +111,24 @@ public final class Constants {
         
         public static final int MotorID = 31;
     }
+
+    public static final class HopperConstants {
+        public static enum State {
+            Idle,
+            Intake,
+            Outtake,
+            DoumbControl
+        }
+
+        public static final double PIDkV = 0.00;
+        public static final double PIDkP = 0.20;
+        public static final double PIDkI = 0.00;
+        public static final double PIDkD = 0.00;
+
+        public static final double IntakeingSpeed = 20.00;
+
+        public static final int MotorID = 38;
+    }
     
     public static final class IntakeConstants {
         public static enum State {
