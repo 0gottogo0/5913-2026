@@ -6,9 +6,6 @@ package frc.robot.subsystems;
 
 import static frc.robot.constants.Constants.ShooterConstants.*;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -21,12 +18,15 @@ import frc.robot.constants.Constants.ShooterConstants.State;
 
 public class Shooter extends SubsystemBase {
 
+	// Kraken X60
 	private TalonFX bottomShooter = new TalonFX(BottomMotorID);
     private TalonFXConfiguration bottomShooterConfig = new TalonFXConfiguration();
 
+	// Kraken X60
   	private TalonFX topShooter = new TalonFX(TopMotorID);
   	private TalonFXConfiguration topShooterConfig = new TalonFXConfiguration();
 
+	// Kraken X44
 	private TalonFX hoodShooter = new TalonFX(HoodMotorID);
   	private TalonFXConfiguration hoodShooterConfig = new TalonFXConfiguration();
 
@@ -74,22 +74,27 @@ public class Shooter extends SubsystemBase {
 
   	@Override
   	public void periodic() {
-  	  	if (state == State.Idle) {
-            bottomShooter.set(0.00);
-			topShooter.set(0.00);
-			hoodShooter.set(0.00);
-		} else if (state == State.Shoot) {
-            bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(topTargetSpeed * BottomRatio));
-			topShooter.setControl(topShooterVelocityVoltage.withVelocity(topTargetSpeed));
-			hoodShooter.setControl(hoodShooterVelocityVoltage.withVelocity(hoodTargetSpeed));
-		} else if (state == State.Unstick){
-            bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(UnstickRPS));
-			topShooter.setControl(topShooterVelocityVoltage.withVelocity(UnstickRPS));
-			hoodShooter.setControl(hoodShooterVelocityVoltage.withVelocity(UnstickRPS));
-		} else {
-            bottomShooter.set(bottomTargetSpeed);
-			topShooter.set(topTargetSpeed);
-			hoodShooter.set(hoodTargetSpeed);
+  	  	switch (state) {
+			case Idle:
+				bottomShooter.set(0.00);
+				topShooter.set(0.00);
+				hoodShooter.set(0.00);
+				break;
+			case Shoot:
+				bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(topTargetSpeed * BottomRatio));
+				topShooter.setControl(topShooterVelocityVoltage.withVelocity(topTargetSpeed));
+				hoodShooter.setControl(hoodShooterVelocityVoltage.withVelocity(hoodTargetSpeed));
+				break;
+			case Unstick:
+				bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(UnstickRPS));
+				topShooter.setControl(topShooterVelocityVoltage.withVelocity(UnstickRPS));
+				hoodShooter.setControl(hoodShooterVelocityVoltage.withVelocity(UnstickRPS));
+				break;
+			case DumbControl:
+				bottomShooter.set(bottomTargetSpeed);
+				topShooter.set(topTargetSpeed);
+				hoodShooter.set(hoodTargetSpeed);
+				break;
 		}
 
         SmartDashboard.putNumber("Bottom Shooter RPS", getBottomShooterSpeed());
