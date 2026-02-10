@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
 import frc.robot.LimelightHelpers.PoseEstimate;
+import frc.robot.constants.Constants.AutoAimConstants.State;
 
 public class AutoAim extends SubsystemBase {
 
@@ -33,6 +34,8 @@ public class AutoAim extends SubsystemBase {
 
     double calculatedShot[] = {0.00, 0.00, 0.00, 0.00, 0.00};
     PoseEstimate estimatedRobotPose[] = {new PoseEstimate(), new PoseEstimate(), new PoseEstimate()};
+
+    State state = State.Goal;
 
     public AutoAim() {
         
@@ -54,14 +57,30 @@ public class AutoAim extends SubsystemBase {
             drivetrain.addVisionMeasurement(LimelightRightMeasurement.pose, LimelightRightMeasurement.timestampSeconds);
         }
 
-        try {
-            if (DriverStation.getAlliance().get() == Alliance.Blue) {
+        if (state == State.Goal) {
+            // Try catch statement because we might not be
+            // connected to driverstation
+            try {
+                if (DriverStation.getAlliance().get() == Alliance.Blue) {
+                    goalPose = BlueGoal;
+                } else {
+                    goalPose = RedGoal;
+                }
+            } catch (Exception e) {
                 goalPose = BlueGoal;
-            } else {
-                goalPose = RedGoal;
             }
-        } catch (Exception e) {
-            goalPose = RedGoal;
+        } else if (state == State.NeutralZone) {
+            goalPose = NeutralZone;
+        } else if (state == State.AllianceZone) {
+            try {
+                if (DriverStation.getAlliance().get() == Alliance.Blue) {
+                    goalPose = BlueZone;
+                } else {
+                    goalPose = RedZone;
+                }
+            } catch (Exception e) {
+                goalPose = BlueZone;
+            }
         }
 
         TurretRotatePointPose = robotPose.plus(TurretRotatePoint);
@@ -146,5 +165,24 @@ public class AutoAim extends SubsystemBase {
         // Interpolates time of flight
         calculatedShot[4] = TimeOfFlightByDistance.get(calculatedShot[1]);
         return calculatedShot;
+    }
+
+    /**
+	 * Sets the state to autoaim too.
+	 * <p> 
+	 * If wanting to control shots manualy then
+     * use setAutoAimDumbControl()
+	 * 
+	 * @param stateToChangeTo Using AutoAimConstants.State	
+	 */
+    public void setAutoAimState(State stateToChangeTo) {
+        state = stateToChangeTo;
+    }
+
+    /**
+     * Unimplimented
+     */
+    public void setAutoAimDumbControl() {
+
     }
 }

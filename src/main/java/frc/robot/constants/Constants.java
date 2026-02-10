@@ -9,8 +9,18 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 
 public final class Constants {
     public static final class AutoAimConstants {
+        public static enum State {
+            Goal,
+            NeutralZone,
+            AllianceZone,
+            DumbControl
+        }
+
         public static final Pose2d BlueGoal = new Pose2d(0, 0, new Rotation2d(0));
         public static final Pose2d RedGoal = new Pose2d(0, 0, new Rotation2d(0));
+        public static final Pose2d NeutralZone = new Pose2d(0, 0, new Rotation2d(0));
+        public static final Pose2d BlueZone = new Pose2d(0, 0, new Rotation2d(0));
+        public static final Pose2d RedZone = new Pose2d(0, 0, new Rotation2d(0));
 
         // Set to x:0, y:0, r:0 for no turret because
         // the "turret" is just our swerve
