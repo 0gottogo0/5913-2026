@@ -102,10 +102,10 @@ public class Shooter extends SubsystemBase {
 		SmartDashboard.putNumber("Top Shooter Target Diff", topTargetSpeed - getTopShooterSpeed());
 		SmartDashboard.putNumber("Top Shooter Target Percentage", Math.abs(getTopShooterSpeed() / topTargetSpeed - 1));
 
-		SmartDashboard.putNumber("Top Shooter RPS", getHoodShooterSpeed());
-		SmartDashboard.putNumber("Top Shooter Target RPS", hoodTargetSpeed);
-		SmartDashboard.putNumber("Top Shooter Target Diff", hoodTargetSpeed - getHoodShooterSpeed());
-		SmartDashboard.putNumber("Top Shooter Target Percentage", Math.abs(getHoodShooterSpeed() / hoodTargetSpeed - 1));
+		SmartDashboard.putNumber("Hood Shooter RPS", getHoodShooterSpeed());
+		SmartDashboard.putNumber("Hood Shooter Target RPS", hoodTargetSpeed);
+		SmartDashboard.putNumber("Hood Shooter Target Diff", hoodTargetSpeed - getHoodShooterSpeed());
+		SmartDashboard.putNumber("Hood Shooter Target Percentage", Math.abs(getHoodShooterSpeed() / hoodTargetSpeed - 1));
         
 		SmartDashboard.putString("Shooter State", state.toString());
 
