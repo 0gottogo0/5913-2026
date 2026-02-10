@@ -14,9 +14,12 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.LimelightHelpers;
+import frc.robot.LimelightHelpers.PoseEstimate;
 
 public class AutoAim extends SubsystemBase {
 
+    CommandSwerveDrivetrain drivetrain;
     Pose2d robotPose = new Pose2d();
     ChassisSpeeds robotSpeed = new ChassisSpeeds();
 
@@ -25,7 +28,11 @@ public class AutoAim extends SubsystemBase {
     Pose2d goalPose = new Pose2d();
     Pose2d adjustedGoalPose = new Pose2d();
 
+    PoseEstimate LimelightLeftMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightLeft);
+    PoseEstimate LimelightRightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightRight);
+
     double calculatedShot[] = {0.00, 0.00, 0.00, 0.00, 0.00};
+    PoseEstimate estimatedRobotPose[] = {new PoseEstimate(), new PoseEstimate(), new PoseEstimate()};
 
     public AutoAim() {
         
@@ -33,6 +40,20 @@ public class AutoAim extends SubsystemBase {
 
     @Override
     public void periodic() {
+        LimelightHelpers.SetRobotOrientation(LimelightLeft, robotPose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation(LimelightRight, robotPose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
+
+        LimelightLeftMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightLeft);
+        LimelightRightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightRight);
+
+        if (LimelightLeftMeasurement != null && LimelightLeftMeasurement.tagCount > 0) {
+            drivetrain.addVisionMeasurement(LimelightLeftMeasurement.pose, LimelightLeftMeasurement.timestampSeconds);
+        }
+
+        if (LimelightRightMeasurement != null && LimelightRightMeasurement.tagCount > 0) {
+            drivetrain.addVisionMeasurement(LimelightRightMeasurement.pose, LimelightRightMeasurement.timestampSeconds);
+        }
+
         try {
             if (DriverStation.getAlliance().get() == Alliance.Blue) {
                 goalPose = BlueGoal;
@@ -77,12 +98,12 @@ public class AutoAim extends SubsystemBase {
     /**
      * Give the auto aim subsystem the robots state
      * 
-     * @param drivetrainPos The robots position
-     * @param drivetrainSpeed The robots speed
+     * @param drivetrainToGive The robots drivetrain
      */
-    public void setAutoAimDrivetrainState(Pose2d drivetrainPos, ChassisSpeeds drivetrainSpeed) {
-        robotPose = drivetrainPos;
-        robotSpeed = drivetrainSpeed;
+    public void setAutoAimDrivetrainState(CommandSwerveDrivetrain drivetrainToGive) {
+        drivetrain = drivetrainToGive;
+        robotPose = drivetrain.getState().Pose;
+        robotSpeed = drivetrain.getState().Speeds;
     }
 
     /**

@@ -33,6 +33,9 @@ public final class Constants {
             Map.entry(0.00, 0.00),
             Map.entry(0.00, 0.00)
         );
+
+        public static final String LimelightLeft = "llleft";
+        public static final String LimelightRight = "llright";
     }
 
     public static final class ClimberConstants {
