@@ -40,15 +40,20 @@ public class Climber extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (state == State.Idle) {
-            hookPivot.set(0);
-		} else if (state == State.ClimbUp) {
-			hookPivot.setControl(hootPivotPositionVoltage.withPosition(ClimbUpSetpoint * PivotMotorRotationsToOneDegree));
-		} else if (state == State.ClimbDown) {
-			hookPivot.setControl(hootPivotPositionVoltage.withPosition(ClimbDownSetpoint * PivotMotorRotationsToOneDegree));
-		} else {
-            hookPivot.set(targetSpeed);
-        }
+        switch (state) {
+			case Idle:
+            	hookPivot.set(0);
+				break;
+			case ClimbUp:
+				hookPivot.setControl(hootPivotPositionVoltage.withPosition(ClimbUpSetpoint * PivotMotorRotationsToOneDegree));
+				break;
+			case ClimbDown:
+				hookPivot.setControl(hootPivotPositionVoltage.withPosition(ClimbDownSetpoint * PivotMotorRotationsToOneDegree));
+				break;
+			case DumbControl:
+				hookPivot.set(targetSpeed);
+				break;
+		}
 
 		SmartDashboard.putNumber("Pivot Pos", hookPivot.getPosition().getValueAsDouble());
 
