@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Climber extends SubsystemBase {
 
+	// Kraken X60
     private TalonFX hookPivot = new TalonFX(MotorID);
     private TalonFXConfiguration hootPivotConfig = new TalonFXConfiguration();
 
