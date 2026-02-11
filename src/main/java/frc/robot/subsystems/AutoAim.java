@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -43,6 +44,15 @@ public class AutoAim extends SubsystemBase {
 
     @Override
     public void periodic() {
+
+        if (DriverStation.isDisabled()) {
+            NetworkTableInstance.getDefault().getTable(LimelightLeft).getEntry("pipeline").setNumber(1);
+            NetworkTableInstance.getDefault().getTable(LimelightRight).getEntry("pipeline").setNumber(1);
+        } else {
+            NetworkTableInstance.getDefault().getTable(LimelightLeft).getEntry("pipeline").setNumber(0);
+            NetworkTableInstance.getDefault().getTable(LimelightRight).getEntry("pipeline").setNumber(0);
+        }
+
         LimelightHelpers.SetRobotOrientation(LimelightLeft, robotPose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
         LimelightHelpers.SetRobotOrientation(LimelightRight, robotPose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
 
