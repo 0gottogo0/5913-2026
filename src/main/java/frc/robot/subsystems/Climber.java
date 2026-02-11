@@ -61,24 +61,24 @@ public class Climber extends SubsystemBase {
     }
 
     /**
-	 * Sets the state of the elevator.
+	 * Sets the state of the climber.
 	 * <p> 
-	 * If wanting to control the elevator without PID
-	 * then use setElevatorDumbControl()
+	 * If wanting to control the climber without PID
+	 * then use setClimberDumbControl()
 	 * 
-	 * @param stateToChangeTo Using elevatorConstants.State
+	 * @param stateToChangeTo Using climberConstants.State
 	 */
 	public void setClimberState(State stateToChangeTo) {
 		state = stateToChangeTo;
 	}
 
     /**
-	 * Sets the state of the elevator to DumbControl
+	 * Sets the state of the climber to DumbControl
 	 * <p>
-	 * Used if want to control the elevator open loop without
+	 * Used if want to control the climber open loop without
 	 * the PID. Uses the TalonFX .set() function 
 	 * 
-	 * @param speedInPercent The speed to control the elevator
+	 * @param speedInPercent The speed to control the climber
 	 * 						 motor in percent
 	 */
     public void setClimberDumbControl(double speedInPercent) {
