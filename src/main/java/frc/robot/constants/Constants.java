@@ -79,7 +79,8 @@ public final class Constants {
             EventTC,
             GoCrazyGoStupid, // Thank you team 4539 for this great
                              // name idea at the 2025 NMRC Chamionship
-            TrackingTemplate       
+            HubTracking,
+            ClimbTracking      
         }
 
         // Units allowed to change per seccond

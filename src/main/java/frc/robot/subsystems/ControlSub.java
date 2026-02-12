@@ -247,7 +247,7 @@ public class ControlSub extends SubsystemBase {
                     )
                 );
                 break;
-            case TrackingTemplate:
+            case HubTracking:
                 drivetrain.setDefaultCommand(
                     drivetrain.applyRequest(() -> TrackDrive
                         .withVelocityX(0.00 * maxSpeed) // Drive forward with negative Y (forward)
@@ -256,6 +256,14 @@ public class ControlSub extends SubsystemBase {
                     )
                 );
                 break;
+            case ClimbTracking:
+                drivetrain.setDefaultCommand(
+                    drivetrain.applyRequest(() -> TrackDrive
+                        .withVelocityX(0.00 * maxSpeed) // Drive forward with negative Y (forward)
+                        .withVelocityY(0.00 * maxSpeed) // Drive left with negative X (left)
+                        .withRotationalRate(0.00 * maxSpeed) // Drive counterclockwise with negative X (left)
+                    )
+                );
         }
     }
 }
