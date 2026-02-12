@@ -10,18 +10,13 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.LimelightHelpers;
-import frc.robot.LimelightHelpers.PoseEstimate;
-import frc.robot.constants.Constants.AutoAimConstants.State;
 
 public class AutoAim extends SubsystemBase {
 
-    CommandSwerveDrivetrain drivetrain;
     Pose2d robotPose = new Pose2d();
     ChassisSpeeds robotSpeed = new ChassisSpeeds();
 
@@ -30,13 +25,7 @@ public class AutoAim extends SubsystemBase {
     Pose2d goalPose = new Pose2d();
     Pose2d adjustedGoalPose = new Pose2d();
 
-    PoseEstimate LimelightLeftMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightLeft);
-    PoseEstimate LimelightRightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightRight);
-
     double calculatedShot[] = {0.00, 0.00, 0.00, 0.00, 0.00};
-    PoseEstimate estimatedRobotPose[] = {new PoseEstimate(), new PoseEstimate(), new PoseEstimate()};
-
-    State state = State.Goal;
 
     public AutoAim() {
         
@@ -44,53 +33,14 @@ public class AutoAim extends SubsystemBase {
 
     @Override
     public void periodic() {
-
-        if (DriverStation.isDisabled()) {
-            NetworkTableInstance.getDefault().getTable(LimelightLeft).getEntry("pipeline").setNumber(1);
-            NetworkTableInstance.getDefault().getTable(LimelightRight).getEntry("pipeline").setNumber(1);
-        } else {
-            NetworkTableInstance.getDefault().getTable(LimelightLeft).getEntry("pipeline").setNumber(0);
-            NetworkTableInstance.getDefault().getTable(LimelightRight).getEntry("pipeline").setNumber(0);
-        }
-
-        LimelightHelpers.SetRobotOrientation(LimelightLeft, robotPose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
-        LimelightHelpers.SetRobotOrientation(LimelightRight, robotPose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
-
-        LimelightLeftMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightLeft);
-        LimelightRightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightRight);
-
-        if (LimelightLeftMeasurement != null && LimelightLeftMeasurement.tagCount > 0) {
-            drivetrain.addVisionMeasurement(LimelightLeftMeasurement.pose, LimelightLeftMeasurement.timestampSeconds);
-        }
-
-        if (LimelightRightMeasurement != null && LimelightRightMeasurement.tagCount > 0) {
-            drivetrain.addVisionMeasurement(LimelightRightMeasurement.pose, LimelightRightMeasurement.timestampSeconds);
-        }
-
-        if (state == State.Goal) {
-            // Try catch statement because we might not be
-            // connected to driverstation
-            try {
-                if (DriverStation.getAlliance().get() == Alliance.Blue) {
-                    goalPose = BlueGoal;
-                } else {
-                    goalPose = RedGoal;
-                }
-            } catch (Exception e) {
+        try {
+            if (DriverStation.getAlliance().get() == Alliance.Blue) {
                 goalPose = BlueGoal;
+            } else {
+                goalPose = RedGoal;
             }
-        } else if (state == State.NeutralZone) {
-            goalPose = NeutralZone;
-        } else if (state == State.AllianceZone) {
-            try {
-                if (DriverStation.getAlliance().get() == Alliance.Blue) {
-                    goalPose = BlueZone;
-                } else {
-                    goalPose = RedZone;
-                }
-            } catch (Exception e) {
-                goalPose = BlueZone;
-            }
+        } catch (Exception e) {
+            goalPose = RedGoal;
         }
 
         TurretRotatePointPose = robotPose.plus(TurretRotatePoint);
@@ -127,12 +77,12 @@ public class AutoAim extends SubsystemBase {
     /**
      * Give the auto aim subsystem the robots state
      * 
-     * @param drivetrainToGive The robots drivetrain
+     * @param drivetrainPos The robots position
+     * @param drivetrainSpeed The robots speed
      */
-    public void setAutoAimDrivetrainState(CommandSwerveDrivetrain drivetrainToGive) {
-        drivetrain = drivetrainToGive;
-        robotPose = drivetrain.getState().Pose;
-        robotSpeed = drivetrain.getState().Speeds;
+    public void setAutoAimDrivetrainState(Pose2d drivetrainPos, ChassisSpeeds drivetrainSpeed) {
+        robotPose = drivetrainPos;
+        robotSpeed = drivetrainSpeed;
     }
 
     /**
@@ -175,24 +125,5 @@ public class AutoAim extends SubsystemBase {
         // Interpolates time of flight
         calculatedShot[4] = TimeOfFlightByDistance.get(calculatedShot[1]);
         return calculatedShot;
-    }
-
-    /**
-	 * Sets the state to autoaim too.
-	 * <p> 
-	 * If wanting to control shots manualy then
-     * use setAutoAimDumbControl()
-	 * 
-	 * @param stateToChangeTo Using AutoAimConstants.State	
-	 */
-    public void setAutoAimState(State stateToChangeTo) {
-        state = stateToChangeTo;
-    }
-
-    /**
-     * Unimplimented
-     */
-    public void setAutoAimDumbControl() {
-
     }
 }
