@@ -13,6 +13,8 @@ public final class Constants {
             Goal,
             NeutralZone,
             AllianceZone,
+            ClimbLeft,
+            ClimbRight,
             DumbControl
         }
 
@@ -21,6 +23,11 @@ public final class Constants {
         public static final Pose2d NeutralZone = new Pose2d(0, 0, new Rotation2d(0));
         public static final Pose2d BlueZone = new Pose2d(0, 0, new Rotation2d(0));
         public static final Pose2d RedZone = new Pose2d(0, 0, new Rotation2d(0));
+
+        public static final Pose2d BlueClimbLeft = new Pose2d(0, 0, new Rotation2d(0));
+        public static final Pose2d BlueClimbRight = new Pose2d(0, 0, new Rotation2d(0));
+        public static final Pose2d RedClimbLeft = new Pose2d(0, 0, new Rotation2d(0));
+        public static final Pose2d RedClimbRight = new Pose2d(0, 0, new Rotation2d(0));
 
         // Set to x:0, y:0, r:0 for no turret because
         // the "turret" is just our swerve
@@ -46,6 +53,7 @@ public final class Constants {
 
         public static final String LimelightLeft = "llleft";
         public static final String LimelightRight = "llright";
+        public static final String LimelightClimb = "llclimb";
     }
 
     public static final class ClimberConstants {

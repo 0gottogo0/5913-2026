@@ -32,9 +32,9 @@ public class AutoAim extends SubsystemBase {
 
     PoseEstimate LimelightLeftMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightLeft);
     PoseEstimate LimelightRightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightRight);
+    PoseEstimate LimelightClimbMessurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LimelightClimb);
 
     double calculatedShot[] = {0.00, 0.00, 0.00, 0.00, 0.00};
-    PoseEstimate estimatedRobotPose[] = {new PoseEstimate(), new PoseEstimate(), new PoseEstimate()};
 
     State state = State.Goal;
 
@@ -53,11 +53,11 @@ public class AutoAim extends SubsystemBase {
             NetworkTableInstance.getDefault().getTable(LimelightRight).getEntry("pipeline").setNumber(0);
         }
 
-        LimelightHelpers.SetRobotOrientation(LimelightLeft, robotPose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
-        LimelightHelpers.SetRobotOrientation(LimelightRight, robotPose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation(LimelightClimb, robotPose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
 
         LimelightLeftMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightLeft);
         LimelightRightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightRight);
+        LimelightClimbMessurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LimelightClimb);
 
         if (LimelightLeftMeasurement != null && LimelightLeftMeasurement.tagCount > 0) {
             drivetrain.addVisionMeasurement(LimelightLeftMeasurement.pose, LimelightLeftMeasurement.timestampSeconds);
@@ -67,29 +67,35 @@ public class AutoAim extends SubsystemBase {
             drivetrain.addVisionMeasurement(LimelightRightMeasurement.pose, LimelightRightMeasurement.timestampSeconds);
         }
 
+        if (LimelightClimbMessurement != null && LimelightClimbMessurement.tagCount > 0 && robotSpeed.omegaRadiansPerSecond < 2) {
+            drivetrain.addVisionMeasurement(LimelightClimbMessurement.pose, LimelightClimbMessurement.timestampSeconds);
+        }
+
         if (state == State.Goal) {
-            // Try catch statement because we might not be
-            // connected to driverstation
-            try {
-                if (DriverStation.getAlliance().get() == Alliance.Blue) {
-                    goalPose = BlueGoal;
-                } else {
-                    goalPose = RedGoal;
-                }
-            } catch (Exception e) {
+            if (isBlue()) {
                 goalPose = BlueGoal;
+            } else {
+                goalPose = RedGoal;
             }
         } else if (state == State.NeutralZone) {
             goalPose = NeutralZone;
         } else if (state == State.AllianceZone) {
-            try {
-                if (DriverStation.getAlliance().get() == Alliance.Blue) {
-                    goalPose = BlueZone;
-                } else {
-                    goalPose = RedZone;
-                }
-            } catch (Exception e) {
+            if (isBlue()) {
                 goalPose = BlueZone;
+            } else {
+                goalPose = RedZone;
+            }
+        } else if (state == State.ClimbLeft) {
+            if (isBlue()) {
+                goalPose = BlueClimbLeft;
+            } else {
+                goalPose = RedClimbLeft;
+            }
+        } else if (state == State.ClimbRight) {
+            if (isBlue()) {
+                goalPose = BlueClimbRight;
+            } else {
+                goalPose = RedClimbRight;
             }
         }
 
@@ -133,6 +139,18 @@ public class AutoAim extends SubsystemBase {
         drivetrain = drivetrainToGive;
         robotPose = drivetrain.getState().Pose;
         robotSpeed = drivetrain.getState().Speeds;
+    }
+
+    public boolean isBlue() {
+        try {
+            if (DriverStation.getAlliance().get() == Alliance.Blue) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            return true;
+        }
     }
 
     /**
