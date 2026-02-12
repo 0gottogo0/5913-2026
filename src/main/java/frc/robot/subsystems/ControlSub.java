@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.constants.Constants.ClimberConstants.State;
 import frc.robot.constants.Constants.ControllerConstants;
 import frc.robot.constants.Constants.ControllerConstants.DrivetrainState;
-import frc.robot.constants.Constants.FeederConstants;
 import frc.robot.constants.Constants.ShooterConstants;
 import frc.robot.constants.TunerConstants;
 
@@ -58,7 +57,6 @@ public class ControlSub extends SubsystemBase {
     
     public AutoAim autoAim = new AutoAim();
     public Climber climber = new Climber();
-    public Feeder feeder = new Feeder();
     public Intake intake = new Intake();
     public Pneumatics pneumatics = new Pneumatics();
     public Shooter shooter = new Shooter();
@@ -132,24 +130,19 @@ public class ControlSub extends SubsystemBase {
         }
 
         if (weAreIdlingYo) {
-            feeder.setFeederState(FeederConstants.State.Idle, 0);
             shooter.setShooterState(ShooterConstants.State.Idle, 0, 0);
             bottomShooterSpeed = 0;
             topShooterSpeed = 0;
-        } else if (DriverController.x().getAsBoolean()) {
-            feeder.setFeederState(FeederConstants.State.Feed, bottomShooterSpeed);
-            shooter.setShooterState(ShooterConstants.State.Shoot, bottomShooterSpeed, topShooterSpeed);
         } else {
-            feeder.setFeederState(FeederConstants.State.Idle, bottomShooterSpeed);
-            shooter.setShooterState(ShooterConstants.State.Spinup, bottomShooterSpeed, topShooterSpeed);
+            shooter.setShooterState(ShooterConstants.State.Shoot, bottomShooterSpeed, topShooterSpeed);
         }
 
         if (DriverController.povLeft().getAsBoolean()) {
-            climber.setElevatorDumbControl(0.40);
+            climber.setClimberDumbControl(0.40);
         } else if (DriverController.povRight().getAsBoolean()) {
-            climber.setElevatorDumbControl(-0.40);
+            climber.setClimberDumbControl(-0.40);
         } else {
-            climber.setElevatorState(State.Idle);
+            climber.setClimberState(State.Idle);
         }
 
         /* Manipulator Controls */

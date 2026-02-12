@@ -56,15 +56,12 @@ public final class Constants {
             DumbControl
         }
 
-        // How many rotations of the elevator motor does it take
-        // to move the elevator an inch
-        public static final double ElevatorRotationsToInches = 0.00;
+        // How many rotations of the pivot motor does it take
+        // to move the hooks a degree 
+        public static final double PivotMotorRotationsToOneDegree = 0.00;
 
-        // Note, these are in inches and "ClimbUp" refers to the
-        // elevator going down pushing to robot up
         public static final double ClimbUpSetpoint =  0.00;
         public static final double ClimbDownSetpoint = 0.00;
-        public static final double HoldSetpoint = 0.00;
 
         public static final double PIDkG = 0.00;
         public static final double PIDkP = 0.20;
@@ -72,8 +69,6 @@ public final class Constants {
         public static final double PIDkD = 0.00;
 
         public static final int MotorID = 32;
-        public static final int HooksOutID = 1;
-        public static final int HooksInID = 2;
     }
 
     public static final class ControllerConstants {
@@ -102,29 +97,6 @@ public final class Constants {
         public static final int ManipulatorControllerID = 1;
     }
     
-    public static final class FeederConstants {
-        public static enum State {
-            Idle,
-            Feed,
-            Unstick,
-            Outtake,
-            DumbControl
-        }
-
-        // How fast should the feeder be going compared to the shooter
-        public static final double FeedingRatio = 0.85;
-        public static final double UnstickSpeed = 30;
-        public static final double OuttakeSpeed = -40;
-        
-        public static final double PIDkV = 0.00;
-        public static final double PIDkP = 0.20;
-        public static final double PIDkI = 0.00;
-        public static final double PIDkD = 0.00;
-        
-        
-        public static final int MotorID = 31;
-    }
-
     public static final class HopperConstants {
         public static enum State {
             Idle,
@@ -189,25 +161,34 @@ public final class Constants {
     public static final class ShooterConstants {
         public static enum State {
             Idle,
-            Spinup,
             Shoot,
             Unstick,
             DumbControl
         }
 
+        public static final double BottomRatio = 1.10;
+        
         // Used in determing if shooter is up to speed
         public static final double RPSThreshold = 1.00;
-        // How much faster should the shooter go to account for ball
-        // compression slowing down shooter
-        public static final double ShootRPSAdjustment = 0.75;
         public static final double UnstickRPS = 20.00;
+        
+        public static final double BottomShooterPIDkV = 0.12;
+        public static final double BottomShooterPIDkP = 0.28;
+        public static final double BottomShooterPIDkI = 0.00;
+        public static final double BottomShooterPIDkD = 0.00;
 
-        public static final double PIDkV = 0.00;
-        public static final double PIDkP = 0.45;
-        public static final double PIDkI = 0.00;
-        public static final double PIDkD = 0.00;
+        public static final double TopShooterPIDkV = 0.00;
+        public static final double TopShooterPIDkP = 0.45;
+        public static final double TopShooterPIDkI = 0.00;
+        public static final double TopShooterPIDkD = 0.00;
 
-        public static final int BottomMotorID = 30;
-        public static final int TopMotorID = 29;
+        public static final double HoodShooterPIDkV = 0.00;
+        public static final double HoodShooterPIDkP = 0.45;
+        public static final double HoodShooterPIDkI = 0.00;
+        public static final double HoodShooterPIDkD = 0.00;
+
+        public static final int BottomMotorID = 31;
+        public static final int TopMotorID = 30;
+        public static final int HoodMotorID = 29;
     }
 }
