@@ -9,8 +9,18 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 
 public final class Constants {
     public static final class AutoAimConstants {
+        public static enum State {
+            Goal,
+            NeutralZone,
+            AllianceZone,
+            DumbControl
+        }
+
         public static final Pose2d BlueGoal = new Pose2d(0, 0, new Rotation2d(0));
         public static final Pose2d RedGoal = new Pose2d(0, 0, new Rotation2d(0));
+        public static final Pose2d NeutralZone = new Pose2d(0, 0, new Rotation2d(0));
+        public static final Pose2d BlueZone = new Pose2d(0, 0, new Rotation2d(0));
+        public static final Pose2d RedZone = new Pose2d(0, 0, new Rotation2d(0));
 
         // Set to x:0, y:0, r:0 for no turret because
         // the "turret" is just our swerve
@@ -33,6 +43,9 @@ public final class Constants {
             Map.entry(0.00, 0.00),
             Map.entry(0.00, 0.00)
         );
+
+        public static final String LimelightLeft = "llleft";
+        public static final String LimelightRight = "llright";
     }
 
     public static final class ClimberConstants {
@@ -82,6 +95,31 @@ public final class Constants {
 
         public static final int DriverControllerID = 0;
         public static final int ManipulatorControllerID = 1;
+    }
+    
+    public static final class HopperConstants {
+        public static enum State {
+            Idle,
+            Intake,
+            Outtake,
+            DumbControl
+        }
+
+        // TA, Hopper Fullness (yes this is now a real term)
+        public static final InterpolatingDoubleTreeMap HopperFullnessAmountByTA = InterpolatingDoubleTreeMap.ofEntries(
+            Map.entry(0.00, 0.00),
+            Map.entry(0.00, 0.00)
+        );
+
+        public static final double PIDkV = 0.00;
+        public static final double PIDkP = 0.20;
+        public static final double PIDkI = 0.00;
+        public static final double PIDkD = 0.00;
+
+        public static final double IntakeingSpeed = 20.00;
+
+        public static final int MotorID = 38;
+        public static final String LimelightHopper = "llhopper";
     }
     
     public static final class IntakeConstants {
