@@ -190,9 +190,9 @@ public class AutoAim extends SubsystemBase {
      *         top rps, hood rps, and seconds
      */
     public double[] getShootOnMoveAimTarget() {
-        // Code used for if we have a turret
+        // Code used for if we have a turret for degrees
         //calculatedShot[0] = robotPose.getRotation().getDegrees() - Math.atan(TurretRotatePointPose.minus(adjustedGoalPose).getX() / TurretRotatePointPose.minus(adjustedGoalPose).getY());
-        // Code used for if we do not have a turret
+        // Code used for if we do not have a turret for degrees
         calculatedShot[0] = Math.atan(TurretRotatePointPose.minus(adjustedGoalPose).getX() / TurretRotatePointPose.minus(adjustedGoalPose).getY());
         // Gets distance
         calculatedShot[1] = Math.abs(Math.sqrt(Math.pow(TurretRotatePointPose.minus(adjustedGoalPose).getX(), 2) + Math.pow(TurretRotatePointPose.minus(adjustedGoalPose).getY(), 2)));

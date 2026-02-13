@@ -51,6 +51,10 @@ public final class Constants {
             Map.entry(0.00, 0.00)
         );
 
+        public static final double TrackingHubPIDkP = 0.00;
+        public static final double TrackingHubPIDkI = 0.00;
+        public static final double TrackingHubPIDkD = 0.00;
+
         public static final String LimelightLeft = "llleft";
         public static final String LimelightRight = "llright";
         public static final String LimelightClimb = "llclimb";

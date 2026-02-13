@@ -10,6 +10,7 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -17,6 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import frc.robot.constants.Constants.AutoAimConstants;
 import frc.robot.constants.Constants.ClimberConstants.State;
 import frc.robot.constants.Constants.ControllerConstants;
 import frc.robot.constants.Constants.ControllerConstants.DrivetrainState;
@@ -42,6 +44,8 @@ public class ControlSub extends SubsystemBase {
     private final SlewRateLimiter YSlewRateLimiter = new SlewRateLimiter(ControllerConstants.YSlewRateLimiter);
     private final SlewRateLimiter RotateSlewRateLimiter = new SlewRateLimiter(ControllerConstants.RotateSlewRateLimiter);
 
+    private final PIDController HubTrackingPidController = new PIDController(AutoAimConstants.TrackingHubPIDkP, AutoAimConstants.TrackingHubPIDkI, AutoAimConstants.TrackingHubPIDkD);
+
     private final CommandXboxController DriverController = new CommandXboxController(ControllerConstants.DriverControllerID);
     private final CommandXboxController ManipulatorController = new CommandXboxController(ControllerConstants.ManipulatorControllerID);
     
@@ -60,6 +64,8 @@ public class ControlSub extends SubsystemBase {
     public Intake intake = new Intake();
     public Pneumatics pneumatics = new Pneumatics();
     public Shooter shooter = new Shooter();
+
+    private double hubPIDOutput = 0.00;
 
     // temp vars
     private double bottomShooterSpeed = 0;
@@ -157,9 +163,18 @@ public class ControlSub extends SubsystemBase {
 
         autoAim.setAutoAimDrivetrainState(drivetrain);
 
+        hubPIDOutput = MathUtil.clamp(
+                           HubTrackingPidController.calculate(
+                               drivetrain.getState().Pose.getRotation().getDegrees(),
+                               autoAim.getShootOnMoveAimTarget()[0]),
+                           1.00, 
+                           1.00);
+
         /* Output */
 
         SmartDashboard.putBoolean("Idle", weAreIdlingYo);
+
+        SmartDashboard.putNumber("Hub Tracking Pid Output", hubPIDOutput);
 
         // Inputs are now "outdated" and can be compared with new ones next scheduler run
         driverLastA = DriverController.a().getAsBoolean();
@@ -250,9 +265,13 @@ public class ControlSub extends SubsystemBase {
             case HubTracking:
                 drivetrain.setDefaultCommand(
                     drivetrain.applyRequest(() -> TrackDrive
-                        .withVelocityX(0.00 * maxSpeed) // Drive forward with negative Y (forward)
-                        .withVelocityY(0.00 * maxSpeed) // Drive left with negative X (left)
-                        .withRotationalRate(0.00 * maxSpeed) // Drive counterclockwise with negative X (left)
+                        .withVelocityX(
+                            MathUtil.applyDeadband(
+                                XSlewRateLimiter.calculate(-DriverController.getLeftY() * maxSpeed), ControllerConstants.StickDeadzone)) // Drive forward with negative Y (forward)
+                        .withVelocityY(
+                            MathUtil.applyDeadband(
+                                YSlewRateLimiter.calculate(-DriverController.getLeftX() * maxSpeed), ControllerConstants.StickDeadzone)) // Drive left with negative X (left)
+                        .withRotationalRate(hubPIDOutput * maxSpeed) // Drive counterclockwise with negative X (left)
                     )
                 );
                 break;
