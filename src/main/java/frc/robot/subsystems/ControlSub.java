@@ -45,6 +45,10 @@ public class ControlSub extends SubsystemBase {
     private final SlewRateLimiter RotateSlewRateLimiter = new SlewRateLimiter(ControllerConstants.RotateSlewRateLimiter);
 
     private final PIDController HubTrackingPidController = new PIDController(AutoAimConstants.TrackingHubPIDkP, AutoAimConstants.TrackingHubPIDkI, AutoAimConstants.TrackingHubPIDkD);
+    
+    private final PIDController ClimbTrackingXPIDController = new PIDController(AutoAimConstants.TrackingClimbMovePIDkP, AutoAimConstants.TrackingClimbMovePIDkI, AutoAimConstants.TrackingClimbMovePIDkD);
+    private final PIDController ClimbTrackingYPIDController = new PIDController(AutoAimConstants.TrackingClimbMovePIDkP, AutoAimConstants.TrackingClimbMovePIDkI, AutoAimConstants.TrackingClimbMovePIDkD);
+    private final PIDController ClimbTrackingRotPIDController = new PIDController(AutoAimConstants.TrackingClimbRotPIDkP, AutoAimConstants.TrackingClimbRotPIDkI, AutoAimConstants.TrackingClimbRotPIDkD);
 
     private final CommandXboxController DriverController = new CommandXboxController(ControllerConstants.DriverControllerID);
     private final CommandXboxController ManipulatorController = new CommandXboxController(ControllerConstants.ManipulatorControllerID);
@@ -66,6 +70,10 @@ public class ControlSub extends SubsystemBase {
     public Shooter shooter = new Shooter();
 
     private double hubPIDOutput = 0.00;
+    
+    private double climbXPIDOutput = 0.00;
+    private double climbYPIDOutput = 0.00;
+    private double climbRotPIDOutput = 0.00;
 
     // temp vars
     private double bottomShooterSpeed = 0;
@@ -163,13 +171,13 @@ public class ControlSub extends SubsystemBase {
 
         autoAim.setAutoAimDrivetrainState(drivetrain);
 
-        hubPIDOutput = MathUtil.clamp(
-                           HubTrackingPidController.calculate(
-                               drivetrain.getState().Pose.getRotation().getDegrees(),
-                               autoAim.getShootOnMoveAimTarget()[0]),
-                           1.00, 
-                           1.00);
+        hubPIDOutput = MathUtil.clamp(HubTrackingPidController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), autoAim.getShootOnMoveAimTarget()[0]), -1.00, 1.00);
 
+        // Fix setpoint
+        climbXPIDOutput = MathUtil.clamp(ClimbTrackingXPIDController.calculate(drivetrain.getState().Pose.getX(), autoAim.getClimbDistance()[0]), -1.00, 1.00); 
+        climbYPIDOutput = MathUtil.clamp(ClimbTrackingYPIDController.calculate(drivetrain.getState().Pose.getY(), autoAim.getClimbDistance()[1]), -1.00, 1.00);
+        climbRotPIDOutput = MathUtil.clamp(ClimbTrackingRotPIDController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), 0.00), -1.00, 1.00);
+        
         /* Output */
 
         SmartDashboard.putBoolean("Idle", weAreIdlingYo);

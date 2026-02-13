@@ -55,6 +55,14 @@ public final class Constants {
         public static final double TrackingHubPIDkI = 0.00;
         public static final double TrackingHubPIDkD = 0.00;
 
+        public static final double TrackingClimbMovePIDkP = 0.00;
+        public static final double TrackingClimbMovePIDkI = 0.00;
+        public static final double TrackingClimbMovePIDkD = 0.00;
+
+        public static final double TrackingClimbRotPIDkP = 0.00;
+        public static final double TrackingClimbRotPIDkI = 0.00;
+        public static final double TrackingClimbRotPIDkD = 0.00;
+
         public static final String LimelightLeft = "llleft";
         public static final String LimelightRight = "llright";
         public static final String LimelightClimb = "llclimb";
