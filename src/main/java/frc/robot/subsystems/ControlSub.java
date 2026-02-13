@@ -184,6 +184,10 @@ public class ControlSub extends SubsystemBase {
 
         SmartDashboard.putNumber("Hub Tracking Pid Output", hubPIDOutput);
 
+        SmartDashboard.putNumber("Climb Tracking X Pid Output", climbXPIDOutput);
+        SmartDashboard.putNumber("Climb Tracking Y Pid Output", climbYPIDOutput);
+        SmartDashboard.putNumber("Climb Tracking Rot Pid Output", climbRotPIDOutput);
+
         // Inputs are now "outdated" and can be compared with new ones next scheduler run
         driverLastA = DriverController.a().getAsBoolean();
         driverLastB = DriverController.b().getAsBoolean();
