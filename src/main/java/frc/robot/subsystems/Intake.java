@@ -12,6 +12,10 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -19,12 +23,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
 
-  	private TalonFX intake = new TalonFX(IntakeID);
-  	private TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
+	// Spark Flex
+  	private SparkFlex intake = new SparkFlex(IntakeID, MotorType.kBrushless);
+  	private SparkFlexConfig intakeConfig = new SparkFlexConfig();
+
+	// Kraken X44
 	private TalonFX pivot = new TalonFX(PivotID);
 	private TalonFXConfiguration pivotConfig = new TalonFXConfiguration(); 
 
-	private VelocityVoltage intakeVelocityVoltage = new VelocityVoltage(0);
 	private PositionVoltage pivotPositionVoltage = new PositionVoltage(0);
 
   	private double targetSpeed = 0;
@@ -35,15 +41,8 @@ public class Intake extends SubsystemBase {
 	public State state = State.Idle;
 
   	public Intake() {
-		intakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-  	  	intakeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-		intakeConfig.Slot0.kV = IntakePIDkV;
-		intakeConfig.Slot0.kP = IntakePIDkP;
-		intakeConfig.Slot0.kI = IntakePIDkI;
-		intakeConfig.Slot0.kD = IntakePIDkD;
-
-  	  	intake.clearStickyFaults();
-  	  	intake.getConfigurator().apply(intakeConfig);
+		intakeConfig.idleMode(IdleMode.kCoast);
+		intakeConfig.smartCurrentLimit(IntakeCurrentLimit);
 
 		pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 		pivotConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -66,17 +65,18 @@ public class Intake extends SubsystemBase {
 			pivot.setControl(pivotPositionVoltage.withPosition(PivotInPos));
 			unstickPivotTimer.stop();
 		} else if (state == State.Intake) {
-			intake.setControl(intakeVelocityVoltage.withVelocity(IntakingSpeed));
+			intake.set(IntakingSpeed);
 			pivot.setControl(pivotPositionVoltage.withPosition(PivotOutPos));
 			unstickPivotTimer.stop();
 		} else if (state == State.Unstick) {
-			intake.setControl(intakeVelocityVoltage.withVelocity(OuttakingSpeed));
+			intake.set(IntakingSpeed);
 			unstickPivotTimer.start();
 		} else if (state == State.Outtake){
-			intake.setControl(intakeVelocityVoltage.withVelocity(OuttakingSpeed));
+			intake.set(-IntakingSpeed);
 			pivot.setControl(pivotPositionVoltage.withPosition(PivotOutPos));
 			unstickPivotTimer.stop();
 		} else {
+			unstickPivotTimer.stop();
 			intake.set(targetSpeed);
 			if (pivotExtension) {
 				pivot.setControl(pivotPositionVoltage.withPosition(PivotOutPos));
@@ -100,7 +100,6 @@ public class Intake extends SubsystemBase {
 			}
 		}
 
-        SmartDashboard.putNumber("Intake RPS", intake.getVelocity().getValueAsDouble());
 		SmartDashboard.putNumber("Intake Pivot Position", pivot.getPosition().getValueAsDouble());
 		SmartDashboard.putNumber("Intake Pivot Unstick Timer", unstickPivotTimer.get());
 
