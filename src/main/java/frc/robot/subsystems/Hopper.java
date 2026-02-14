@@ -14,8 +14,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.LimelightHelpers;
-import frc.robot.constants.Constants.HopperConstants.State;
+import frc.robot.constants.Constants.HopperConstants.BeltsState;
 
 public class Hopper extends SubsystemBase {
 
@@ -32,9 +31,9 @@ public class Hopper extends SubsystemBase {
 
     private double targetBeltsSpeed = 0.00;
     private double targetHopperSpeed = 0.00;
-    private double hopperLLTA = LimelightHelpers.getTA(LimelightHopper);
 
-    public State state = State.Idle;
+    public BeltsState beltsState = BeltsState.Idle;
+    public HopperState hopperState = HopperState.Idle;
 
     public Hopper() {
         beltsConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
@@ -60,31 +59,37 @@ public class Hopper extends SubsystemBase {
 
     @Override
     public void periodic() {
-         if (state == State.Idle) {
+         if (beltsState == BeltsState.Idle) {
             belts.set(0.00);
-            hopper.set(0.00);
-        } else if (state == State.Intake) {
-            belts.setControl(beltsVelocityVoltage.withVelocity(IntakeingSpeed));
-            hopper.setControl(hopperPositionVoltage.withPosition(null));
-        } else if (state == State.Outtake) {
-            belts.setControl(beltsVelocityVoltage.withVelocity(-IntakeingSpeed));
-            hopper.setControl(hopperPositionVoltage.withPosition(null));
+        } else if (beltsState == BeltsState.Intake) {
+            belts.setControl(beltsVelocityVoltage.withVelocity(IntakingSpeed));
+        } else if (beltsState == BeltsState.Outtake) {
+            belts.setControl(beltsVelocityVoltage.withVelocity(-IntakingSpeed));
         } else {
             belts.set(targetBeltsSpeed);
+        }
+
+        if (hopperState == HopperState.Idle) {
+            hopper.set(0.00);
+        } else if (hopperState == HopperState.In) {
+            hopper.setControl(hopperPositionVoltage.withPosition(HopperInPos));
+        } else if (hopperState == HopperState.Out) {
+            hopper.setControl(hopperPositionVoltage.withPosition(HopperOutPos));
+        } else {
             hopper.set(targetHopperSpeed);
         }
     }
 
     /**
-     * Gets the predicted hopper fullness amount 
-     * using the hopper limelight.
-     * <p>
-     * Yes, real term
-     * 
-     * @return The hopper fullness amount
-     */
-    public double getPredictedHopperFullnessAmount() {
-        return HopperFullnessAmountByTA.get(hopperLLTA);
+	 * Sets the state of the belts.
+	 * <p> 
+	 * If wanting to control the hopper without PID
+	 * then use setHopperDumbControl()
+	 * 
+	 * @param stateToChangeTo Using HopperConstants.BeltsState
+	 */
+    public void setHopperBeltsState(BeltsState stateToChangeTo) {
+        beltsState = stateToChangeTo;
     }
 
     /**
@@ -93,10 +98,10 @@ public class Hopper extends SubsystemBase {
 	 * If wanting to control the hopper without PID
 	 * then use setHopperDumbControl()
 	 * 
-	 * @param stateToChangeTo Using HopperConstants.State
+	 * @param stateToChangeTo Using HopperConstants.HopperState
 	 */
-    public void setHopperState(State stateToChangeTo) {
-        state = stateToChangeTo;
+    public void setHopperHopperState(HopperState stateToChangeTo) {
+        hopperState = stateToChangeTo;
     }
 
 	/**
@@ -114,6 +119,6 @@ public class Hopper extends SubsystemBase {
     public void setHopperDumbControl(double beltsSpeedInPercent, double hopperSpeedInPercent) {
         targetBeltsSpeed = beltsSpeedInPercent;
         targetHopperSpeed = hopperSpeedInPercent;
-        state = State.DumbControl;
+        beltsState = BeltsState.DumbControl;
     }
 }

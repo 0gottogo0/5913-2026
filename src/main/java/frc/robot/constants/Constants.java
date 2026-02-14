@@ -98,18 +98,20 @@ public final class Constants {
     }
     
     public static final class HopperConstants {
-        public static enum State {
+        public static enum BeltsState {
             Idle,
             Intake,
             Outtake,
             DumbControl
         }
 
-        // TA, Hopper Fullness (yes this is now a real term)
-        public static final InterpolatingDoubleTreeMap HopperFullnessAmountByTA = InterpolatingDoubleTreeMap.ofEntries(
-            Map.entry(0.00, 0.00),
-            Map.entry(0.00, 0.00)
-        );
+        public static enum HopperState {
+            Idle,
+            In,
+            Out,
+            DumbControl
+        }
+
 
         public static final double BeltsPIDkV = 0.00;
         public static final double BeltsPIDkP = 0.20;
@@ -121,11 +123,13 @@ public final class Constants {
         public static final double HopperPIDkI = 0.00;
         public static final double HopperPIDkD = 0.00;
 
-        public static final double IntakeingSpeed = 20.00;
+        public static final double IntakingSpeed = 20.00;
+
+        public static final double HopperInPos = 0.00;
+        public static final double HopperOutPos = 0.00;
 
         public static final int BeltsID = 38;
         public static final int HopperID = 39;
-        public static final String LimelightHopper = "llhopper";
     }
     
     public static final class IntakeConstants {
