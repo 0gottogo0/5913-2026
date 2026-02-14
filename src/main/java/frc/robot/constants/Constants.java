@@ -111,14 +111,20 @@ public final class Constants {
             Map.entry(0.00, 0.00)
         );
 
-        public static final double PIDkV = 0.00;
-        public static final double PIDkP = 0.20;
-        public static final double PIDkI = 0.00;
-        public static final double PIDkD = 0.00;
+        public static final double BeltsPIDkV = 0.00;
+        public static final double BeltsPIDkP = 0.20;
+        public static final double BeltsPIDkI = 0.00;
+        public static final double BeltsPIDkD = 0.00;
+
+        public static final double HopperPIDkV = 0.00;
+        public static final double HopperPIDkP = 0.20;
+        public static final double HopperPIDkI = 0.00;
+        public static final double HopperPIDkD = 0.00;
 
         public static final double IntakeingSpeed = 20.00;
 
-        public static final int MotorID = 38;
+        public static final int BeltsID = 38;
+        public static final int HopperID = 39;
         public static final String LimelightHopper = "llhopper";
     }
     

@@ -4,16 +4,10 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.constants.Constants.HopperConstants.HopperFullnessAmountByTA;
-import static frc.robot.constants.Constants.HopperConstants.IntakeingSpeed;
-import static frc.robot.constants.Constants.HopperConstants.LimelightHopper;
-import static frc.robot.constants.Constants.HopperConstants.MotorID;
-import static frc.robot.constants.Constants.HopperConstants.PIDkD;
-import static frc.robot.constants.Constants.HopperConstants.PIDkI;
-import static frc.robot.constants.Constants.HopperConstants.PIDkP;
-import static frc.robot.constants.Constants.HopperConstants.PIDkV;
+import static frc.robot.constants.Constants.HopperConstants.*;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -25,38 +19,59 @@ import frc.robot.constants.Constants.HopperConstants.State;
 
 public class Hopper extends SubsystemBase {
 
-    private TalonFX hopper = new TalonFX(MotorID);
+    // Kraken X44
+    private TalonFX belts = new TalonFX(BeltsID);
+    private TalonFXConfiguration beltsConfig = new TalonFXConfiguration();
+
+    // Kraken X44
+    private TalonFX hopper = new TalonFX(HopperID);
     private TalonFXConfiguration hopperConfig = new TalonFXConfiguration();
 
-    private VelocityVoltage hopperVelocityVoltage = new VelocityVoltage(0);
+    private VelocityVoltage beltsVelocityVoltage = new VelocityVoltage(0);
+    private PositionVoltage hopperPositionVoltage = new PositionVoltage(0);
 
-    private double targetSpeed = 0.00;
+    private double targetBeltsSpeed = 0.00;
+    private double targetHopperSpeed = 0.00;
     private double hopperLLTA = LimelightHelpers.getTA(LimelightHopper);
 
     public State state = State.Idle;
 
     public Hopper() {
+        beltsConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+  	  	beltsConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+		beltsConfig.Slot0.kV = BeltsPIDkV;
+		beltsConfig.Slot0.kP = BeltsPIDkP;
+		beltsConfig.Slot0.kI = BeltsPIDkI;
+		beltsConfig.Slot0.kD = BeltsPIDkD;
+
+  	  	belts.clearStickyFaults();
+  	  	belts.getConfigurator().apply(beltsConfig);
+
         hopperConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
   	  	hopperConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-		hopperConfig.Slot0.kV = PIDkV;
-		hopperConfig.Slot0.kP = PIDkP;
-		hopperConfig.Slot0.kI = PIDkI;
-		hopperConfig.Slot0.kD = PIDkD;
+		hopperConfig.Slot0.kV = HopperPIDkV;
+		hopperConfig.Slot0.kP = HopperPIDkP;
+		hopperConfig.Slot0.kI = HopperPIDkI;
+		hopperConfig.Slot0.kD = HopperPIDkD;
 
-  	  	hopper.clearStickyFaults();
+    	hopper.clearStickyFaults();
   	  	hopper.getConfigurator().apply(hopperConfig);
     }
 
     @Override
     public void periodic() {
          if (state == State.Idle) {
+            belts.set(0.00);
             hopper.set(0.00);
         } else if (state == State.Intake) {
-            hopper.setControl(hopperVelocityVoltage.withVelocity(IntakeingSpeed));
+            belts.setControl(beltsVelocityVoltage.withVelocity(IntakeingSpeed));
+            hopper.setControl(hopperPositionVoltage.withPosition(null));
         } else if (state == State.Outtake) {
-            hopper.setControl(hopperVelocityVoltage.withVelocity(-IntakeingSpeed));
+            belts.setControl(beltsVelocityVoltage.withVelocity(-IntakeingSpeed));
+            hopper.setControl(hopperPositionVoltage.withPosition(null));
         } else {
-            hopper.set(targetSpeed);
+            belts.set(targetBeltsSpeed);
+            hopper.set(targetHopperSpeed);
         }
     }
 
@@ -90,11 +105,15 @@ public class Hopper extends SubsystemBase {
 	 * Used if want to control the hopper open loop without
 	 * the PID. Uses the TalonFX .set() function 
 	 * 
-	 * @param speedInPercent The speed to control the hopper
-	 * 						 motor in percent
+	 * @param beltsSpeedInPercent The speed to control the belts
+	 * 						      motor in percent
+     * 
+     * @param hopperSpeedInPercent The speed to control the hopper
+	 * 						       motor in percent
 	 */
-    public void setHopperDumbControl(double speedInPercent) {
-        targetSpeed = speedInPercent;
+    public void setHopperDumbControl(double beltsSpeedInPercent, double hopperSpeedInPercent) {
+        targetBeltsSpeed = beltsSpeedInPercent;
+        targetHopperSpeed = hopperSpeedInPercent;
         state = State.DumbControl;
     }
 }
