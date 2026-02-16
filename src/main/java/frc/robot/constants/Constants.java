@@ -161,7 +161,7 @@ public final class Constants {
         public static final double PivotOutPos = 0.00;
 
         public static final int IntakeID = 34;
-        public static final int PivotID = 35;
+        public static final int PivotID = 37;
     }
     
     public static final class PneumaticConstants {

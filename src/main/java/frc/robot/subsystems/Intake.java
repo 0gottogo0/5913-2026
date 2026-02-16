@@ -133,6 +133,20 @@ public class Intake extends SubsystemBase {
 		pivotExtension = shouldIntakeExtend;
 		state = State.DumbControl;
 	}
+
+	/**
+	 * Sets the state of the intake to DumbControl
+	 * <p>
+	 * Used if want to control the intake open loop without
+	 * the PID. Uses the TalonFX .set() function 
+	 * 
+	 * @param speedInPercent The speed to control the intake
+	 * 						 motor in percent
+	 */
+	public void setIntakeDumbControl(double speedInPercent) {
+		targetSpeed = speedInPercent;
+		state = State.DumbControl;
+	}
 }
 
 
