@@ -18,6 +18,10 @@ import frc.robot.constants.Constants.ShooterConstants.State;
 
 public class Shooter extends SubsystemBase {
 
+	// Kraken X44
+	private TalonFX feeder = new TalonFX(FeederMotorID);
+	private TalonFXConfiguration feederConfig = new TalonFXConfiguration();
+
 	// Kraken X60
 	private TalonFX bottomShooter = new TalonFX(BottomMotorID);
     private TalonFXConfiguration bottomShooterConfig = new TalonFXConfiguration();
@@ -30,10 +34,12 @@ public class Shooter extends SubsystemBase {
 	private TalonFX hoodShooter = new TalonFX(HoodMotorID);
   	private TalonFXConfiguration hoodShooterConfig = new TalonFXConfiguration();
 
+	private VelocityVoltage feederVelocityVoltage = new VelocityVoltage(0);
     private VelocityVoltage bottomShooterVelocityVoltage = new VelocityVoltage(0);
 	private VelocityVoltage topShooterVelocityVoltage = new VelocityVoltage(0);
     private VelocityVoltage hoodShooterVelocityVoltage = new VelocityVoltage(0);
 
+	private double feederTargetSpeed = 0.00;
 	private double bottomTargetSpeed = 0.00;
   	private double topTargetSpeed = 0.00;
 	private double hoodTargetSpeed = 0.00;
@@ -41,6 +47,16 @@ public class Shooter extends SubsystemBase {
 	public State state = State.Idle;
 
   	public Shooter() {
+		feederConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+		feederConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+		feederConfig.Slot0.kV = FeederPIDkV;
+		feederConfig.Slot0.kP = FeederPIDkP;
+		feederConfig.Slot0.kI = FeederPIDkI;
+		feederConfig.Slot0.kD = FeederPIDkD;
+
+        feeder.clearStickyFaults();
+  	  	feeder.getConfigurator().apply(feederConfig);
+
         bottomShooterConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
   	  	bottomShooterConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 		bottomShooterConfig.Slot0.kV = BottomShooterPIDkV;
@@ -76,30 +92,44 @@ public class Shooter extends SubsystemBase {
   	public void periodic() {
   	  	switch (state) {
 			case Idle:
+				feeder.set(0.00);
 				bottomShooter.set(0.00);
 				topShooter.set(0.00);
 				hoodShooter.set(0.00);
 				break;
+			case Spinup:
+				feeder.set(0.00);
+				bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(topTargetSpeed * BottomRatio));
+				topShooter.setControl(topShooterVelocityVoltage.withVelocity(topTargetSpeed));
+				hoodShooter.setControl(hoodShooterVelocityVoltage.withVelocity(hoodTargetSpeed));
 			case Shoot:
+				feeder.setControl(feederVelocityVoltage.withVelocity(FeedSpeed));
 				bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(topTargetSpeed * BottomRatio));
 				topShooter.setControl(topShooterVelocityVoltage.withVelocity(topTargetSpeed));
 				hoodShooter.setControl(hoodShooterVelocityVoltage.withVelocity(hoodTargetSpeed));
 				break;
 			case Unstick:
+				feeder.setControl(feederVelocityVoltage.withVelocity(FeedSpeed));
 				bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(UnstickRPS));
 				topShooter.setControl(topShooterVelocityVoltage.withVelocity(UnstickRPS));
 				hoodShooter.setControl(hoodShooterVelocityVoltage.withVelocity(UnstickRPS));
 				break;
 			case DumbControl:
+				feeder.set(feederTargetSpeed);
 				bottomShooter.set(bottomTargetSpeed);
 				topShooter.set(topTargetSpeed);
 				hoodShooter.set(hoodTargetSpeed);
 				break;
 		}
 
+        SmartDashboard.putNumber("Feeder Shooter RPS", getFeederShooterSpeed());
+		SmartDashboard.putNumber("Feeder Shooter Target RPS", topTargetSpeed);
+		SmartDashboard.putNumber("Feeder Shooter Target Diff", topTargetSpeed - getFeederShooterSpeed());
+		SmartDashboard.putNumber("Feeder Shooter Target Percentage", Math.abs(getFeederShooterSpeed() / topTargetSpeed - 1));
+
         SmartDashboard.putNumber("Bottom Shooter RPS", getBottomShooterSpeed());
-		SmartDashboard.putNumber("Bottom Shooter Target RPS", topTargetSpeed * BottomRatio);
-		SmartDashboard.putNumber("Bottom Shooter Target Diff", (topTargetSpeed * BottomRatio) - getBottomShooterSpeed());
+		SmartDashboard.putNumber("Bottom Shooter Target RPS", bottomTargetSpeed * BottomRatio);
+		SmartDashboard.putNumber("Bottom Shooter Target Diff", (bottomTargetSpeed * BottomRatio) - getBottomShooterSpeed());
 		SmartDashboard.putNumber("Bottom Shooter Target Percentage", Math.abs(getBottomShooterSpeed() / (topTargetSpeed * BottomRatio) - 1));
 
 		SmartDashboard.putNumber("Top Shooter RPS", getTopShooterSpeed());
@@ -116,7 +146,16 @@ public class Shooter extends SubsystemBase {
 
 		SmartDashboard.putBoolean("Shooter At Speed", isShooterAtSpeed());
   	}
-      
+     
+	/**
+     * Returns the speed of the feeder shooter motor
+     * 
+     * @return Speed in RPS
+     */
+    private double getFeederShooterSpeed() {
+        return feeder.getRotorVelocity().getValueAsDouble();
+	}
+
     /**
      * Returns the speed of the bottom shooter motor
      * 
@@ -151,16 +190,18 @@ public class Shooter extends SubsystemBase {
 	 * then use setShooterDumbControl()
 	 * 
 	 * @param stateToChangeTo Using ShooterConstants.State
+
 	 * @param SpeedInRPS The target speed to set in rps.
 	 * 					 When setting the state to idle,
 	 * 					 target speed is not used and can
 	 * 					 be set to 0.	
+	 * 
 	 * @param hoodSpeedInRPS The target speed to set in rps.
 	 * 					     When setting the state to idle,
 	 * 					     target speed is not used and can
 	 * 					     be set to 0.
 	 */
-	public void setShooterState(State stateToChangeTo, double SpeedInRPS, double hoodSpeedInRPS) {
+	public void setShooterState(State stateToChangeTo,double SpeedInRPS, double hoodSpeedInRPS) {
         topTargetSpeed = SpeedInRPS;
 		hoodTargetSpeed = hoodSpeedInRPS;
 		state = stateToChangeTo;
@@ -172,10 +213,13 @@ public class Shooter extends SubsystemBase {
 	 * Used if want to control the shooter open loop without
 	 * the PID. Uses the TalonFX .set() function 
 	 * 
+	 * @param feedSpeedInPercent The speed to control in percent
+	 * 
 	 * @param topSpeedInPercent The speed to control in percent
+	 * 
 	 * @param hoodSpeedInPercent The speed to control in percent
 	 */
-	public void setShooterDumbControl(double topSpeedInPercent, double hoodSpeedInPercent) {
+	public void setShooterDumbControl(double feedSpeedInPercent, double topSpeedInPercent, double hoodSpeedInPercent) {
 		bottomTargetSpeed = topSpeedInPercent;
         topTargetSpeed = topSpeedInPercent;
 		hoodTargetSpeed = hoodSpeedInPercent;
@@ -188,11 +232,15 @@ public class Shooter extends SubsystemBase {
 	 * Used if want to control the shooter open loop without
 	 * the PID. Uses the TalonFX .set() function 
 	 * 
+	 * @param feedSpeedInPercent The speed to control in percent
+	 * 
 	 * @param topSpeedInPercent The speed to control in percent
+	 * 
 	 * @param hoodSpeedInPercent The speed to control in percent
+	 * 
 	 * @param bottomSpeedInPercent The speed to control in percent
 	 */
-	public void setShooterDumbControl(double topSpeedInPercent, double hoodSpeedInPercent, double bottomSpeedInPercent) {
+	public void setShooterDumbControl(double feedSpeedInPercent, double topSpeedInPercent, double hoodSpeedInPercent, double bottomSpeedInPercent) {
         bottomTargetSpeed = bottomSpeedInPercent;
 		topTargetSpeed = topSpeedInPercent;
 		hoodTargetSpeed = hoodSpeedInPercent;

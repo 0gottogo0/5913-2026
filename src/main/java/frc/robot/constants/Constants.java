@@ -174,17 +174,24 @@ public final class Constants {
     public static final class ShooterConstants {
         public static enum State {
             Idle,
+            Spinup,
             Shoot,
             Unstick,
             DumbControl
         }
 
         public static final double BottomRatio = 1.10;
+        public static final double FeedSpeed = 20.00;
+        public static final double UnstickRPS = 20.00;
         
         // Used in determing if shooter is up to speed
         public static final double RPSThreshold = 1.00;
-        public static final double UnstickRPS = 20.00;
         
+        public static final double FeederPIDkV = 0.00;
+        public static final double FeederPIDkP = 0.00;
+        public static final double FeederPIDkI = 0.00;
+        public static final double FeederPIDkD = 0.00;
+
         public static final double BottomShooterPIDkV = 0.12;
         public static final double BottomShooterPIDkP = 0.28;
         public static final double BottomShooterPIDkI = 0.00;
