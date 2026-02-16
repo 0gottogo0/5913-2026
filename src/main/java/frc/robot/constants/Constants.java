@@ -88,7 +88,7 @@ public final class Constants {
         public static final double PIDkI = 0.00;
         public static final double PIDkD = 0.00;
 
-        public static final int MotorID = 32;
+        public static final int MotorID = 48;
     }
 
     public static final class ControllerConstants {
@@ -119,28 +119,40 @@ public final class Constants {
     }
     
     public static final class HopperConstants {
-        public static enum State {
+        public static enum BeltsState {
             Idle,
             Intake,
             Outtake,
             DumbControl
         }
 
-        // TA, Hopper Fullness (yes this is now a real term)
-        public static final InterpolatingDoubleTreeMap HopperFullnessAmountByTA = InterpolatingDoubleTreeMap.ofEntries(
-            Map.entry(0.00, 0.00),
-            Map.entry(0.00, 0.00)
-        );
+        public static enum HopperState {
+            Idle,
+            In,
+            Out,
+            DumbControl
+        }
 
-        public static final double PIDkV = 0.00;
-        public static final double PIDkP = 0.20;
-        public static final double PIDkI = 0.00;
-        public static final double PIDkD = 0.00;
 
-        public static final double IntakeingSpeed = 20.00;
+        public static final double BeltsPIDkV = 0.00;
+        public static final double BeltsPIDkP = 0.20;
+        public static final double BeltsPIDkI = 0.00;
+        public static final double BeltsPIDkD = 0.00;
 
-        public static final int MotorID = 38;
-        public static final String LimelightHopper = "llhopper";
+        public static final double HopperPIDkV = 0.00;
+        public static final double HopperPIDkP = 0.20;
+        public static final double HopperPIDkI = 0.00;
+        public static final double HopperPIDkD = 0.00;
+
+        public static final double IntakingSpeed = 20.00;
+
+        public static final double HopperInPos = 0.00;
+        public static final double HopperOutPos = 0.00;
+
+        public static final int BeltsID = 45;
+        //public static final int HopperID = 43;
+        // We dont have hopper motor as explaned
+        // in Hopper.java
     }
     
     public static final class IntakeConstants {
@@ -162,14 +174,15 @@ public final class Constants {
         public static final double PivotPIDkI = 0.00;
         public static final double PivotPIDkD = 0.00;
 
-        public static final double IntakingSpeed = 30.00;
-        public static final double OuttakingSpeed = -45.00;
+        public static final int IntakeCurrentLimit = 60;
+
+        public static final double IntakingSpeed = 40;
 
         public static final double PivotInPos = 0.00;
         public static final double PivotOutPos = 0.00;
 
         public static final int IntakeID = 34;
-        public static final int PivotID = 35;
+        public static final int PivotID = 37;
     }
     
     public static final class PneumaticConstants {
@@ -182,17 +195,24 @@ public final class Constants {
     public static final class ShooterConstants {
         public static enum State {
             Idle,
+            Spinup,
             Shoot,
             Unstick,
             DumbControl
         }
 
         public static final double BottomRatio = 1.10;
+        public static final double FeedSpeed = 20.00;
+        public static final double UnstickRPS = 20.00;
         
         // Used in determing if shooter is up to speed
         public static final double RPSThreshold = 1.00;
-        public static final double UnstickRPS = 20.00;
         
+        public static final double FeederPIDkV = 0.00;
+        public static final double FeederPIDkP = 0.00;
+        public static final double FeederPIDkI = 0.00;
+        public static final double FeederPIDkD = 0.00;
+
         public static final double BottomShooterPIDkV = 0.12;
         public static final double BottomShooterPIDkP = 0.28;
         public static final double BottomShooterPIDkI = 0.00;
@@ -208,8 +228,9 @@ public final class Constants {
         public static final double HoodShooterPIDkI = 0.00;
         public static final double HoodShooterPIDkD = 0.00;
 
-        public static final int BottomMotorID = 31;
-        public static final int TopMotorID = 30;
-        public static final int HoodMotorID = 29;
+        public static final int FeederMotorID = 43;
+        public static final int BottomMotorID = 39;
+        public static final int TopMotorID = 40;
+        public static final int HoodMotorID = 47;
     }
 }

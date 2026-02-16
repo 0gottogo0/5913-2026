@@ -8,10 +8,13 @@ import static frc.robot.constants.Constants.IntakeConstants.*;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -19,12 +22,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
 
-  	private TalonFX intake = new TalonFX(IntakeID);
-  	private TalonFXConfiguration intakeConfig = new TalonFXConfiguration();
+	// Neo Vortex
+  	private SparkFlex intake = new SparkFlex(IntakeID, MotorType.kBrushless);
+  	private SparkFlexConfig intakeConfig = new SparkFlexConfig();
+
+	// Kraken X44
 	private TalonFX pivot = new TalonFX(PivotID);
 	private TalonFXConfiguration pivotConfig = new TalonFXConfiguration(); 
 
-	private VelocityVoltage intakeVelocityVoltage = new VelocityVoltage(0);
 	private PositionVoltage pivotPositionVoltage = new PositionVoltage(0);
 
   	private double targetSpeed = 0;
@@ -35,15 +40,8 @@ public class Intake extends SubsystemBase {
 	public State state = State.Idle;
 
   	public Intake() {
-		intakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-  	  	intakeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-		intakeConfig.Slot0.kV = IntakePIDkV;
-		intakeConfig.Slot0.kP = IntakePIDkP;
-		intakeConfig.Slot0.kI = IntakePIDkI;
-		intakeConfig.Slot0.kD = IntakePIDkD;
-
-  	  	intake.clearStickyFaults();
-  	  	intake.getConfigurator().apply(intakeConfig);
+		intakeConfig.idleMode(IdleMode.kCoast);
+		intakeConfig.smartCurrentLimit(IntakeCurrentLimit);
 
 		pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 		pivotConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -61,30 +59,36 @@ public class Intake extends SubsystemBase {
 
   	@Override
   	public void periodic() {
-		if (state == State.Idle) {
-			intake.set(0.00);
-			pivot.setControl(pivotPositionVoltage.withPosition(PivotInPos));
-			unstickPivotTimer.stop();
-		} else if (state == State.Intake) {
-			intake.setControl(intakeVelocityVoltage.withVelocity(IntakingSpeed));
-			pivot.setControl(pivotPositionVoltage.withPosition(PivotOutPos));
-			unstickPivotTimer.stop();
-		} else if (state == State.Unstick) {
-			intake.setControl(intakeVelocityVoltage.withVelocity(OuttakingSpeed));
-			unstickPivotTimer.start();
-		} else if (state == State.Outtake){
-			intake.setControl(intakeVelocityVoltage.withVelocity(OuttakingSpeed));
-			pivot.setControl(pivotPositionVoltage.withPosition(PivotOutPos));
-			unstickPivotTimer.stop();
-		} else {
-			intake.set(targetSpeed);
-			if (pivotExtension) {
-				pivot.setControl(pivotPositionVoltage.withPosition(PivotOutPos));
-			} else {
+		switch (state) {
+			case Idle:
+				intake.set(0.00);
 				pivot.setControl(pivotPositionVoltage.withPosition(PivotInPos));
-			}
+				unstickPivotTimer.stop();
+				break;
+			case Intake:
+				intake.set(IntakingSpeed);
+				pivot.setControl(pivotPositionVoltage.withPosition(PivotOutPos));
+				unstickPivotTimer.stop();
+				break;
+			case Unstick:
+				intake.set(IntakingSpeed);
+				unstickPivotTimer.start();
+				break;
+			case Outtake:
+				intake.set(-IntakingSpeed);
+				pivot.setControl(pivotPositionVoltage.withPosition(PivotOutPos));
+				unstickPivotTimer.stop();
+				break;
+			case DumbControl:
+				intake.set(targetSpeed);
+				if (pivotExtension) {
+					pivot.setControl(pivotPositionVoltage.withPosition(PivotOutPos));
+				} else {
+					pivot.setControl(pivotPositionVoltage.withPosition(PivotInPos));
+				}
 
-			unstickPivotTimer.stop();
+				unstickPivotTimer.stop();
+				break;
 		}
 
 		// Cycle between pivot in and out to agitate
@@ -100,7 +104,6 @@ public class Intake extends SubsystemBase {
 			}
 		}
 
-        SmartDashboard.putNumber("Intake RPS", intake.getVelocity().getValueAsDouble());
 		SmartDashboard.putNumber("Intake Pivot Position", pivot.getPosition().getValueAsDouble());
 		SmartDashboard.putNumber("Intake Pivot Unstick Timer", unstickPivotTimer.get());
 
@@ -132,6 +135,20 @@ public class Intake extends SubsystemBase {
 	public void setIntakeDumbControl(double speedInPercent, boolean shouldIntakeExtend) {
 		targetSpeed = speedInPercent;
 		pivotExtension = shouldIntakeExtend;
+		state = State.DumbControl;
+	}
+
+	/**
+	 * Sets the state of the intake to DumbControl
+	 * <p>
+	 * Used if want to control the intake open loop without
+	 * the PID. Uses the TalonFX .set() function 
+	 * 
+	 * @param speedInPercent The speed to control the intake
+	 * 						 motor in percent
+	 */
+	public void setIntakeDumbControl(double speedInPercent) {
+		targetSpeed = speedInPercent;
 		state = State.DumbControl;
 	}
 }

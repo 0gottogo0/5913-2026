@@ -102,18 +102,21 @@ public class AutoAim extends SubsystemBase {
                 break;
             case DumbControl:
                 goalPose = new Pose2d(0, 0, new Rotation2d(0));
+                break;
             case ClimbLeft:
                 if (isBlue()) {
                     goalPose = BlueClimbLeft;
                 } else {
                     goalPose = RedClimbLeft;
                 }
+                break;
             case ClimbRight:
                 if (isBlue()) {
                     goalPose = BlueClimbRight;
                 } else {
                     goalPose = RedClimbRight;
                 }
+                break;
         }
 
         TurretRotatePointPose = robotPose.plus(TurretRotatePoint);
