@@ -7,7 +7,7 @@ package frc.robot.subsystems;
 import static frc.robot.constants.Constants.HopperConstants.*;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionVoltage;
+//import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -22,15 +22,20 @@ public class Hopper extends SubsystemBase {
     private TalonFX belts = new TalonFX(BeltsID);
     private TalonFXConfiguration beltsConfig = new TalonFXConfiguration();
 
+    // Tbh idk how we gonna extend the hopper bc we dont have a motor 
+    // on there to do it... commenting out all instatnces of the
+    // hopper motor
+    
+
     // Kraken X44
-    private TalonFX hopper = new TalonFX(HopperID);
-    private TalonFXConfiguration hopperConfig = new TalonFXConfiguration();
+    //private TalonFX hopper = new TalonFX(HopperID);
+    //private TalonFXConfiguration hopperConfig = new TalonFXConfiguration();
 
     private VelocityVoltage beltsVelocityVoltage = new VelocityVoltage(0);
-    private PositionVoltage hopperPositionVoltage = new PositionVoltage(0);
+    //private PositionVoltage hopperPositionVoltage = new PositionVoltage(0);
 
     private double targetBeltsSpeed = 0.00;
-    private double targetHopperSpeed = 0.00;
+    //private double targetHopperSpeed = 0.00;
 
     public BeltsState beltsState = BeltsState.Idle;
     public HopperState hopperState = HopperState.Idle;
@@ -46,7 +51,7 @@ public class Hopper extends SubsystemBase {
   	  	belts.clearStickyFaults();
   	  	belts.getConfigurator().apply(beltsConfig);
 
-        hopperConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        /*hopperConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
   	  	hopperConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 		hopperConfig.Slot0.kV = HopperPIDkV;
 		hopperConfig.Slot0.kP = HopperPIDkP;
@@ -54,7 +59,7 @@ public class Hopper extends SubsystemBase {
 		hopperConfig.Slot0.kD = HopperPIDkD;
 
     	hopper.clearStickyFaults();
-  	  	hopper.getConfigurator().apply(hopperConfig);
+  	  	hopper.getConfigurator().apply(hopperConfig);*/
     }
 
     @Override
@@ -69,7 +74,7 @@ public class Hopper extends SubsystemBase {
             belts.set(targetBeltsSpeed);
         }
 
-        if (hopperState == HopperState.Idle) {
+        /*if (hopperState == HopperState.Idle) {
             hopper.set(0.00);
         } else if (hopperState == HopperState.In) {
             hopper.setControl(hopperPositionVoltage.withPosition(HopperInPos));
@@ -77,7 +82,7 @@ public class Hopper extends SubsystemBase {
             hopper.setControl(hopperPositionVoltage.withPosition(HopperOutPos));
         } else {
             hopper.set(targetHopperSpeed);
-        }
+        }*/
     }
 
     /**
@@ -118,7 +123,7 @@ public class Hopper extends SubsystemBase {
 	 */
     public void setHopperDumbControl(double beltsSpeedInPercent, double hopperSpeedInPercent) {
         targetBeltsSpeed = beltsSpeedInPercent;
-        targetHopperSpeed = hopperSpeedInPercent;
+        //targetHopperSpeed = hopperSpeedInPercent;
         beltsState = BeltsState.DumbControl;
     }
 }

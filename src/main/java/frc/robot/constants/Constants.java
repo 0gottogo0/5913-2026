@@ -129,9 +129,9 @@ public final class Constants {
         public static final double HopperOutPos = 0.00;
 
         public static final int BeltsID = 45;
-        public static final int HopperID = 43; 
-        // Hopper id is Feeder ID bc we dont
-        // have a Feeder implimented yet
+        //public static final int HopperID = 43;
+        // We dont have hopper motor as explaned
+        // in Hopper.java
     }
     
     public static final class IntakeConstants {
@@ -174,17 +174,24 @@ public final class Constants {
     public static final class ShooterConstants {
         public static enum State {
             Idle,
+            Spinup,
             Shoot,
             Unstick,
             DumbControl
         }
 
         public static final double BottomRatio = 1.10;
+        public static final double FeedSpeed = 20.00;
+        public static final double UnstickRPS = 20.00;
         
         // Used in determing if shooter is up to speed
         public static final double RPSThreshold = 1.00;
-        public static final double UnstickRPS = 20.00;
         
+        public static final double FeederPIDkV = 0.00;
+        public static final double FeederPIDkP = 0.00;
+        public static final double FeederPIDkI = 0.00;
+        public static final double FeederPIDkD = 0.00;
+
         public static final double BottomShooterPIDkV = 0.12;
         public static final double BottomShooterPIDkP = 0.28;
         public static final double BottomShooterPIDkI = 0.00;
@@ -200,6 +207,7 @@ public final class Constants {
         public static final double HoodShooterPIDkI = 0.00;
         public static final double HoodShooterPIDkD = 0.00;
 
+        public static final int FeederMotorID = 43;
         public static final int BottomMotorID = 39;
         public static final int TopMotorID = 40;
         public static final int HoodMotorID = 47;
