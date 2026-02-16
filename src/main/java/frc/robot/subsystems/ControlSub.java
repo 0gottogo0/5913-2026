@@ -171,13 +171,18 @@ public class ControlSub extends SubsystemBase {
 
         autoAim.setAutoAimDrivetrainState(drivetrain);
 
-        hubPIDOutput = MathUtil.clamp(HubTrackingPidController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), autoAim.getShootOnMoveAimTarget()[0]), -1.00, 1.00);
+        hubPIDOutput = HubTrackingPidController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), autoAim.getShootOnMoveAimTarget()[0]);
 
-        // Fix setpoint
-        climbXPIDOutput = MathUtil.clamp(ClimbTrackingXPIDController.calculate(drivetrain.getState().Pose.getX(), autoAim.getClimbDistance()[0]), -1.00, 1.00); 
-        climbYPIDOutput = MathUtil.clamp(ClimbTrackingYPIDController.calculate(drivetrain.getState().Pose.getY(), autoAim.getClimbDistance()[1]), -1.00, 1.00);
-        climbRotPIDOutput = MathUtil.clamp(ClimbTrackingRotPIDController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), 0.00), -1.00, 1.00);
+        climbXPIDOutput = ClimbTrackingXPIDController.calculate(drivetrain.getState().Pose.getX(), autoAim.getClimbDistance()[0]);
+        climbYPIDOutput = ClimbTrackingYPIDController.calculate(drivetrain.getState().Pose.getY(), autoAim.getClimbDistance()[1]);
         
+        // Fix rot setpoints because I may have it backwards
+        if (autoAim.isBlue()) {
+            climbRotPIDOutput = ClimbTrackingRotPIDController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), 0.00);
+        } else {
+            climbRotPIDOutput = ClimbTrackingRotPIDController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), 180.00);
+        }
+
         /* Output */
 
         SmartDashboard.putBoolean("Idle", weAreIdlingYo);
@@ -283,16 +288,20 @@ public class ControlSub extends SubsystemBase {
                         .withVelocityY(
                             MathUtil.applyDeadband(
                                 YSlewRateLimiter.calculate(-DriverController.getLeftX() * maxSpeed), ControllerConstants.StickDeadzone)) // Drive left with negative X (left)
-                        .withRotationalRate(hubPIDOutput * maxSpeed) // Drive counterclockwise with negative X (left)
+                        .withRotationalRate(
+                            MathUtil.clamp(hubPIDOutput * maxSpeed, -1.00, 1.00)) // Drive counterclockwise with negative X (left)
                     )
                 );
                 break;
             case ClimbTracking:
                 drivetrain.setDefaultCommand(
                     drivetrain.applyRequest(() -> TrackDrive
-                        .withVelocityX(0.00 * maxSpeed) // Drive forward with negative Y (forward)
-                        .withVelocityY(0.00 * maxSpeed) // Drive left with negative X (left)
-                        .withRotationalRate(0.00 * maxSpeed) // Drive counterclockwise with negative X (left)
+                        .withVelocityX(
+                            MathUtil.clamp(climbXPIDOutput * maxSpeed, -1.00, 1.00)) // Drive forward with negative Y (forward)
+                        .withVelocityY(
+                            MathUtil.clamp(climbYPIDOutput * maxSpeed, -1.00, 1.00)) // Drive left with negative X (left)
+                        .withRotationalRate(
+                            MathUtil.clamp(climbRotPIDOutput * maxSpeed, -1.00, 1.00)) // Drive counterclockwise with negative X (left)
                     )
                 );
         }
