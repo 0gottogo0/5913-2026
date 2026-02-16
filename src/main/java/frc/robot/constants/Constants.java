@@ -129,9 +129,9 @@ public final class Constants {
         public static final double HopperOutPos = 0.00;
 
         public static final int BeltsID = 45;
-        public static final int HopperID = 43; 
-        // Hopper id is Feeder ID bc we dont
-        // have a Feeder implimented yet
+        //public static final int HopperID = 43;
+        // We dont have hopper motor as explaned
+        // in Hopper.java
     }
     
     public static final class IntakeConstants {
@@ -200,6 +200,7 @@ public final class Constants {
         public static final double HoodShooterPIDkI = 0.00;
         public static final double HoodShooterPIDkD = 0.00;
 
+        public static final int FeederMotorID = 43;
         public static final int BottomMotorID = 39;
         public static final int TopMotorID = 40;
         public static final int HoodMotorID = 47;
