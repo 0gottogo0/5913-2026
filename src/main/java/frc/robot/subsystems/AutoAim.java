@@ -72,32 +72,48 @@ public class AutoAim extends SubsystemBase {
             drivetrain.addVisionMeasurement(LimelightClimbMessurement.pose, LimelightClimbMessurement.timestampSeconds);
         }
 
-        if (state == State.Goal) {
-            if (isBlue()) {
-                goalPose = BlueGoal;
-            } else {
-                goalPose = RedGoal;
-            }
-        } else if (state == State.NeutralZone) {
-            goalPose = NeutralZone;
-        } else if (state == State.AllianceZone) {
-            if (isBlue()) {
-                goalPose = BlueZone;
-            } else {
-                goalPose = RedZone;
-            }
-        } else if (state == State.ClimbLeft) {
-            if (isBlue()) {
-                goalPose = BlueClimbLeft;
-            } else {
-                goalPose = RedClimbLeft;
-            }
-        } else if (state == State.ClimbRight) {
-            if (isBlue()) {
-                goalPose = BlueClimbRight;
-            } else {
-                goalPose = RedClimbRight;
-            }
+        switch (state) {
+            case Goal:
+                // Try catch statement because we might not be
+                // connected to driverstation
+                try {
+                    if (DriverStation.getAlliance().get() == Alliance.Blue) {
+                        goalPose = BlueGoal;
+                    } else {
+                        goalPose = RedGoal;
+                    }
+                } catch (Exception e) {
+                    goalPose = BlueGoal;
+                }
+                break;
+            case NeutralZone:
+                goalPose = NeutralZone;
+                break;
+            case AllianceZone:
+                try {
+                    if (DriverStation.getAlliance().get() == Alliance.Blue) {
+                        goalPose = BlueZone;
+                    } else {
+                        goalPose = RedZone;
+                    }
+                } catch (Exception e) {
+                    goalPose = BlueZone;
+                }
+                break;
+            case DumbControl:
+                goalPose = new Pose2d(0, 0, new Rotation2d(0));
+            case ClimbLeft:
+                if (isBlue()) {
+                    goalPose = BlueClimbLeft;
+                } else {
+                    goalPose = RedClimbLeft;
+                }
+            case ClimbRight:
+                if (isBlue()) {
+                    goalPose = BlueClimbRight;
+                } else {
+                    goalPose = RedClimbRight;
+                }
         }
 
         TurretRotatePointPose = robotPose.plus(TurretRotatePoint);
