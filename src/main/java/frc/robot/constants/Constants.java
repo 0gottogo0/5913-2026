@@ -13,6 +13,8 @@ public final class Constants {
             Goal,
             NeutralZone,
             AllianceZone,
+            ClimbLeft,
+            ClimbRight,
             DumbControl
         }
 
@@ -22,30 +24,48 @@ public final class Constants {
         public static final Pose2d BlueZone = new Pose2d(0, 0, new Rotation2d(0));
         public static final Pose2d RedZone = new Pose2d(0, 0, new Rotation2d(0));
 
+        public static final Pose2d BlueClimbLeft = new Pose2d(0, 0, new Rotation2d(0));
+        public static final Pose2d BlueClimbRight = new Pose2d(0, 0, new Rotation2d(0));
+        public static final Pose2d RedClimbLeft = new Pose2d(0, 0, new Rotation2d(0));
+        public static final Pose2d RedClimbRight = new Pose2d(0, 0, new Rotation2d(0));
+
         // Set to x:0, y:0, r:0 for no turret because
         // the "turret" is just our swerve
         public static final Transform2d TurretRotatePoint = new Transform2d(0, 0, new Rotation2d(0));
-
+        
         // Meters, RPS
         public static final InterpolatingDoubleTreeMap TopShooterSpeedByDistance = InterpolatingDoubleTreeMap.ofEntries(
-           Map.entry(0.00, 0.00),
-           Map.entry(0.00, 0.00)
-        );
-
+            Map.entry(0.00, 0.00),
+            Map.entry(0.00, 0.00)
+            );
+    
         // Meters, RPS
-        public static final InterpolatingDoubleTreeMap BottomShooterSpeedByDistance = InterpolatingDoubleTreeMap.ofEntries(
+        public static final InterpolatingDoubleTreeMap HoodShooterSpeedByDistance = InterpolatingDoubleTreeMap.ofEntries(
            Map.entry(0.00, 0.00),
            Map.entry(0.00, 0.00)
         );
-
+            
         // Meters, Seconds
         public static final InterpolatingDoubleTreeMap TimeOfFlightByDistance = InterpolatingDoubleTreeMap.ofEntries(
             Map.entry(0.00, 0.00),
             Map.entry(0.00, 0.00)
         );
 
+        public static final double TrackingHubPIDkP = 0.00;
+        public static final double TrackingHubPIDkI = 0.00;
+        public static final double TrackingHubPIDkD = 0.00;
+
+        public static final double TrackingClimbMovePIDkP = 0.00;
+        public static final double TrackingClimbMovePIDkI = 0.00;
+        public static final double TrackingClimbMovePIDkD = 0.00;
+
+        public static final double TrackingClimbRotPIDkP = 0.00;
+        public static final double TrackingClimbRotPIDkI = 0.00;
+        public static final double TrackingClimbRotPIDkD = 0.00;
+
         public static final String LimelightLeft = "llleft";
         public static final String LimelightRight = "llright";
+        public static final String LimelightClimb = "llclimb";
     }
 
     public static final class ClimberConstants {
@@ -79,7 +99,8 @@ public final class Constants {
             EventTC,
             GoCrazyGoStupid, // Thank you team 4539 for this great
                              // name idea at the 2025 NMRC Chamionship
-            TrackingTemplate       
+            HubTracking,
+            ClimbTracking      
         }
 
         // Units allowed to change per seccond

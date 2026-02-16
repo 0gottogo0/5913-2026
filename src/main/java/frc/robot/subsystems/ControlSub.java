@@ -10,6 +10,7 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -17,6 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import frc.robot.constants.Constants.AutoAimConstants;
 import frc.robot.constants.Constants.ClimberConstants.State;
 import frc.robot.constants.Constants.ControllerConstants;
 import frc.robot.constants.Constants.ControllerConstants.DrivetrainState;
@@ -42,6 +44,12 @@ public class ControlSub extends SubsystemBase {
     private final SlewRateLimiter YSlewRateLimiter = new SlewRateLimiter(ControllerConstants.YSlewRateLimiter);
     private final SlewRateLimiter RotateSlewRateLimiter = new SlewRateLimiter(ControllerConstants.RotateSlewRateLimiter);
 
+    private final PIDController HubTrackingPidController = new PIDController(AutoAimConstants.TrackingHubPIDkP, AutoAimConstants.TrackingHubPIDkI, AutoAimConstants.TrackingHubPIDkD);
+    
+    private final PIDController ClimbTrackingXPIDController = new PIDController(AutoAimConstants.TrackingClimbMovePIDkP, AutoAimConstants.TrackingClimbMovePIDkI, AutoAimConstants.TrackingClimbMovePIDkD);
+    private final PIDController ClimbTrackingYPIDController = new PIDController(AutoAimConstants.TrackingClimbMovePIDkP, AutoAimConstants.TrackingClimbMovePIDkI, AutoAimConstants.TrackingClimbMovePIDkD);
+    private final PIDController ClimbTrackingRotPIDController = new PIDController(AutoAimConstants.TrackingClimbRotPIDkP, AutoAimConstants.TrackingClimbRotPIDkI, AutoAimConstants.TrackingClimbRotPIDkD);
+
     private final CommandXboxController DriverController = new CommandXboxController(ControllerConstants.DriverControllerID);
     private final CommandXboxController ManipulatorController = new CommandXboxController(ControllerConstants.ManipulatorControllerID);
     
@@ -60,6 +68,12 @@ public class ControlSub extends SubsystemBase {
     public Intake intake = new Intake();
     public Pneumatics pneumatics = new Pneumatics();
     public Shooter shooter = new Shooter();
+
+    private double hubPIDOutput = 0.00;
+    
+    private double climbXPIDOutput = 0.00;
+    private double climbYPIDOutput = 0.00;
+    private double climbRotPIDOutput = 0.00;
 
     // temp vars
     private double bottomShooterSpeed = 0;
@@ -157,9 +171,27 @@ public class ControlSub extends SubsystemBase {
 
         autoAim.setAutoAimDrivetrainState(drivetrain);
 
+        hubPIDOutput = HubTrackingPidController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), autoAim.getShootOnMoveAimTarget()[0]);
+
+        climbXPIDOutput = ClimbTrackingXPIDController.calculate(drivetrain.getState().Pose.getX(), autoAim.getClimbDistance()[0]);
+        climbYPIDOutput = ClimbTrackingYPIDController.calculate(drivetrain.getState().Pose.getY(), autoAim.getClimbDistance()[1]);
+        
+        // Fix rot setpoints because I may have it backwards
+        if (autoAim.isBlue()) {
+            climbRotPIDOutput = ClimbTrackingRotPIDController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), 0.00);
+        } else {
+            climbRotPIDOutput = ClimbTrackingRotPIDController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), 180.00);
+        }
+
         /* Output */
 
         SmartDashboard.putBoolean("Idle", weAreIdlingYo);
+
+        SmartDashboard.putNumber("Hub Tracking Pid Output", hubPIDOutput);
+
+        SmartDashboard.putNumber("Climb Tracking X Pid Output", climbXPIDOutput);
+        SmartDashboard.putNumber("Climb Tracking Y Pid Output", climbYPIDOutput);
+        SmartDashboard.putNumber("Climb Tracking Rot Pid Output", climbRotPIDOutput);
 
         // Inputs are now "outdated" and can be compared with new ones next scheduler run
         driverLastA = DriverController.a().getAsBoolean();
@@ -247,15 +279,31 @@ public class ControlSub extends SubsystemBase {
                     )
                 );
                 break;
-            case TrackingTemplate:
+            case HubTracking:
                 drivetrain.setDefaultCommand(
                     drivetrain.applyRequest(() -> TrackDrive
-                        .withVelocityX(0.00 * maxSpeed) // Drive forward with negative Y (forward)
-                        .withVelocityY(0.00 * maxSpeed) // Drive left with negative X (left)
-                        .withRotationalRate(0.00 * maxSpeed) // Drive counterclockwise with negative X (left)
+                        .withVelocityX(
+                            MathUtil.applyDeadband(
+                                XSlewRateLimiter.calculate(-DriverController.getLeftY() * maxSpeed), ControllerConstants.StickDeadzone)) // Drive forward with negative Y (forward)
+                        .withVelocityY(
+                            MathUtil.applyDeadband(
+                                YSlewRateLimiter.calculate(-DriverController.getLeftX() * maxSpeed), ControllerConstants.StickDeadzone)) // Drive left with negative X (left)
+                        .withRotationalRate(
+                            MathUtil.clamp(hubPIDOutput * maxSpeed, -1.00, 1.00)) // Drive counterclockwise with negative X (left)
                     )
                 );
                 break;
+            case ClimbTracking:
+                drivetrain.setDefaultCommand(
+                    drivetrain.applyRequest(() -> TrackDrive
+                        .withVelocityX(
+                            MathUtil.clamp(climbXPIDOutput * maxSpeed, -1.00, 1.00)) // Drive forward with negative Y (forward)
+                        .withVelocityY(
+                            MathUtil.clamp(climbYPIDOutput * maxSpeed, -1.00, 1.00)) // Drive left with negative X (left)
+                        .withRotationalRate(
+                            MathUtil.clamp(climbRotPIDOutput * maxSpeed, -1.00, 1.00)) // Drive counterclockwise with negative X (left)
+                    )
+                );
         }
     }
 }
