@@ -65,6 +65,7 @@ public class ControlSub extends SubsystemBase {
     
     public AutoAim autoAim = new AutoAim();
     public Climber climber = new Climber();
+    public Hopper hopper = new Hopper();
     public Intake intake = new Intake();
     public Pneumatics pneumatics = new Pneumatics();
     public Shooter shooter = new Shooter();
@@ -79,14 +80,21 @@ public class ControlSub extends SubsystemBase {
     private double bottomShooterSpeed = 0;
     private double topShooterSpeed = 0;
     private boolean weAreIdlingYo = true;
+    private boolean intakeOut = true;
+    private boolean intakeIn = true;
 
     public ControlSub() {
 
         /* Driver Controls */
-        DrivetrainChooser.setDefaultOption("Disable Drivetrain", DrivetrainState.DisabledDrivetrain);
+        //DrivetrainChooser.setDefaultOption("Disable Drivetrain", DrivetrainState.DisabledDrivetrain);
+        DrivetrainChooser.addOption("Baby Movement", DrivetrainState.DisabledDrivetrain);
+        //DrivetrainChooser.setDefaultOption("Baby Movement", DrivetrainState.BabyMode);
         DrivetrainChooser.addOption("Baby Movement", DrivetrainState.BabyMode);
+        //DrivetrainChooser.setDefaultOption("Slow Traction Control", DrivetrainState.SlowTC);
         DrivetrainChooser.addOption("Slow Traction Control", DrivetrainState.SlowTC);
-        DrivetrainChooser.addOption("Event Traction Control", DrivetrainState.EventTC);
+        DrivetrainChooser.setDefaultOption("Event Traction Control", DrivetrainState.EventTC);
+        //DrivetrainChooser.addOption("Event Traction Control", DrivetrainState.EventTC);
+        //DrivetrainChooser.setDefaultOption("Defence Mode (Go Crazy)", DrivetrainState.GoCrazyGoStupid);
         DrivetrainChooser.addOption("Defence Mode (Go Crazy)", DrivetrainState.GoCrazyGoStupid);
         
         SmartDashboard.putData("Drivetrain Mode", DrivetrainChooser);
@@ -113,7 +121,41 @@ public class ControlSub extends SubsystemBase {
 
         /* Driver Controls */
 
-        if (drivetrainStateLastChose != DrivetrainChooser.getSelected()) {
+        if (DriverController.povUp().getAsBoolean()) {
+            intakeIn = true;
+            intakeOut = false;
+        } else if (DriverController.povDown().getAsBoolean()) {
+            intakeIn = false;
+            intakeOut = true;
+        } else {
+            intakeIn = false;
+            intakeOut = false;
+        }
+
+        if (DriverController.a().getAsBoolean()) {
+            intake.setIntakeDumbControl(0.45);
+        } else {
+            if (intakeIn) {
+                intake.setIntakeDumbControl(0.00, -0.3);
+            } else if (intakeOut) {
+                intake.setIntakeDumbControl(0.00, 0.3);
+            } else {
+                intake.setIntakeDumbControl(0.00, 0.00);
+            }
+        }
+        
+        if (DriverController.x().getAsBoolean() && DriverController.b().getAsBoolean()) {
+            shooter.setShooterDumbControl(0.20, 0.40, -0.40);
+            hopper.setHopperDumbControl(1.00, 0.00);
+        } else if (DriverController.b().getAsBoolean()) {
+            shooter.setShooterState(ShooterConstants.State.Spinup, 40.00, 40.00);
+            hopper.setHopperDumbControl(0.00, 0.00);
+        } else {
+            shooter.setShooterDumbControl(0.00, 0.00, 0.00);
+            hopper.setHopperDumbControl(0.00, 0.00);
+        }
+
+        /*if (drivetrainStateLastChose != DrivetrainChooser.getSelected()) {
             drivetrainApplyRequest(DrivetrainChooser.getSelected());
         }
 
@@ -225,6 +267,7 @@ public class ControlSub extends SubsystemBase {
                         .withRotationalRate(0.00) // Drive counterclockwise with negative X (left)
                     )
                 );
+                break;
             case BabyMode:
                 drivetrain.setDefaultCommand(
                     drivetrain.applyRequest(() -> ControllerDrive

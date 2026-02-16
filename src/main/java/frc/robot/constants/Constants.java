@@ -208,23 +208,23 @@ public final class Constants {
         // Used in determing if shooter is up to speed
         public static final double RPSThreshold = 1.00;
         
-        public static final double FeederPIDkV = 0.00;
-        public static final double FeederPIDkP = 0.00;
+        public static final double FeederPIDkV = 0.11;
+        public static final double FeederPIDkP = 0.15;
         public static final double FeederPIDkI = 0.00;
         public static final double FeederPIDkD = 0.00;
 
-        public static final double BottomShooterPIDkV = 0.12;
-        public static final double BottomShooterPIDkP = 0.28;
+        public static final double BottomShooterPIDkV = 0.11;
+        public static final double BottomShooterPIDkP = 0.50;
         public static final double BottomShooterPIDkI = 0.00;
         public static final double BottomShooterPIDkD = 0.00;
 
-        public static final double TopShooterPIDkV = 0.00;
-        public static final double TopShooterPIDkP = 0.45;
+        public static final double TopShooterPIDkV = 0.13;
+        public static final double TopShooterPIDkP = 0.50;
         public static final double TopShooterPIDkI = 0.00;
         public static final double TopShooterPIDkD = 0.00;
 
-        public static final double HoodShooterPIDkV = 0.00;
-        public static final double HoodShooterPIDkP = 0.45;
+        public static final double HoodShooterPIDkV = 0.11;
+        public static final double HoodShooterPIDkP = 0.50;
         public static final double HoodShooterPIDkI = 0.00;
         public static final double HoodShooterPIDkD = 0.00;
 

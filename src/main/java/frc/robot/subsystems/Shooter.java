@@ -102,6 +102,7 @@ public class Shooter extends SubsystemBase {
 				bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(topTargetSpeed * BottomRatio));
 				topShooter.setControl(topShooterVelocityVoltage.withVelocity(topTargetSpeed));
 				hoodShooter.setControl(hoodShooterVelocityVoltage.withVelocity(hoodTargetSpeed));
+				break;
 			case Shoot:
 				feeder.setControl(feederVelocityVoltage.withVelocity(FeedSpeed));
 				bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(topTargetSpeed * BottomRatio));
@@ -220,6 +221,7 @@ public class Shooter extends SubsystemBase {
 	 * @param hoodSpeedInPercent The speed to control in percent
 	 */
 	public void setShooterDumbControl(double feedSpeedInPercent, double topSpeedInPercent, double hoodSpeedInPercent) {
+		feederTargetSpeed = feedSpeedInPercent;
 		bottomTargetSpeed = topSpeedInPercent;
         topTargetSpeed = topSpeedInPercent;
 		hoodTargetSpeed = hoodSpeedInPercent;

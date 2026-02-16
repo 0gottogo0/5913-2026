@@ -33,6 +33,7 @@ public class Intake extends SubsystemBase {
 	private PositionVoltage pivotPositionVoltage = new PositionVoltage(0);
 
   	private double targetSpeed = 0;
+	private double pivotTargetPos = 0;
 	private boolean pivotExtension = false;
 
 	private Timer unstickPivotTimer = new Timer();
@@ -81,11 +82,12 @@ public class Intake extends SubsystemBase {
 				break;
 			case DumbControl:
 				intake.set(targetSpeed);
-				if (pivotExtension) {
+				pivot.set(pivotTargetPos);
+				/*if (pivotExtension) {
 					pivot.setControl(pivotPositionVoltage.withPosition(PivotOutPos));
 				} else {
 					pivot.setControl(pivotPositionVoltage.withPosition(PivotInPos));
-				}
+				}*/
 
 				unstickPivotTimer.stop();
 				break;
@@ -135,6 +137,12 @@ public class Intake extends SubsystemBase {
 	public void setIntakeDumbControl(double speedInPercent, boolean shouldIntakeExtend) {
 		targetSpeed = speedInPercent;
 		pivotExtension = shouldIntakeExtend;
+		state = State.DumbControl;
+	}
+
+	public void setIntakeDumbControl(double speedInPercent, double shouldIntakeExtend) {
+		targetSpeed = speedInPercent;
+		pivotTargetPos = shouldIntakeExtend;
 		state = State.DumbControl;
 	}
 
