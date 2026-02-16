@@ -201,8 +201,8 @@ public class Shooter extends SubsystemBase {
 	 * 					     target speed is not used and can
 	 * 					     be set to 0.
 	 */
-	public void setShooterState(State stateToChangeTo,double SpeedInRPS, double hoodSpeedInRPS) {
-        topTargetSpeed = SpeedInRPS;
+	public void setShooterState(State stateToChangeTo,double speedInRPS, double hoodSpeedInRPS) {
+        topTargetSpeed = speedInRPS;
 		hoodTargetSpeed = hoodSpeedInRPS;
 		state = stateToChangeTo;
 	}
@@ -234,13 +234,13 @@ public class Shooter extends SubsystemBase {
 	 * 
 	 * @param feedSpeedInPercent The speed to control in percent
 	 * 
+	 * @param bottomSpeedInPercent The speed to control in percent
+	 * 
 	 * @param topSpeedInPercent The speed to control in percent
 	 * 
 	 * @param hoodSpeedInPercent The speed to control in percent
-	 * 
-	 * @param bottomSpeedInPercent The speed to control in percent
 	 */
-	public void setShooterDumbControl(double feedSpeedInPercent, double topSpeedInPercent, double hoodSpeedInPercent, double bottomSpeedInPercent) {
+	public void setShooterDumbControl(double feedSpeedInPercent, double bottomSpeedInPercent, double topSpeedInPercent, double hoodSpeedInPercent) {
         bottomTargetSpeed = bottomSpeedInPercent;
 		topTargetSpeed = topSpeedInPercent;
 		hoodTargetSpeed = hoodSpeedInPercent;
@@ -258,8 +258,8 @@ public class Shooter extends SubsystemBase {
 	 * @return True if the shooter is up to speed
 	 */
 	public boolean isShooterAtSpeed() {
-		if (state == State.Shoot) {
-			return Math.abs(getTopShooterSpeed() - topTargetSpeed) < RPSThreshold;
+		if (state == State.Spinup || state == State.Shoot) {
+			return Math.abs(getTopShooterSpeed() - topTargetSpeed) < RPSThreshold && Math.abs(getBottomShooterSpeed() - topTargetSpeed) < RPSThreshold;
 		} else {
 			return false;
 		}
