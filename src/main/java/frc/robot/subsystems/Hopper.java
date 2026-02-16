@@ -64,14 +64,19 @@ public class Hopper extends SubsystemBase {
 
     @Override
     public void periodic() {
-         if (beltsState == BeltsState.Idle) {
-            belts.set(0.00);
-        } else if (beltsState == BeltsState.Intake) {
-            belts.setControl(beltsVelocityVoltage.withVelocity(IntakingSpeed));
-        } else if (beltsState == BeltsState.Outtake) {
-            belts.setControl(beltsVelocityVoltage.withVelocity(-IntakingSpeed));
-        } else {
-            belts.set(targetBeltsSpeed);
+        switch (beltsState) {
+            case Idle:
+                belts.set(0.00);
+                break;
+            case Intake:
+                belts.setControl(beltsVelocityVoltage.withVelocity(IntakingSpeed));
+                break;
+            case Outtake:
+                belts.setControl(beltsVelocityVoltage.withVelocity(-IntakingSpeed));
+                break;
+            case DumbControl:
+                belts.set(targetBeltsSpeed);
+                break;
         }
 
         /*if (hopperState == HopperState.Idle) {

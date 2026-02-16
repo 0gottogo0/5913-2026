@@ -67,30 +67,36 @@ public class AutoAim extends SubsystemBase {
             drivetrain.addVisionMeasurement(LimelightRightMeasurement.pose, LimelightRightMeasurement.timestampSeconds);
         }
 
-        if (state == State.Goal) {
-            // Try catch statement because we might not be
-            // connected to driverstation
-            try {
-                if (DriverStation.getAlliance().get() == Alliance.Blue) {
+        switch (state) {
+            case Goal:
+                // Try catch statement because we might not be
+                // connected to driverstation
+                try {
+                    if (DriverStation.getAlliance().get() == Alliance.Blue) {
+                        goalPose = BlueGoal;
+                    } else {
+                        goalPose = RedGoal;
+                    }
+                } catch (Exception e) {
                     goalPose = BlueGoal;
-                } else {
-                    goalPose = RedGoal;
                 }
-            } catch (Exception e) {
-                goalPose = BlueGoal;
-            }
-        } else if (state == State.NeutralZone) {
-            goalPose = NeutralZone;
-        } else if (state == State.AllianceZone) {
-            try {
-                if (DriverStation.getAlliance().get() == Alliance.Blue) {
+                break;
+            case NeutralZone:
+                goalPose = NeutralZone;
+                break;
+            case AllianceZone:
+                try {
+                    if (DriverStation.getAlliance().get() == Alliance.Blue) {
+                        goalPose = BlueZone;
+                    } else {
+                        goalPose = RedZone;
+                    }
+                } catch (Exception e) {
                     goalPose = BlueZone;
-                } else {
-                    goalPose = RedZone;
                 }
-            } catch (Exception e) {
-                goalPose = BlueZone;
-            }
+                break;
+            case DumbControl:
+                goalPose = new Pose2d(0, 0, new Rotation2d(0));
         }
 
         TurretRotatePointPose = robotPose.plus(TurretRotatePoint);

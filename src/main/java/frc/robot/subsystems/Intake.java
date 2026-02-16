@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
 
-	// Spark Flex
+	// Neo Vortex
   	private SparkFlex intake = new SparkFlex(IntakeID, MotorType.kBrushless);
   	private SparkFlexConfig intakeConfig = new SparkFlexConfig();
 
@@ -59,31 +59,36 @@ public class Intake extends SubsystemBase {
 
   	@Override
   	public void periodic() {
-		if (state == State.Idle) {
-			intake.set(0.00);
-			pivot.setControl(pivotPositionVoltage.withPosition(PivotInPos));
-			unstickPivotTimer.stop();
-		} else if (state == State.Intake) {
-			intake.set(IntakingSpeed);
-			pivot.setControl(pivotPositionVoltage.withPosition(PivotOutPos));
-			unstickPivotTimer.stop();
-		} else if (state == State.Unstick) {
-			intake.set(IntakingSpeed);
-			unstickPivotTimer.start();
-		} else if (state == State.Outtake){
-			intake.set(-IntakingSpeed);
-			pivot.setControl(pivotPositionVoltage.withPosition(PivotOutPos));
-			unstickPivotTimer.stop();
-		} else {
-			unstickPivotTimer.stop();
-			intake.set(targetSpeed);
-			if (pivotExtension) {
-				pivot.setControl(pivotPositionVoltage.withPosition(PivotOutPos));
-			} else {
+		switch (state) {
+			case Idle:
+				intake.set(0.00);
 				pivot.setControl(pivotPositionVoltage.withPosition(PivotInPos));
-			}
+				unstickPivotTimer.stop();
+				break;
+			case Intake:
+				intake.set(IntakingSpeed);
+				pivot.setControl(pivotPositionVoltage.withPosition(PivotOutPos));
+				unstickPivotTimer.stop();
+				break;
+			case Unstick:
+				intake.set(IntakingSpeed);
+				unstickPivotTimer.start();
+				break;
+			case Outtake:
+				intake.set(-IntakingSpeed);
+				pivot.setControl(pivotPositionVoltage.withPosition(PivotOutPos));
+				unstickPivotTimer.stop();
+				break;
+			case DumbControl:
+				intake.set(targetSpeed);
+				if (pivotExtension) {
+					pivot.setControl(pivotPositionVoltage.withPosition(PivotOutPos));
+				} else {
+					pivot.setControl(pivotPositionVoltage.withPosition(PivotInPos));
+				}
 
-			unstickPivotTimer.stop();
+				unstickPivotTimer.stop();
+				break;
 		}
 
 		// Cycle between pivot in and out to agitate
