@@ -129,8 +129,7 @@ public final class Constants {
         public static enum HopperState {
             Idle,
             In,
-            Out,
-            DumbControl
+            Out
         }
 
 
@@ -139,20 +138,12 @@ public final class Constants {
         public static final double BeltsPIDkI = 0.00;
         public static final double BeltsPIDkD = 0.00;
 
-        public static final double HopperPIDkV = 0.00;
-        public static final double HopperPIDkP = 0.20;
-        public static final double HopperPIDkI = 0.00;
-        public static final double HopperPIDkD = 0.00;
-
         public static final double IntakingSpeed = 20.00;
 
-        public static final double HopperInPos = 0.00;
-        public static final double HopperOutPos = 0.00;
+        public static final int HopperIn = 0;
+        public static final int HopperOut = 1;
 
         public static final int BeltsID = 45;
-        //public static final int HopperID = 43;
-        // We dont have hopper motor as explaned
-        // in Hopper.java
     }
     
     public static final class IntakeConstants {

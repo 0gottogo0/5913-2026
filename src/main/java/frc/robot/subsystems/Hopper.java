@@ -4,17 +4,27 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.constants.Constants.HopperConstants.*;
+import static frc.robot.constants.Constants.HopperConstants.BeltsID;
+import static frc.robot.constants.Constants.HopperConstants.BeltsPIDkD;
+import static frc.robot.constants.Constants.HopperConstants.BeltsPIDkI;
+import static frc.robot.constants.Constants.HopperConstants.BeltsPIDkP;
+import static frc.robot.constants.Constants.HopperConstants.BeltsPIDkV;
+import static frc.robot.constants.Constants.HopperConstants.HopperIn;
+import static frc.robot.constants.Constants.HopperConstants.HopperOut;
+import static frc.robot.constants.Constants.HopperConstants.IntakingSpeed;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-//import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.constants.Constants.PneumaticConstants;
 import frc.robot.constants.Constants.HopperConstants.BeltsState;
+import frc.robot.constants.Constants.HopperConstants.HopperState;
 
 public class Hopper extends SubsystemBase {
 
@@ -22,20 +32,12 @@ public class Hopper extends SubsystemBase {
     private TalonFX belts = new TalonFX(BeltsID);
     private TalonFXConfiguration beltsConfig = new TalonFXConfiguration();
 
-    // Tbh idk how we gonna extend the hopper bc we dont have a motor 
-    // on there to do it... commenting out all instatnces of the
-    // hopper motor
-    
-
-    // Kraken X44
-    //private TalonFX hopper = new TalonFX(HopperID);
-    //private TalonFXConfiguration hopperConfig = new TalonFXConfiguration();
+    private PneumaticHub pneumaticHub = new PneumaticHub(PneumaticConstants.PneumaticsHubID);
+	private DoubleSolenoid hopperSolenoid = pneumaticHub.makeDoubleSolenoid(HopperIn, HopperOut);
 
     private VelocityVoltage beltsVelocityVoltage = new VelocityVoltage(0);
-    //private PositionVoltage hopperPositionVoltage = new PositionVoltage(0);
 
     private double targetBeltsSpeed = 0.00;
-    //private double targetHopperSpeed = 0.00;
 
     public BeltsState beltsState = BeltsState.Idle;
     public HopperState hopperState = HopperState.Idle;
@@ -50,16 +52,6 @@ public class Hopper extends SubsystemBase {
 
   	  	belts.clearStickyFaults();
   	  	belts.getConfigurator().apply(beltsConfig);
-
-        /*hopperConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-  	  	hopperConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-		hopperConfig.Slot0.kV = HopperPIDkV;
-		hopperConfig.Slot0.kP = HopperPIDkP;
-		hopperConfig.Slot0.kI = HopperPIDkI;
-		hopperConfig.Slot0.kD = HopperPIDkD;
-
-    	hopper.clearStickyFaults();
-  	  	hopper.getConfigurator().apply(hopperConfig);*/
     }
 
     @Override
@@ -79,15 +71,16 @@ public class Hopper extends SubsystemBase {
                 break;
         }
 
-        /*if (hopperState == HopperState.Idle) {
-            hopper.set(0.00);
-        } else if (hopperState == HopperState.In) {
-            hopper.setControl(hopperPositionVoltage.withPosition(HopperInPos));
-        } else if (hopperState == HopperState.Out) {
-            hopper.setControl(hopperPositionVoltage.withPosition(HopperOutPos));
-        } else {
-            hopper.set(targetHopperSpeed);
-        }*/
+        switch (hopperState) {
+            case Idle:
+                break;
+            case In:
+                hopperSolenoid.set(DoubleSolenoid.Value.kForward);
+                break;
+            case Out:
+                hopperSolenoid.set(DoubleSolenoid.Value.kReverse);
+                break;
+        }
     }
 
     /**
@@ -126,9 +119,8 @@ public class Hopper extends SubsystemBase {
      * @param hopperSpeedInPercent The speed to control the hopper
 	 * 						       motor in percent
 	 */
-    public void setHopperDumbControl(double beltsSpeedInPercent, double hopperSpeedInPercent) {
+    public void setHopperDumbControl(double beltsSpeedInPercent) {
         targetBeltsSpeed = beltsSpeedInPercent;
-        //targetHopperSpeed = hopperSpeedInPercent;
         beltsState = BeltsState.DumbControl;
     }
 }
