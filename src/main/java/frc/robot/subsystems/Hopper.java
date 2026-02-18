@@ -4,14 +4,7 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.constants.Constants.HopperConstants.BeltsID;
-import static frc.robot.constants.Constants.HopperConstants.BeltsPIDkD;
-import static frc.robot.constants.Constants.HopperConstants.BeltsPIDkI;
-import static frc.robot.constants.Constants.HopperConstants.BeltsPIDkP;
-import static frc.robot.constants.Constants.HopperConstants.BeltsPIDkV;
-import static frc.robot.constants.Constants.HopperConstants.HopperIn;
-import static frc.robot.constants.Constants.HopperConstants.HopperOut;
-import static frc.robot.constants.Constants.HopperConstants.IntakingSpeed;
+import static frc.robot.constants.Constants.HopperConstants.*;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
