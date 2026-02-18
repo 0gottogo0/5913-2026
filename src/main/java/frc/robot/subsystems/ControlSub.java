@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.constants.Constants.AutoAimConstants;
-import frc.robot.constants.Constants.ClimberConstants.State;
 import frc.robot.constants.Constants.ControllerConstants;
 import frc.robot.constants.Constants.ControllerConstants.DrivetrainState;
 import frc.robot.constants.Constants.ShooterConstants;
@@ -55,11 +54,11 @@ public class ControlSub extends SubsystemBase {
     
     private final SendableChooser<DrivetrainState> DrivetrainChooser = new SendableChooser<>();
 
-    private boolean driverLastA = DriverController.a().getAsBoolean();
+    /*private boolean driverLastA = DriverController.a().getAsBoolean();
     private boolean driverLastB = DriverController.b().getAsBoolean();
     private boolean driverLastY = DriverController.y().getAsBoolean();
     private boolean driverLastPovUp = DriverController.povUp().getAsBoolean();
-    private boolean driverLastPovDown = DriverController.povDown().getAsBoolean();
+    private boolean driverLastPovDown = DriverController.povDown().getAsBoolean();*/
 
     private DrivetrainState drivetrainStateLastChose = DrivetrainChooser.getSelected();
     
@@ -77,8 +76,6 @@ public class ControlSub extends SubsystemBase {
     private double climbRotPIDOutput = 0.00;
 
     // temp vars
-    private double bottomShooterSpeed = 0;
-    private double topShooterSpeed = 0;
     private boolean weAreIdlingYo = true;
     private boolean intakeOut = true;
     private boolean intakeIn = true;
@@ -155,50 +152,8 @@ public class ControlSub extends SubsystemBase {
             hopper.setHopperDumbControl(0.00, 0.00);
         }
 
-        /*if (drivetrainStateLastChose != DrivetrainChooser.getSelected()) {
+        if (drivetrainStateLastChose != DrivetrainChooser.getSelected()) {
             drivetrainApplyRequest(DrivetrainChooser.getSelected());
-        }
-
-        // temp buttons
-        if (!driverLastA && DriverController.a().getAsBoolean()) {
-            bottomShooterSpeed = bottomShooterSpeed - 5.00;
-        }
-
-        if (!driverLastY && DriverController.y().getAsBoolean()) {
-            bottomShooterSpeed = bottomShooterSpeed + 5.00;
-        }
-
-        if (!driverLastPovDown && DriverController.povDown().getAsBoolean()) {
-            topShooterSpeed = topShooterSpeed - 0.10;
-        }
-
-        if (!driverLastPovUp && DriverController.povUp().getAsBoolean()) {
-            topShooterSpeed = topShooterSpeed + 0.10;
-        }
-
-        // "reset/idle" button
-        if (!driverLastB && DriverController.b().getAsBoolean()) {
-            if (weAreIdlingYo) {
-                weAreIdlingYo = false;
-            } else {
-                weAreIdlingYo = true;
-            }
-        }
-
-        if (weAreIdlingYo) {
-            shooter.setShooterState(ShooterConstants.State.Idle, 0, 0);
-            bottomShooterSpeed = 0;
-            topShooterSpeed = 0;
-        } else {
-            shooter.setShooterState(ShooterConstants.State.Shoot, bottomShooterSpeed, topShooterSpeed);
-        }
-
-        if (DriverController.povLeft().getAsBoolean()) {
-            climber.setClimberDumbControl(0.40);
-        } else if (DriverController.povRight().getAsBoolean()) {
-            climber.setClimberDumbControl(-0.40);
-        } else {
-            climber.setClimberState(State.Idle);
         }
 
         /* Manipulator Controls */
@@ -236,11 +191,11 @@ public class ControlSub extends SubsystemBase {
         SmartDashboard.putNumber("Climb Tracking Rot Pid Output", climbRotPIDOutput);
 
         // Inputs are now "outdated" and can be compared with new ones next scheduler run
-        driverLastA = DriverController.a().getAsBoolean();
+        /*driverLastA = DriverController.a().getAsBoolean();
         driverLastB = DriverController.b().getAsBoolean();
         driverLastY = DriverController.y().getAsBoolean();
         driverLastPovUp = DriverController.povUp().getAsBoolean();
-        driverLastPovDown = DriverController.povDown().getAsBoolean();
+        driverLastPovDown = DriverController.povDown().getAsBoolean();*/
 
         drivetrainStateLastChose = DrivetrainChooser.getSelected();
     }
@@ -347,6 +302,7 @@ public class ControlSub extends SubsystemBase {
                             MathUtil.clamp(climbRotPIDOutput * maxSpeed, -1.00, 1.00)) // Drive counterclockwise with negative X (left)
                     )
                 );
+                break;
         }
     }
 }
