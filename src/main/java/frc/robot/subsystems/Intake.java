@@ -11,6 +11,8 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.revrobotics.PersistMode;
+import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkFlexConfig;
@@ -50,7 +52,10 @@ public class Intake extends SubsystemBase {
 
   	public Intake() {
 		intakeConfig.idleMode(IdleMode.kCoast);
+        intakeConfig.inverted(false);
 		intakeConfig.smartCurrentLimit(IntakeCurrentLimit);
+
+        intake.configure(intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
 		pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 		pivotConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
