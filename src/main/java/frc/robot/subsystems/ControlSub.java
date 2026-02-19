@@ -64,7 +64,6 @@ public class ControlSub extends SubsystemBase {
     
     public AutoAim autoAim = new AutoAim();
     public Climber climber = new Climber();
-    public Hopper hopper = new Hopper();
     public Intake intake = new Intake();
     public Pneumatics pneumatics = new Pneumatics();
     public Shooter shooter = new Shooter();
@@ -143,13 +142,10 @@ public class ControlSub extends SubsystemBase {
         
         if (DriverController.x().getAsBoolean() && DriverController.b().getAsBoolean()) {
             shooter.setShooterDumbControl(0.20, 0.40, -0.40);
-            hopper.setHopperDumbControl(1.00);
         } else if (DriverController.b().getAsBoolean()) {
             shooter.setShooterState(ShooterConstants.State.Spinup, 40.00, 40.00);
-            hopper.setHopperDumbControl(0.00);
         } else {
             shooter.setShooterDumbControl(0.00, 0.00, 0.00);
-            hopper.setHopperDumbControl(0.00);
         }
 
         if (drivetrainStateLastChose != DrivetrainChooser.getSelected()) {

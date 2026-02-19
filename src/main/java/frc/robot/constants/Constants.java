@@ -118,24 +118,6 @@ public final class Constants {
         public static final int ManipulatorControllerID = 1;
     }
     
-    public static final class HopperConstants {
-        public static enum BeltsState {
-            Idle,
-            Intake,
-            Outtake,
-            DumbControl
-        }
-
-        public static final double BeltsPIDkV = 0.00;
-        public static final double BeltsPIDkP = 0.20;
-        public static final double BeltsPIDkI = 0.00;
-        public static final double BeltsPIDkD = 0.00;
-
-        public static final double IntakingSpeed = 20.00;
-
-        public static final int BeltsID = 45;
-    }
-    
     public static final class IntakeConstants {
         public static enum State {
             Idle,
@@ -187,11 +169,17 @@ public final class Constants {
         }
 
         public static final double BottomRatio = 1.10;
-        public static final double FeedSpeed = 20.00;
+        public static final double BeltsSpeed = 80.00;
+        public static final double FeedSpeed = 40.00;
         public static final double UnstickRPS = 20.00;
         
         // Used in determing if shooter is up to speed
         public static final double RPSThreshold = 1.00;
+
+        public static final double BeltsPIDkV = 0.00;
+        public static final double BeltsPIDkP = 0.20;
+        public static final double BeltsPIDkI = 0.00;
+        public static final double BeltsPIDkD = 0.00;
         
         public static final double FeederPIDkV = 0.11;
         public static final double FeederPIDkP = 0.15;
@@ -213,6 +201,7 @@ public final class Constants {
         public static final double HoodShooterPIDkI = 0.00;
         public static final double HoodShooterPIDkD = 0.00;
 
+        public static final int BeltsID = 45;
         public static final int FeederMotorID = 43;
         public static final int BottomMotorID = 39;
         public static final int TopMotorID = 40;

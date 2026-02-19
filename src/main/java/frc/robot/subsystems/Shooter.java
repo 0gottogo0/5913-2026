@@ -18,6 +18,10 @@ import frc.robot.constants.Constants.ShooterConstants.State;
 
 public class Shooter extends SubsystemBase {
 
+    // Kraken X44
+    private TalonFX belts = new TalonFX(BeltsID);
+    private TalonFXConfiguration beltsConfig = new TalonFXConfiguration();
+
 	// Kraken X44
 	private TalonFX feeder = new TalonFX(FeederMotorID);
 	private TalonFXConfiguration feederConfig = new TalonFXConfiguration();
@@ -34,11 +38,13 @@ public class Shooter extends SubsystemBase {
 	private TalonFX hoodShooter = new TalonFX(HoodMotorID);
   	private TalonFXConfiguration hoodShooterConfig = new TalonFXConfiguration();
 
+	private VelocityVoltage beltsVelocityVoltage = new VelocityVoltage(0);
 	private VelocityVoltage feederVelocityVoltage = new VelocityVoltage(0);
     private VelocityVoltage bottomShooterVelocityVoltage = new VelocityVoltage(0);
 	private VelocityVoltage topShooterVelocityVoltage = new VelocityVoltage(0);
     private VelocityVoltage hoodShooterVelocityVoltage = new VelocityVoltage(0);
 
+	private double beltsTargetSpeed = 0.00;
 	private double feederTargetSpeed = 0.00;
 	private double bottomTargetSpeed = 0.00;
   	private double topTargetSpeed = 0.00;
@@ -47,6 +53,16 @@ public class Shooter extends SubsystemBase {
 	public State state = State.Idle;
 
   	public Shooter() {
+		beltsConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+  	  	beltsConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+		beltsConfig.Slot0.kV = BeltsPIDkV;
+		beltsConfig.Slot0.kP = BeltsPIDkP;
+		beltsConfig.Slot0.kI = BeltsPIDkI;
+		beltsConfig.Slot0.kD = BeltsPIDkD;
+
+  	  	belts.clearStickyFaults();
+  	  	belts.getConfigurator().apply(beltsConfig);
+
 		feederConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 		feederConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 		feederConfig.Slot0.kV = FeederPIDkV;
@@ -92,30 +108,35 @@ public class Shooter extends SubsystemBase {
   	public void periodic() {
   	  	switch (state) {
 			case Idle:
+                belts.set(0.00);
 				feeder.set(0.00);
 				bottomShooter.set(0.00);
 				topShooter.set(0.00);
 				hoodShooter.set(0.00);
 				break;
 			case Spinup:
+                belts.set(0.00);
 				feeder.set(0.00);
 				bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(topTargetSpeed * BottomRatio));
 				topShooter.setControl(topShooterVelocityVoltage.withVelocity(topTargetSpeed));
 				hoodShooter.setControl(hoodShooterVelocityVoltage.withVelocity(hoodTargetSpeed));
 				break;
 			case Shoot:
+                belts.setControl(beltsVelocityVoltage.withVelocity(BeltsSpeed));
 				feeder.setControl(feederVelocityVoltage.withVelocity(FeedSpeed));
 				bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(topTargetSpeed * BottomRatio));
 				topShooter.setControl(topShooterVelocityVoltage.withVelocity(topTargetSpeed));
 				hoodShooter.setControl(hoodShooterVelocityVoltage.withVelocity(hoodTargetSpeed));
 				break;
 			case Unstick:
+                belts.setControl(beltsVelocityVoltage.withVelocity(BeltsSpeed));
 				feeder.setControl(feederVelocityVoltage.withVelocity(FeedSpeed));
 				bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(UnstickRPS));
 				topShooter.setControl(topShooterVelocityVoltage.withVelocity(UnstickRPS));
 				hoodShooter.setControl(hoodShooterVelocityVoltage.withVelocity(UnstickRPS));
 				break;
 			case DumbControl:
+                belts.set(beltsTargetSpeed);
 				feeder.set(feederTargetSpeed);
 				bottomShooter.set(bottomTargetSpeed);
 				topShooter.set(topTargetSpeed);
@@ -123,15 +144,20 @@ public class Shooter extends SubsystemBase {
 				break;
 		}
 
+        SmartDashboard.putNumber("Belts RPS", getBeltsSpeed());
+		SmartDashboard.putNumber("Belts Target RPS", beltsTargetSpeed);
+		SmartDashboard.putNumber("Belts Target Diff", beltsTargetSpeed - getBeltsSpeed());
+		SmartDashboard.putNumber("Belts Target Percentage", Math.abs(getBeltsSpeed() / beltsTargetSpeed - 1));
+
         SmartDashboard.putNumber("Feeder Shooter RPS", getFeederShooterSpeed());
-		SmartDashboard.putNumber("Feeder Shooter Target RPS", topTargetSpeed);
-		SmartDashboard.putNumber("Feeder Shooter Target Diff", topTargetSpeed - getFeederShooterSpeed());
-		SmartDashboard.putNumber("Feeder Shooter Target Percentage", Math.abs(getFeederShooterSpeed() / topTargetSpeed - 1));
+		SmartDashboard.putNumber("Feeder Shooter Target RPS", feederTargetSpeed);
+		SmartDashboard.putNumber("Feeder Shooter Target Diff", feederTargetSpeed - getFeederShooterSpeed());
+		SmartDashboard.putNumber("Feeder Shooter Target Percentage", Math.abs(getFeederShooterSpeed() / feederTargetSpeed - 1));
 
         SmartDashboard.putNumber("Bottom Shooter RPS", getBottomShooterSpeed());
 		SmartDashboard.putNumber("Bottom Shooter Target RPS", bottomTargetSpeed * BottomRatio);
 		SmartDashboard.putNumber("Bottom Shooter Target Diff", (bottomTargetSpeed * BottomRatio) - getBottomShooterSpeed());
-		SmartDashboard.putNumber("Bottom Shooter Target Percentage", Math.abs(getBottomShooterSpeed() / (topTargetSpeed * BottomRatio) - 1));
+		SmartDashboard.putNumber("Bottom Shooter Target Percentage", Math.abs(getBottomShooterSpeed() / (bottomTargetSpeed * BottomRatio) - 1));
 
 		SmartDashboard.putNumber("Top Shooter RPS", getTopShooterSpeed());
 		SmartDashboard.putNumber("Top Shooter Target RPS", topTargetSpeed);
@@ -147,7 +173,16 @@ public class Shooter extends SubsystemBase {
 
 		SmartDashboard.putBoolean("Shooter At Speed", isShooterAtSpeed());
   	}
-     
+    
+	/**
+	 * Returns the speed of the belts motor
+	 * 
+	 * @return Speed in RPS
+	 */
+    private double getBeltsSpeed() {
+        return belts.getRotorVelocity().getValueAsDouble();
+    }
+
 	/**
      * Returns the speed of the feeder shooter motor
      * 
@@ -202,7 +237,7 @@ public class Shooter extends SubsystemBase {
 	 * 					     target speed is not used and can
 	 * 					     be set to 0.
 	 */
-	public void setShooterState(State stateToChangeTo,double speedInRPS, double hoodSpeedInRPS) {
+	public void setShooterState(State stateToChangeTo, double speedInRPS, double hoodSpeedInRPS) {
         topTargetSpeed = speedInRPS;
 		hoodTargetSpeed = hoodSpeedInRPS;
 		state = stateToChangeTo;
@@ -221,7 +256,8 @@ public class Shooter extends SubsystemBase {
 	 * @param hoodSpeedInPercent The speed to control in percent
 	 */
 	public void setShooterDumbControl(double feedSpeedInPercent, double topSpeedInPercent, double hoodSpeedInPercent) {
-		feederTargetSpeed = feedSpeedInPercent;
+		beltsTargetSpeed = feedSpeedInPercent;
+        feederTargetSpeed = feedSpeedInPercent;
 		bottomTargetSpeed = topSpeedInPercent;
         topTargetSpeed = topSpeedInPercent;
 		hoodTargetSpeed = hoodSpeedInPercent;
@@ -233,7 +269,9 @@ public class Shooter extends SubsystemBase {
 	 * <p>
 	 * Used if want to control the shooter open loop without
 	 * the PID. Uses the TalonFX .set() function 
-	 * 
+     * 
+	 * @param beltsSpeedInPercent The speed to control in percent
+     * 
 	 * @param feedSpeedInPercent The speed to control in percent
 	 * 
 	 * @param bottomSpeedInPercent The speed to control in percent
@@ -242,7 +280,9 @@ public class Shooter extends SubsystemBase {
 	 * 
 	 * @param hoodSpeedInPercent The speed to control in percent
 	 */
-	public void setShooterDumbControl(double feedSpeedInPercent, double bottomSpeedInPercent, double topSpeedInPercent, double hoodSpeedInPercent) {
+	public void setShooterDumbControl(double beltsSpeedInPercent, double feedSpeedInPercent, double bottomSpeedInPercent, double topSpeedInPercent, double hoodSpeedInPercent) {
+        beltsTargetSpeed = beltsSpeedInPercent;
+        feederTargetSpeed = feedSpeedInPercent;
         bottomTargetSpeed = bottomSpeedInPercent;
 		topTargetSpeed = topSpeedInPercent;
 		hoodTargetSpeed = hoodSpeedInPercent;
