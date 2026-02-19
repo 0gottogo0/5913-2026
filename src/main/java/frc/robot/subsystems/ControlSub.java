@@ -20,7 +20,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.constants.Constants.AutoAimConstants;
 import frc.robot.constants.Constants.ControllerConstants;
+import frc.robot.constants.Constants.IntakeConstants;
 import frc.robot.constants.Constants.ControllerConstants.DrivetrainState;
+import frc.robot.constants.Constants.ShooterConstants.State;
 import frc.robot.constants.Constants.ShooterConstants;
 import frc.robot.constants.TunerConstants;
 
@@ -54,17 +56,16 @@ public class ControlSub extends SubsystemBase {
     
     private final SendableChooser<DrivetrainState> DrivetrainChooser = new SendableChooser<>();
 
-    /*private boolean driverLastA = DriverController.a().getAsBoolean();
-    private boolean driverLastB = DriverController.b().getAsBoolean();
-    private boolean driverLastY = DriverController.y().getAsBoolean();
-    private boolean driverLastPovUp = DriverController.povUp().getAsBoolean();
-    private boolean driverLastPovDown = DriverController.povDown().getAsBoolean();*/
+    //private boolean driverLastA = DriverController.a().getAsBoolean();
+    //private boolean driverLastB = DriverController.b().getAsBoolean();
+    //private boolean driverLastY = DriverController.y().getAsBoolean();
+    //private boolean driverLastPovUp = DriverController.povUp().getAsBoolean();
+    //private boolean driverLastPovDown = DriverController.povDown().getAsBoolean();
 
-    private DrivetrainState drivetrainStateLastChose = DrivetrainChooser.getSelected();
+    private DrivetrainState drivetrainLastState = DrivetrainChooser.getSelected();
     
     public AutoAim autoAim = new AutoAim();
     public Climber climber = new Climber();
-    public Hopper hopper = new Hopper();
     public Intake intake = new Intake();
     public Pneumatics pneumatics = new Pneumatics();
     public Shooter shooter = new Shooter();
@@ -77,14 +78,15 @@ public class ControlSub extends SubsystemBase {
 
     // temp vars
     private boolean weAreIdlingYo = true;
-    private boolean intakeOut = true;
-    private boolean intakeIn = true;
+    private double intakeSpeed;
+    private boolean intakeOut = false;
+    private boolean intakeIn = false;
 
     public ControlSub() {
 
         /* Driver Controls */
         //DrivetrainChooser.setDefaultOption("Disable Drivetrain", DrivetrainState.DisabledDrivetrain);
-        DrivetrainChooser.addOption("Baby Movement", DrivetrainState.DisabledDrivetrain);
+        DrivetrainChooser.addOption("Disable Drivetrain", DrivetrainState.DisabledDrivetrain);
         //DrivetrainChooser.setDefaultOption("Baby Movement", DrivetrainState.BabyMode);
         DrivetrainChooser.addOption("Baby Movement", DrivetrainState.BabyMode);
         //DrivetrainChooser.setDefaultOption("Slow Traction Control", DrivetrainState.SlowTC);
@@ -129,30 +131,30 @@ public class ControlSub extends SubsystemBase {
             intakeOut = false;
         }
 
-        if (DriverController.a().getAsBoolean()) {
-            intake.setIntakeDumbControl(0.45);
+        if (DriverController.povLeft().getAsBoolean()) {
+            intakeSpeed = IntakeConstants.IntakingSpeed;
         } else {
-            if (intakeIn) {
-                intake.setIntakeDumbControl(0.00, -0.3);
-            } else if (intakeOut) {
-                intake.setIntakeDumbControl(0.00, 0.3);
-            } else {
-                intake.setIntakeDumbControl(0.00, 0.00);
-            }
-        }
-        
-        if (DriverController.x().getAsBoolean() && DriverController.b().getAsBoolean()) {
-            shooter.setShooterDumbControl(0.20, 0.40, -0.40);
-            hopper.setHopperDumbControl(1.00, 0.00);
-        } else if (DriverController.b().getAsBoolean()) {
-            shooter.setShooterState(ShooterConstants.State.Spinup, 40.00, 40.00);
-            hopper.setHopperDumbControl(0.00, 0.00);
-        } else {
-            shooter.setShooterDumbControl(0.00, 0.00, 0.00);
-            hopper.setHopperDumbControl(0.00, 0.00);
+            intakeSpeed = 0;
         }
 
-        if (drivetrainStateLastChose != DrivetrainChooser.getSelected()) {
+        if (intakeIn) {
+            intake.setIntakeDumbControl(intakeSpeed, -0.3, DriverController.povRight().getAsBoolean());
+        } else if (intakeOut) {
+            intake.setIntakeDumbControl(intakeSpeed, 0.3, DriverController.povRight().getAsBoolean());
+        } else {
+            intake.setIntakeDumbControl(intakeSpeed, 0.00, DriverController.povRight().getAsBoolean());
+        }
+    
+        
+        if (DriverController.x().getAsBoolean() && DriverController.a().getAsBoolean()) {
+            shooter.setShooterState(ShooterConstants.State.Shoot, 40.00, 40.00);
+        } else if (DriverController.a().getAsBoolean()) {
+            shooter.setShooterState(ShooterConstants.State.Spinup, 40.00, 40.00);
+        } else {
+            shooter.setShooterState(State.Idle, 0.00, 0.00);
+        }
+
+        if (drivetrainLastState != DrivetrainChooser.getSelected()) {
             drivetrainApplyRequest(DrivetrainChooser.getSelected());
         }
 
@@ -191,13 +193,13 @@ public class ControlSub extends SubsystemBase {
         SmartDashboard.putNumber("Climb Tracking Rot Pid Output", climbRotPIDOutput);
 
         // Inputs are now "outdated" and can be compared with new ones next scheduler run
-        /*driverLastA = DriverController.a().getAsBoolean();
-        driverLastB = DriverController.b().getAsBoolean();
-        driverLastY = DriverController.y().getAsBoolean();
-        driverLastPovUp = DriverController.povUp().getAsBoolean();
-        driverLastPovDown = DriverController.povDown().getAsBoolean();*/
+        //driverLastA = DriverController.a().getAsBoolean();
+        //driverLastB = DriverController.b().getAsBoolean();
+        //driverLastY = DriverController.y().getAsBoolean();
+        //driverLastPovUp = DriverController.povUp().getAsBoolean();
+        //driverLastPovDown = DriverController.povDown().getAsBoolean();
 
-        drivetrainStateLastChose = DrivetrainChooser.getSelected();
+        drivetrainLastState = DrivetrainChooser.getSelected();
     }
 
     /**
