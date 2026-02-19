@@ -12,12 +12,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.PneumaticHub;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.constants.Constants.PneumaticConstants;
 import frc.robot.constants.Constants.HopperConstants.BeltsState;
-import frc.robot.constants.Constants.HopperConstants.HopperState;
 
 public class Hopper extends SubsystemBase {
 
@@ -25,15 +21,11 @@ public class Hopper extends SubsystemBase {
     private TalonFX belts = new TalonFX(BeltsID);
     private TalonFXConfiguration beltsConfig = new TalonFXConfiguration();
 
-    private PneumaticHub pneumaticHub = new PneumaticHub(PneumaticConstants.PneumaticsHubID);
-	private DoubleSolenoid hopperSolenoid = pneumaticHub.makeDoubleSolenoid(HopperIn, HopperOut);
-
     private VelocityVoltage beltsVelocityVoltage = new VelocityVoltage(0);
 
     private double targetBeltsSpeed = 0.00;
 
     public BeltsState beltsState = BeltsState.Idle;
-    public HopperState hopperState = HopperState.Idle;
 
     public Hopper() {
         beltsConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
@@ -63,17 +55,6 @@ public class Hopper extends SubsystemBase {
                 belts.set(targetBeltsSpeed);
                 break;
         }
-
-        switch (hopperState) {
-            case Idle:
-                break;
-            case In:
-                hopperSolenoid.set(DoubleSolenoid.Value.kForward);
-                break;
-            case Out:
-                hopperSolenoid.set(DoubleSolenoid.Value.kReverse);
-                break;
-        }
     }
 
     /**
@@ -86,18 +67,6 @@ public class Hopper extends SubsystemBase {
 	 */
     public void setHopperBeltsState(BeltsState stateToChangeTo) {
         beltsState = stateToChangeTo;
-    }
-
-    /**
-	 * Sets the state of the hopper.
-	 * <p> 
-	 * If wanting to control the hopper without PID
-	 * then use setHopperDumbControl()
-	 * 
-	 * @param stateToChangeTo Using HopperConstants.HopperState
-	 */
-    public void setHopperHopperState(HopperState stateToChangeTo) {
-        hopperState = stateToChangeTo;
     }
 
 	/**

@@ -126,13 +126,6 @@ public final class Constants {
             DumbControl
         }
 
-        public static enum HopperState {
-            Idle,
-            In,
-            Out
-        }
-
-
         public static final double BeltsPIDkV = 0.00;
         public static final double BeltsPIDkP = 0.20;
         public static final double BeltsPIDkI = 0.00;
@@ -140,15 +133,13 @@ public final class Constants {
 
         public static final double IntakingSpeed = 20.00;
 
-        public static final int HopperIn = 0;
-        public static final int HopperOut = 1;
-
         public static final int BeltsID = 45;
     }
     
     public static final class IntakeConstants {
         public static enum State {
             Idle,
+            IdleOut,
             Intake,
             Unstick,
             Outtake,
@@ -168,6 +159,9 @@ public final class Constants {
         public static final int IntakeCurrentLimit = 60;
 
         public static final double IntakingSpeed = 40;
+
+        public static final int HopperIn = 0;
+        public static final int HopperOut = 1;
 
         public static final double PivotInPos = 0.00;
         public static final double PivotOutPos = 0.00;
