@@ -227,7 +227,7 @@ public class Shooter extends SubsystemBase {
 	 * 
 	 * @param stateToChangeTo Using ShooterConstants.State
 
-	 * @param SpeedInRPS The target speed to set in rps.
+	 * @param speedInRPS The target speed to set in rps.
 	 * 					 When setting the state to idle,
 	 * 					 target speed is not used and can
 	 * 					 be set to 0.	
