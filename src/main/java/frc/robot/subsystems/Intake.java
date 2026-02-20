@@ -41,7 +41,7 @@ public class Intake extends SubsystemBase {
 	private DoubleSolenoid hopperSolenoid = new DoubleSolenoid(PneumaticsHubID, PneumaticsModuleType.CTREPCM, HopperIn, HopperOut);
 
 	private PositionVoltage pivotPositionVoltage = new PositionVoltage(0);
-	private PIDController pivotController = new PIDController(0.05, 0, 0);
+	private PIDController pivotController = new PIDController(1.50, 0.00, 0.00);
 
 	private DutyCycleEncoder pivotEncoder = new DutyCycleEncoder(0);
 	
@@ -168,6 +168,7 @@ public class Intake extends SubsystemBase {
 		// temp
 		SmartDashboard.putNumber("Intake Pivot PID Output", pivotPIDOutput);
 		SmartDashboard.putNumber("Intake Pivot Position 2 Electric Boogaloo", pivotEncoder.get());
+		SmartDashboard.putBoolean("Hopper Safe To Retract", pivotEncoder.get() > SafeToRetractHopperPos);
 
         SmartDashboard.putString("Intake State", state.toString());
   	}

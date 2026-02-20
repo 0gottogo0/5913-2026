@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.*;
+import static frc.robot.constants.Constants.IntakeConstants.IntakeCurrentLimit;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -78,9 +79,6 @@ public class ControlSub extends SubsystemBase {
 
     // temp vars
     private boolean weAreIdlingYo = true;
-    private double intakeSpeed;
-    private boolean intakeOut = false;
-    private boolean intakeIn = false;
 
     public ControlSub() {
 
@@ -119,39 +117,14 @@ public class ControlSub extends SubsystemBase {
         // Check for input then call subsystems
 
         /* Driver Controls */
-
         if (DriverController.povUp().getAsBoolean()) {
-            intakeIn = true;
-            intakeOut = false;
+            intake.setIntakeState(IntakeConstants.State.Idle);
         } else if (DriverController.povDown().getAsBoolean()) {
-            intakeIn = false;
-            intakeOut = true;
-        } else {
-            intakeIn = false;
-            intakeOut = false;
-        }
-
-        if (DriverController.povLeft().getAsBoolean()) {
-            intakeSpeed = IntakeConstants.IntakingSpeed;
-        } else {
-            intakeSpeed = 0;
-        }
-
-        if (intakeIn) {
-            intake.setIntakeDumbControl(intakeSpeed, -0.3, DriverController.y().getAsBoolean());
-        } else if (intakeOut) {
-            intake.setIntakeDumbControl(intakeSpeed, 0.3, DriverController.y().getAsBoolean());
-        } else {
-            intake.setIntakeDumbControl(intakeSpeed, 0.00, DriverController.y().getAsBoolean());
-        }
-    
-        
-        if (DriverController.x().getAsBoolean() && DriverController.a().getAsBoolean()) {
-            shooter.setShooterState(ShooterConstants.State.Shoot, 40.00, 40.00);
-        } else if (DriverController.a().getAsBoolean()) {
-            shooter.setShooterState(ShooterConstants.State.Spinup, 40.00, 40.00);
-        } else {
-            shooter.setShooterState(State.Idle, 0.00, 0.00);
+            intake.setIntakeState(IntakeConstants.State.IdleOut);
+        } else if (DriverController.leftTrigger().getAsBoolean()) {
+            intake.setIntakeState(IntakeConstants.State.Intake);
+        } else if (!DriverController.leftTrigger().getAsBoolean() && intake.state == IntakeConstants.State.Intake) {
+            intake.setIntakeState(IntakeConstants.State.IdleOut);
         }
 
         if (drivetrainLastState != DrivetrainChooser.getSelected()) {
@@ -159,11 +132,24 @@ public class ControlSub extends SubsystemBase {
         }
 
         /* Manipulator Controls */
+        // Spinup = X
+        // Shoot = Right Trig
+        // Track Req = Left Trig
+        // Climb = Left Bumper 
+        // Agitate Intake = Pov Up
 
         if (shooter.isShooterAtSpeed()) {
             ManipulatorController.setRumble(RumbleType.kBothRumble, 0.10);
         } else {
             ManipulatorController.setRumble(RumbleType.kBothRumble, 0.00);
+        }
+
+        if (DriverController.x().getAsBoolean() && DriverController.a().getAsBoolean()) {
+            shooter.setShooterState(ShooterConstants.State.Shoot, 40.00, 40.00);
+        } else if (DriverController.a().getAsBoolean()) {
+            shooter.setShooterState(ShooterConstants.State.Spinup, 40.00, 40.00);
+        } else {
+            shooter.setShooterState(State.Idle, 0.00, 0.00);
         }
 
         /* Auto Aim Control */
@@ -183,8 +169,6 @@ public class ControlSub extends SubsystemBase {
         }
 
         /* Output */
-
-        SmartDashboard.putBoolean("Idle", weAreIdlingYo);
 
         SmartDashboard.putNumber("Hub Tracking Pid Output", hubPIDOutput);
 
