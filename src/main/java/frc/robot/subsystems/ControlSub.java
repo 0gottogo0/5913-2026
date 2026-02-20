@@ -307,4 +307,8 @@ public class ControlSub extends SubsystemBase {
                 break;
         }
     }
+
+    public void tempAutoCommand() {
+        // Do stuff here
+    }
 }

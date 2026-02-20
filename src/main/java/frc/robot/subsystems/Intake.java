@@ -16,9 +16,10 @@ import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkFlexConfig;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Timer;
@@ -39,9 +40,14 @@ public class Intake extends SubsystemBase {
 	private DoubleSolenoid hopperSolenoid = new DoubleSolenoid(PneumaticsHubID, PneumaticsModuleType.CTREPCM, HopperIn, HopperOut);
 
 	private PositionVoltage pivotPositionVoltage = new PositionVoltage(0);
+	private PIDController pivotController = new PIDController(0.3, 0, 0);
 
+	private DutyCycleEncoder pivotEncoder = new DutyCycleEncoder(0);
+	
   	private double intakeTargetSpeed = 0;
 	private double pivotTargetSpeed = 0;
+    private double pivotSetpoint = 0;
+	private double pivotPIDOutput = 0;
 	private boolean pivotExtension = false;
 	private boolean hopperExtension = false;
 
@@ -68,37 +74,59 @@ public class Intake extends SubsystemBase {
 		
 		unstickPivotTimer.stop();
 		unstickPivotTimer.reset();
+
+		pivotSetpoint = pivotEncoder.get();
+
+		new Thread(() -> {
+    		try {
+    		    Thread.sleep(3000);
+    		    pivotSetpoint = pivotEncoder.get();
+    		} catch (Exception e) {
+    		}
+    	}).start();
+
   	}
 
   	@Override
   	public void periodic() {
+		pivotPIDOutput = pivotController.calculate(pivotEncoder.get(), pivotSetpoint);
+
 		switch (state) {
 			case Idle:
 				intake.set(0.00);
-				pivot.setControl(pivotPositionVoltage.withPosition(PivotInPos));
+				//pivot.setControl(pivotPositionVoltage.withPosition(PivotInPos));
+				pivot.set(pivotPIDOutput);
+				pivotSetpoint = PivotInPos;
 				hopperSolenoid.set(DoubleSolenoid.Value.kForward);
 				unstickPivotTimer.stop();
 				break;
             case IdleOut:
                 intake.set(0.00);
-				pivot.setControl(pivotPositionVoltage.withPosition(PivotInPos));
+				//pivot.setControl(pivotPositionVoltage.withPosition(PivotInPos));
+				pivot.set(pivotPIDOutput);
+				pivotSetpoint = PivotOutPos;
 				hopperSolenoid.set(DoubleSolenoid.Value.kReverse);
 				unstickPivotTimer.stop();
                 break;
 			case Intake:
 				intake.set(IntakingSpeed);
-				pivot.setControl(pivotPositionVoltage.withPosition(PivotOutPos));
+				//pivot.setControl(pivotPositionVoltage.withPosition(PivotOutPos));
+				pivot.set(pivotPIDOutput);
+				pivotSetpoint = PivotOutPos;
 				hopperSolenoid.set(DoubleSolenoid.Value.kReverse);
 				unstickPivotTimer.stop();
 				break;
 			case Unstick:
 				intake.set(IntakingSpeed);
+				pivotSetpoint = PivotOutPos;
 				hopperSolenoid.set(DoubleSolenoid.Value.kReverse);
-				unstickPivotTimer.start();
+				//unstickPivotTimer.start();
 				break;
 			case Outtake:
 				intake.set(-IntakingSpeed);
-				pivot.setControl(pivotPositionVoltage.withPosition(PivotOutPos));
+				//pivot.setControl(pivotPositionVoltage.withPosition(PivotOutPos));
+				pivot.set(pivotPIDOutput);
+				pivotSetpoint = PivotOutPos;
 				hopperSolenoid.set(DoubleSolenoid.Value.kReverse);
 				unstickPivotTimer.stop();
 				break;
@@ -128,8 +156,13 @@ public class Intake extends SubsystemBase {
 			}
 		}
 
+
 		SmartDashboard.putNumber("Intake Pivot Position", pivot.getPosition().getValueAsDouble());
 		SmartDashboard.putNumber("Intake Pivot Unstick Timer", unstickPivotTimer.get());
+		
+		// temp
+		SmartDashboard.putNumber("Intake Pivot PID Output", pivotPIDOutput);
+		SmartDashboard.putNumber("Intake Pivot Position 2 Electric Boogaloo", pivotEncoder.get());
 
         SmartDashboard.putString("Intake State", state.toString());
   	}

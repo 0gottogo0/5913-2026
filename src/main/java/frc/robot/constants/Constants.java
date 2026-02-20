@@ -18,11 +18,19 @@ public final class Constants {
             DumbControl
         }
 
-        public static final Pose2d BlueGoal = new Pose2d(0, 0, new Rotation2d(0));
-        public static final Pose2d RedGoal = new Pose2d(0, 0, new Rotation2d(0));
-        public static final Pose2d NeutralZone = new Pose2d(0, 0, new Rotation2d(0));
-        public static final Pose2d BlueZone = new Pose2d(0, 0, new Rotation2d(0));
-        public static final Pose2d RedZone = new Pose2d(0, 0, new Rotation2d(0));
+        // These are purely guesses based on field cad
+        // right now and may need to be re-mesured or
+        // adjusted in the future
+
+        // Also note these are using FRC WPIBlue, more
+        // and better information can be found in the
+        // Limelight docs under "3D Coordinate Systems
+        // In Detail"
+        public static final Pose2d BlueGoal = new Pose2d(4.60,  4.07, new Rotation2d(0));
+        public static final Pose2d RedGoal = new Pose2d(11.60, 4.07, new Rotation2d(0));
+        public static final Pose2d NeutralZone = new Pose2d(8.27, 4.07, new Rotation2d(0));
+        public static final Pose2d BlueZone = new Pose2d(3.20, 4.07, new Rotation2d(0));
+        public static final Pose2d RedZone = new Pose2d(13.40, 4.07, new Rotation2d(0));
 
         public static final Pose2d BlueClimbLeft = new Pose2d(0, 0, new Rotation2d(0));
         public static final Pose2d BlueClimbRight = new Pose2d(0, 0, new Rotation2d(0));
@@ -36,13 +44,31 @@ public final class Constants {
         // Meters, RPS
         public static final InterpolatingDoubleTreeMap TopShooterSpeedByDistance = InterpolatingDoubleTreeMap.ofEntries(
             Map.entry(0.00, 0.00),
-            Map.entry(0.00, 0.00)
+            Map.entry(0.50, 0.00),
+            Map.entry(1.00, 0.00),
+            Map.entry(1.50, 0.00),
+            Map.entry(2.00, 0.00),
+            Map.entry(2.50, 0.00),
+            Map.entry(3.00, 0.00),
+            Map.entry(3.50, 0.00),
+            Map.entry(4.00, 0.00),
+            Map.entry(4.50, 0.00),
+            Map.entry(5.00, 0.00)
             );
     
         // Meters, RPS
         public static final InterpolatingDoubleTreeMap HoodShooterSpeedByDistance = InterpolatingDoubleTreeMap.ofEntries(
-           Map.entry(0.00, 0.00),
-           Map.entry(0.00, 0.00)
+            Map.entry(0.00, 0.00),
+            Map.entry(0.50, 0.00),
+            Map.entry(1.00, 0.00),
+            Map.entry(1.50, 0.00),
+            Map.entry(2.00, 0.00),
+            Map.entry(2.50, 0.00),
+            Map.entry(3.00, 0.00),
+            Map.entry(3.50, 0.00),
+            Map.entry(4.00, 0.00),
+            Map.entry(4.50, 0.00),
+            Map.entry(5.00, 0.00)
         );
             
         // Meters, Seconds
@@ -142,8 +168,8 @@ public final class Constants {
 
         public static final double IntakingSpeed = 40;
 
-        public static final int HopperIn = 0;
-        public static final int HopperOut = 1;
+        public static final int HopperIn = 1;
+        public static final int HopperOut = 0;
 
         public static final double PivotInPos = 0.00;
         public static final double PivotOutPos = 0.00;
@@ -153,10 +179,7 @@ public final class Constants {
     }
     
     public static final class PneumaticConstants {
-        public static final double MaxPressure = 120.00;
-        public static final double MinPressure = 110.00;
-
-        public static final int PneumaticsHubID = 17;
+        public static final int PneumaticsHubID = 33;
     }
 
     public static final class ShooterConstants {
