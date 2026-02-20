@@ -135,21 +135,29 @@ public class ControlSub extends SubsystemBase {
         // Spinup = X
         // Shoot = Right Trig
         // Track Req = Left Trig
-        // Climb = Left Bumper 
-        // Agitate Intake = Pov Up
+        // Climb Track = Pov Right
+        // Climb Up = Pov Up
+        // Climb Down = Pov Down
+        // Agitate Intake = Left Bumper
+
+        if (ManipulatorController.x().getAsBoolean() && ManipulatorController.rightTrigger().getAsBoolean()) {
+            shooter.setShooterState(ShooterConstants.State.Shoot, 40.00, 40.00);
+        } else if (ManipulatorController.x().getAsBoolean()) {
+            shooter.setShooterState(ShooterConstants.State.Spinup, 40.00, 40.00);
+        } else {
+            shooter.setShooterState(State.Idle, 0.00, 0.00);
+        }
+
+        if (ManipulatorController.povUp().getAsBoolean()) {
+            climber.setClimberDumbControl(1);
+        } else if (ManipulatorController.povDown().getAsBoolean()) {
+            climber.setClimberDumbControl(-1);
+        }
 
         if (shooter.isShooterAtSpeed()) {
             ManipulatorController.setRumble(RumbleType.kBothRumble, 0.10);
         } else {
             ManipulatorController.setRumble(RumbleType.kBothRumble, 0.00);
-        }
-
-        if (DriverController.x().getAsBoolean() && DriverController.a().getAsBoolean()) {
-            shooter.setShooterState(ShooterConstants.State.Shoot, 40.00, 40.00);
-        } else if (DriverController.a().getAsBoolean()) {
-            shooter.setShooterState(ShooterConstants.State.Spinup, 40.00, 40.00);
-        } else {
-            shooter.setShooterState(State.Idle, 0.00, 0.00);
         }
 
         /* Auto Aim Control */
