@@ -21,6 +21,7 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -40,7 +41,7 @@ public class Intake extends SubsystemBase {
 	private DoubleSolenoid hopperSolenoid = new DoubleSolenoid(PneumaticsHubID, PneumaticsModuleType.CTREPCM, HopperIn, HopperOut);
 
 	private PositionVoltage pivotPositionVoltage = new PositionVoltage(0);
-	private PIDController pivotController = new PIDController(0.3, 0, 0);
+	private PIDController pivotController = new PIDController(0.05, 0, 0);
 
 	private DutyCycleEncoder pivotEncoder = new DutyCycleEncoder(0);
 	
@@ -97,7 +98,11 @@ public class Intake extends SubsystemBase {
 				//pivot.setControl(pivotPositionVoltage.withPosition(PivotInPos));
 				pivot.set(pivotPIDOutput);
 				pivotSetpoint = PivotInPos;
-				hopperSolenoid.set(DoubleSolenoid.Value.kForward);
+
+				// Check if it is safe to retract hopper
+				if (pivotEncoder.get() > SafeToRetractHopperPos) {
+					hopperSolenoid.set(DoubleSolenoid.Value.kForward);
+				}
 				unstickPivotTimer.stop();
 				break;
             case IdleOut:
