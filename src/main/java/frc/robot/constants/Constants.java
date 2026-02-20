@@ -44,13 +44,31 @@ public final class Constants {
         // Meters, RPS
         public static final InterpolatingDoubleTreeMap TopShooterSpeedByDistance = InterpolatingDoubleTreeMap.ofEntries(
             Map.entry(0.00, 0.00),
-            Map.entry(0.00, 0.00)
+            Map.entry(0.50, 0.00),
+            Map.entry(1.00, 0.00),
+            Map.entry(1.50, 0.00),
+            Map.entry(2.00, 0.00),
+            Map.entry(2.50, 0.00),
+            Map.entry(3.00, 0.00),
+            Map.entry(3.50, 0.00),
+            Map.entry(4.00, 0.00),
+            Map.entry(4.50, 0.00),
+            Map.entry(5.00, 0.00)
             );
     
         // Meters, RPS
         public static final InterpolatingDoubleTreeMap HoodShooterSpeedByDistance = InterpolatingDoubleTreeMap.ofEntries(
-           Map.entry(0.00, 0.00),
-           Map.entry(0.00, 0.00)
+            Map.entry(0.00, 0.00),
+            Map.entry(0.50, 0.00),
+            Map.entry(1.00, 0.00),
+            Map.entry(1.50, 0.00),
+            Map.entry(2.00, 0.00),
+            Map.entry(2.50, 0.00),
+            Map.entry(3.00, 0.00),
+            Map.entry(3.50, 0.00),
+            Map.entry(4.00, 0.00),
+            Map.entry(4.50, 0.00),
+            Map.entry(5.00, 0.00)
         );
             
         // Meters, Seconds
