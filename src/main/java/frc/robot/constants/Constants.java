@@ -18,11 +18,19 @@ public final class Constants {
             DumbControl
         }
 
-        public static final Pose2d BlueGoal = new Pose2d(0, 0, new Rotation2d(0));
-        public static final Pose2d RedGoal = new Pose2d(0, 0, new Rotation2d(0));
-        public static final Pose2d NeutralZone = new Pose2d(0, 0, new Rotation2d(0));
-        public static final Pose2d BlueZone = new Pose2d(0, 0, new Rotation2d(0));
-        public static final Pose2d RedZone = new Pose2d(0, 0, new Rotation2d(0));
+        // These are purely guesses based on field cad
+        // right now and may need to be re-mesured or
+        // adjusted in the future
+
+        // Also note these are using FRC WPIBlue, more
+        // and better information can be found in the
+        // Limelight docs under "3D Coordinate Systems
+        // In Detail"
+        public static final Pose2d BlueGoal = new Pose2d(4.60,  4.07, new Rotation2d(0));
+        public static final Pose2d RedGoal = new Pose2d(11.60, 4.07, new Rotation2d(0));
+        public static final Pose2d NeutralZone = new Pose2d(8.27, 4.07, new Rotation2d(0));
+        public static final Pose2d BlueZone = new Pose2d(3.20, 4.07, new Rotation2d(0));
+        public static final Pose2d RedZone = new Pose2d(13.40, 4.07, new Rotation2d(0));
 
         public static final Pose2d BlueClimbLeft = new Pose2d(0, 0, new Rotation2d(0));
         public static final Pose2d BlueClimbRight = new Pose2d(0, 0, new Rotation2d(0));
