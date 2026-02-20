@@ -85,14 +85,14 @@ public class ControlSub extends SubsystemBase {
     public ControlSub() {
 
         /* Driver Controls */
-        //DrivetrainChooser.setDefaultOption("Disable Drivetrain", DrivetrainState.DisabledDrivetrain);
-        DrivetrainChooser.addOption("Disable Drivetrain", DrivetrainState.DisabledDrivetrain);
+        DrivetrainChooser.setDefaultOption("Disable Drivetrain", DrivetrainState.DisabledDrivetrain);
+        //DrivetrainChooser.addOption("Disable Drivetrain", DrivetrainState.DisabledDrivetrain);
         //DrivetrainChooser.setDefaultOption("Baby Movement", DrivetrainState.BabyMode);
         DrivetrainChooser.addOption("Baby Movement", DrivetrainState.BabyMode);
         //DrivetrainChooser.setDefaultOption("Slow Traction Control", DrivetrainState.SlowTC);
         DrivetrainChooser.addOption("Slow Traction Control", DrivetrainState.SlowTC);
-        DrivetrainChooser.setDefaultOption("Event Traction Control", DrivetrainState.EventTC);
-        //DrivetrainChooser.addOption("Event Traction Control", DrivetrainState.EventTC);
+        //DrivetrainChooser.setDefaultOption("Event Traction Control", DrivetrainState.EventTC);
+        DrivetrainChooser.addOption("Event Traction Control", DrivetrainState.EventTC);
         //DrivetrainChooser.setDefaultOption("Defence Mode (Go Crazy)", DrivetrainState.GoCrazyGoStupid);
         DrivetrainChooser.addOption("Defence Mode (Go Crazy)", DrivetrainState.GoCrazyGoStupid);
         
@@ -138,11 +138,11 @@ public class ControlSub extends SubsystemBase {
         }
 
         if (intakeIn) {
-            intake.setIntakeDumbControl(intakeSpeed, -0.3, DriverController.povRight().getAsBoolean());
+            intake.setIntakeDumbControl(intakeSpeed, -0.3, DriverController.y().getAsBoolean());
         } else if (intakeOut) {
-            intake.setIntakeDumbControl(intakeSpeed, 0.3, DriverController.povRight().getAsBoolean());
+            intake.setIntakeDumbControl(intakeSpeed, 0.3, DriverController.y().getAsBoolean());
         } else {
-            intake.setIntakeDumbControl(intakeSpeed, 0.00, DriverController.povRight().getAsBoolean());
+            intake.setIntakeDumbControl(intakeSpeed, 0.00, DriverController.y().getAsBoolean());
         }
     
         

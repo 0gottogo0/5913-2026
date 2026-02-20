@@ -156,7 +156,7 @@ public final class Constants {
         public static final double MaxPressure = 120.00;
         public static final double MinPressure = 110.00;
 
-        public static final int PneumaticsHubID = 33;
+        public static final int PneumaticsHubID = 17;
     }
 
     public static final class ShooterConstants {

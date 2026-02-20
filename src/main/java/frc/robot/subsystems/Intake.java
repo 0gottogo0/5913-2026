@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import static frc.robot.constants.Constants.IntakeConstants.*;
+import static frc.robot.constants.Constants.PneumaticConstants.PneumaticsHubID;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -19,12 +20,11 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.PneumaticHub;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Constants.IntakeConstants.State;
-import frc.robot.constants.Constants.PneumaticConstants;
 
 public class Intake extends SubsystemBase {
 
@@ -36,8 +36,7 @@ public class Intake extends SubsystemBase {
 	private TalonFX pivot = new TalonFX(PivotID);
 	private TalonFXConfiguration pivotConfig = new TalonFXConfiguration(); 
 
-    private PneumaticHub pneumaticHub = new PneumaticHub(PneumaticConstants.PneumaticsHubID);
-	private DoubleSolenoid hopperSolenoid = pneumaticHub.makeDoubleSolenoid(HopperIn, HopperOut);
+	private DoubleSolenoid hopperSolenoid = new DoubleSolenoid(PneumaticsHubID, PneumaticsModuleType.CTREPCM, HopperIn, HopperOut);
 
 	private PositionVoltage pivotPositionVoltage = new PositionVoltage(0);
 
