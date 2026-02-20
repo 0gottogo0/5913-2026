@@ -131,6 +131,13 @@ public class ControlSub extends SubsystemBase {
             drivetrainApplyRequest(DrivetrainChooser.getSelected());
         }
 
+        
+        if (ManipulatorController.leftTrigger().getAsBoolean()) {
+            DriverController.setRumble(RumbleType.kBothRumble, 0.10);
+        } else {
+            DriverController.setRumble(RumbleType.kBothRumble, 0.00);
+        }
+
         /* Manipulator Controls */
         // Spinup = X
         // Shoot = Right Trig
