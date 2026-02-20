@@ -168,8 +168,8 @@ public final class Constants {
 
         public static final double IntakingSpeed = 40;
 
-        public static final int HopperIn = 0;
-        public static final int HopperOut = 1;
+        public static final int HopperIn = 1;
+        public static final int HopperOut = 0;
 
         public static final double PivotInPos = 0.00;
         public static final double PivotOutPos = 0.00;
@@ -179,9 +179,6 @@ public final class Constants {
     }
     
     public static final class PneumaticConstants {
-        public static final double MaxPressure = 120.00;
-        public static final double MinPressure = 110.00;
-
         public static final int PneumaticsHubID = 33;
     }
 

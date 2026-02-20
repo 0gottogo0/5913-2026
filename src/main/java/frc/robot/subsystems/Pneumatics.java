@@ -20,9 +20,6 @@ public class Pneumatics extends SubsystemBase {
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
-    
-        // Enable the compressor
-        pneumaticsHub.enableCompressorAnalog(MinPressure, MaxPressure);
 		
         // Debug
         SmartDashboard.putNumber("Pressure", pneumaticsHub.getPressure(0));
