@@ -76,28 +76,20 @@ public class AutoAim extends SubsystemBase {
             case Goal:
                 // Try catch statement because we might not be
                 // connected to driverstation
-                try {
-                    if (DriverStation.getAlliance().get() == Alliance.Blue) {
-                        goalPose = BlueGoal;
-                    } else {
-                        goalPose = RedGoal;
-                    }
-                } catch (Exception e) {
+                if (isBlue()) {
                     goalPose = BlueGoal;
+                } else {
+                    goalPose = RedGoal;
                 }
                 break;
             case NeutralZone:
                 goalPose = NeutralZone;
                 break;
             case AllianceZone:
-                try {
-                    if (DriverStation.getAlliance().get() == Alliance.Blue) {
-                        goalPose = BlueZone;
-                    } else {
-                        goalPose = RedZone;
-                    }
-                } catch (Exception e) {
+                if (isBlue()) {
                     goalPose = BlueZone;
+                } else {
+                    goalPose = RedZone;
                 }
                 break;
             case DumbControl:
