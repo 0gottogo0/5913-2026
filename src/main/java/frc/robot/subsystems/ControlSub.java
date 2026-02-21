@@ -131,7 +131,6 @@ public class ControlSub extends SubsystemBase {
             drivetrainApplyRequest(DrivetrainChooser.getSelected());
         }
 
-        
         if (ManipulatorController.leftTrigger().getAsBoolean()) {
             DriverController.setRumble(RumbleType.kBothRumble, 0.10);
         } else {
@@ -148,17 +147,19 @@ public class ControlSub extends SubsystemBase {
         // Agitate Intake = Left Bumper
 
         if (ManipulatorController.x().getAsBoolean() && ManipulatorController.rightTrigger().getAsBoolean()) {
-            shooter.setShooterState(ShooterConstants.State.Shoot, 40.00, 40.00);
+            shooter.setShooterState(ShooterConstants.State.Shoot, 70.00, 50.00);
         } else if (ManipulatorController.x().getAsBoolean()) {
-            shooter.setShooterState(ShooterConstants.State.Spinup, 40.00, 40.00);
+            shooter.setShooterState(ShooterConstants.State.Spinup, 70.00, 50.00);
         } else {
             shooter.setShooterState(State.Idle, 0.00, 0.00);
         }
 
         if (ManipulatorController.povUp().getAsBoolean()) {
-            climber.setClimberDumbControl(1);
+            climber.setClimberDumbControl(0.50);
         } else if (ManipulatorController.povDown().getAsBoolean()) {
-            climber.setClimberDumbControl(-1);
+            climber.setClimberDumbControl(-0.50);
+        } else {
+            climber.setClimberDumbControl(0.00);
         }
 
         if (shooter.isShooterAtSpeed()) {
@@ -228,11 +229,11 @@ public class ControlSub extends SubsystemBase {
                 drivetrain.setDefaultCommand(
                     drivetrain.applyRequest(() -> ControllerDrive
                         .withVelocityX(
-                            MathUtil.applyDeadband(-DriverController.getLeftY() * (maxSpeed / 6.00), ControllerConstants.StickDeadzone)) // Drive forward with negative Y (forward)
+                            MathUtil.applyDeadband(-DriverController.getLeftY(), ControllerConstants.StickDeadzone) * (maxSpeed / 6.00)) // Drive forward with negative Y (forward)
                         .withVelocityY(
-                            MathUtil.applyDeadband(-DriverController.getLeftX() * (maxSpeed / 6.00), ControllerConstants.StickDeadzone)) // Drive left with negative X (left)
+                            MathUtil.applyDeadband(-DriverController.getLeftX(), ControllerConstants.StickDeadzone) * (maxSpeed / 6.00)) // Drive left with negative X (left)
                         .withRotationalRate(
-                            MathUtil.applyDeadband(-DriverController.getRightX() * maxAngularRate, ControllerConstants.StickDeadzone)) // Drive counterclockwise with negative X (left)
+                            MathUtil.applyDeadband(-DriverController.getRightX(), ControllerConstants.StickDeadzone) * (maxAngularRate / 4.00)) // Drive counterclockwise with negative X (left)
                     )
                 );
                 break;
@@ -241,13 +242,13 @@ public class ControlSub extends SubsystemBase {
                     drivetrain.applyRequest(() -> ControllerDrive
                         .withVelocityX(
                             MathUtil.applyDeadband(
-                                XSlewRateLimiter.calculate(-DriverController.getLeftY() * (maxSpeed / 2.50)), ControllerConstants.StickDeadzone)) // Drive forward with negative Y (forward)
+                                XSlewRateLimiter.calculate(-DriverController.getLeftY()), ControllerConstants.StickDeadzone) * (maxSpeed / 2.50)) // Drive forward with negative Y (forward)
                         .withVelocityY(
                             MathUtil.applyDeadband(
-                                YSlewRateLimiter.calculate(-DriverController.getLeftX() * (maxSpeed / 2.50)), ControllerConstants.StickDeadzone)) // Drive left with negative X (left)
+                                YSlewRateLimiter.calculate(-DriverController.getLeftX()), ControllerConstants.StickDeadzone) * (maxSpeed / 2.50)) // Drive left with negative X (left)
                         .withRotationalRate(
                             MathUtil.applyDeadband(
-                                RotateSlewRateLimiter.calculate(-DriverController.getRightX() * maxAngularRate), ControllerConstants.StickDeadzone)) // Drive counterclockwise with negative X (left)
+                                RotateSlewRateLimiter.calculate(-DriverController.getRightX()), ControllerConstants.StickDeadzone) * maxAngularRate) // Drive counterclockwise with negative X (left)
                     )
                 );
                 break;
@@ -256,13 +257,13 @@ public class ControlSub extends SubsystemBase {
                     drivetrain.applyRequest(() -> ControllerDrive
                         .withVelocityX(
                             MathUtil.applyDeadband(
-                                XSlewRateLimiter.calculate(-DriverController.getLeftY() * maxSpeed), ControllerConstants.StickDeadzone)) // Drive forward with negative Y (forward)
+                                XSlewRateLimiter.calculate(-DriverController.getLeftY()), ControllerConstants.StickDeadzone) * maxSpeed) // Drive forward with negative Y (forward)
                         .withVelocityY(
                             MathUtil.applyDeadband(
-                                YSlewRateLimiter.calculate(-DriverController.getLeftX() * maxSpeed), ControllerConstants.StickDeadzone)) // Drive left with negative X (left)
+                                YSlewRateLimiter.calculate(-DriverController.getLeftX()), ControllerConstants.StickDeadzone) * maxSpeed) // Drive left with negative X (left)
                         .withRotationalRate(
                             MathUtil.applyDeadband(
-                                RotateSlewRateLimiter.calculate(-DriverController.getRightX() * maxAngularRate), ControllerConstants.StickDeadzone)) // Drive counterclockwise with negative X (left)
+                                RotateSlewRateLimiter.calculate(-DriverController.getRightX()), ControllerConstants.StickDeadzone) * maxAngularRate) // Drive counterclockwise with negative X (left)
                     )
                 );
                 break;
@@ -270,11 +271,11 @@ public class ControlSub extends SubsystemBase {
                 drivetrain.setDefaultCommand(
                     drivetrain.applyRequest(() -> ControllerDrive
                         .withVelocityX(
-                            MathUtil.applyDeadband(-DriverController.getLeftY() * maxSpeed, ControllerConstants.StickDeadzone)) // Drive forward with negative Y (forward)
+                            MathUtil.applyDeadband(-DriverController.getLeftY(), ControllerConstants.StickDeadzone) * maxSpeed) // Drive forward with negative Y (forward)
                         .withVelocityY(
-                            MathUtil.applyDeadband(-DriverController.getLeftX() * maxSpeed, ControllerConstants.StickDeadzone)) // Drive left with negative X (left)
+                            MathUtil.applyDeadband(-DriverController.getLeftX(), ControllerConstants.StickDeadzone) * maxSpeed) // Drive left with negative X (left)
                         .withRotationalRate(
-                            MathUtil.applyDeadband(-DriverController.getRightX() * maxAngularRate, ControllerConstants.StickDeadzone)) // Drive counterclockwise with negative X (left)
+                            MathUtil.applyDeadband(-DriverController.getRightX(), ControllerConstants.StickDeadzone) * maxAngularRate) // Drive counterclockwise with negative X (left)
                     )
                 );
                 break;
@@ -283,10 +284,10 @@ public class ControlSub extends SubsystemBase {
                     drivetrain.applyRequest(() -> TrackDrive
                         .withVelocityX(
                             MathUtil.applyDeadband(
-                                XSlewRateLimiter.calculate(-DriverController.getLeftY() * maxSpeed), ControllerConstants.StickDeadzone)) // Drive forward with negative Y (forward)
+                                XSlewRateLimiter.calculate(-DriverController.getLeftY()), ControllerConstants.StickDeadzone) * maxSpeed) // Drive forward with negative Y (forward)
                         .withVelocityY(
                             MathUtil.applyDeadband(
-                                YSlewRateLimiter.calculate(-DriverController.getLeftX() * maxSpeed), ControllerConstants.StickDeadzone)) // Drive left with negative X (left)
+                                YSlewRateLimiter.calculate(-DriverController.getLeftX()), ControllerConstants.StickDeadzone) * maxSpeed) // Drive left with negative X (left)
                         .withRotationalRate(
                             MathUtil.clamp(hubPIDOutput * maxSpeed, -1.00, 1.00)) // Drive counterclockwise with negative X (left)
                     )

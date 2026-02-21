@@ -135,7 +135,7 @@ public final class Constants {
         public static final double RotateSlewRateLimiter = 40.00;
 
         public static final double RotateMagnitude = 0.90;
-        public static final double StickDeadzone = 0.2;
+        public static final double StickDeadzone = 0.20;
 
         public static final int XboxMenuButtonID = 7;
         public static final int XboxShareButtonID = 8;
@@ -165,7 +165,7 @@ public final class Constants {
         public static final double PivotPIDkD = 0.00;
 
         public static final int IntakeCurrentLimit = 60;
-        public static final double IntakingSpeed = 0.35;
+        public static final double IntakingSpeed = 0.42;
 
         public static final int HopperIn = 1;
         public static final int HopperOut = 0;
