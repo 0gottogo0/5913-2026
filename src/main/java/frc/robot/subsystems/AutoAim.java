@@ -116,10 +116,8 @@ public class AutoAim extends SubsystemBase {
         // To adjust the goal pose when shooting on the
         // move, first take robot speed and times that
         // by our time of flight, then add that new
-        // transform to the goal pose and it should work
+        // transform to the goal pose
         adjustedGoalPose = goalPose;//.plus(new Transform2d(robotSpeed.vxMetersPerSecond, robotSpeed.vyMetersPerSecond, new Rotation2d()).times(TimeOfFlightByDistance.get(getAimTargetInDistance())));
-
-        robotPose = LimelightCenterMeasurement.pose;
 
         SmartDashboard.putNumber("Robot X", robotPose.getX());
         SmartDashboard.putNumber("Robot Y", robotPose.getY());
@@ -206,9 +204,9 @@ public class AutoAim extends SubsystemBase {
         // Code used for if we have a turret for degrees
         //calculatedShot[0] = robotPose.getRotation().getDegrees() - Math.atan(TurretRotatePointPose.minus(adjustedGoalPose).getX() / TurretRotatePointPose.minus(adjustedGoalPose).getY());
         // Code used for if we do not have a turret for degrees
-        calculatedShot[0] = Math.toDegrees(Math.atan2(TurretRotatePointPose.minus(adjustedGoalPose).getX(), TurretRotatePointPose.minus(adjustedGoalPose).getY()));
+        calculatedShot[0] = Math.toDegrees(Math.atan2(TurretRotatePointPose.getX() - adjustedGoalPose.getX(), TurretRotatePointPose.getY() - adjustedGoalPose.getY()));
         // Gets distance
-        calculatedShot[1] = Math.abs(Math.sqrt(Math.pow(TurretRotatePointPose.minus(adjustedGoalPose).getX(), 2) + Math.pow(TurretRotatePointPose.minus(adjustedGoalPose).getY(), 2)));
+        calculatedShot[1] =Math.sqrt(Math.pow(Math.abs(TurretRotatePointPose.getX() - adjustedGoalPose.getX()), 2) + Math.pow(Math.abs(TurretRotatePointPose.getY() - adjustedGoalPose.getY()), 2));
         // Interpolates for top shooter
         calculatedShot[2] = TopShooterSpeedByDistance.get(calculatedShot[1]);
         // Interpolates for hood shooter
