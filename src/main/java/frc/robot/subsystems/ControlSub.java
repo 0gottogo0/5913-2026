@@ -5,7 +5,6 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.*;
-import static frc.robot.constants.Constants.IntakeConstants.IntakeCurrentLimit;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -78,7 +77,6 @@ public class ControlSub extends SubsystemBase {
     private double climbRotPIDOutput = 0.00;
 
     // temp vars
-    private boolean weAreIdlingYo = true;
     private double trackingStuff = 0.00;
 
     public ControlSub() {
