@@ -119,28 +119,28 @@ public class Shooter extends SubsystemBase {
 				feeder.set(0.00);
 				bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(topTargetSpeed * BottomRatio));
 				topShooter.setControl(topShooterVelocityVoltage.withVelocity(topTargetSpeed));
-				hoodShooter.setControl(hoodShooterVelocityVoltage.withVelocity(hoodTargetSpeed));
+				hoodShooter.setControl(hoodShooterVelocityVoltage.withVelocity(-hoodTargetSpeed));
 				break;
 			case Shoot:
                 belts.setControl(beltsVelocityVoltage.withVelocity(BeltsSpeed));
 				feeder.setControl(feederVelocityVoltage.withVelocity(FeedSpeed));
 				bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(topTargetSpeed * BottomRatio));
 				topShooter.setControl(topShooterVelocityVoltage.withVelocity(topTargetSpeed));
-				hoodShooter.setControl(hoodShooterVelocityVoltage.withVelocity(hoodTargetSpeed));
+				hoodShooter.setControl(hoodShooterVelocityVoltage.withVelocity(-hoodTargetSpeed));
 				break;
 			case Unstick:
                 belts.setControl(beltsVelocityVoltage.withVelocity(BeltsSpeed));
 				feeder.setControl(feederVelocityVoltage.withVelocity(FeedSpeed));
 				bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(UnstickRPS));
 				topShooter.setControl(topShooterVelocityVoltage.withVelocity(UnstickRPS));
-				hoodShooter.setControl(hoodShooterVelocityVoltage.withVelocity(UnstickRPS));
+				hoodShooter.setControl(hoodShooterVelocityVoltage.withVelocity(-UnstickRPS));
 				break;
 			case DumbControl:
                 belts.set(beltsTargetSpeed);
 				feeder.set(feederTargetSpeed);
 				bottomShooter.set(bottomTargetSpeed);
 				topShooter.set(topTargetSpeed);
-				hoodShooter.set(hoodTargetSpeed);
+				hoodShooter.set(-hoodTargetSpeed);
 				break;
 		}
 

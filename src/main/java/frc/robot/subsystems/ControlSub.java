@@ -77,10 +77,7 @@ public class ControlSub extends SubsystemBase {
     private double climbRotPIDOutput = 0.00;
 
     // temp vars
-    private boolean weAreIdlingYo = true;
-    private double intakeSpeed;
-    private boolean intakeOut = false;
-    private boolean intakeIn = false;
+    private double trackingStuff = 0.00;
 
     public ControlSub() {
 
@@ -119,46 +116,60 @@ public class ControlSub extends SubsystemBase {
         // Check for input then call subsystems
 
         /* Driver Controls */
+        if (DriverController.leftTrigger().getAsBoolean()) {
+            trackingStuff = hubPIDOutput;
+        } else {
+            trackingStuff = 0.00;
+        }
 
         if (DriverController.povUp().getAsBoolean()) {
-            intakeIn = true;
-            intakeOut = false;
+            intake.setIntakeState(IntakeConstants.State.Idle);
         } else if (DriverController.povDown().getAsBoolean()) {
-            intakeIn = false;
-            intakeOut = true;
-        } else {
-            intakeIn = false;
-            intakeOut = false;
-        }
-
-        if (DriverController.povLeft().getAsBoolean()) {
-            intakeSpeed = IntakeConstants.IntakingSpeed;
-        } else {
-            intakeSpeed = 0;
-        }
-
-        if (intakeIn) {
-            intake.setIntakeDumbControl(intakeSpeed, -0.3, DriverController.y().getAsBoolean());
-        } else if (intakeOut) {
-            intake.setIntakeDumbControl(intakeSpeed, 0.3, DriverController.y().getAsBoolean());
-        } else {
-            intake.setIntakeDumbControl(intakeSpeed, 0.00, DriverController.y().getAsBoolean());
-        }
-    
-        
-        if (DriverController.x().getAsBoolean() && DriverController.a().getAsBoolean()) {
-            shooter.setShooterState(ShooterConstants.State.Shoot, 40.00, 40.00);
-        } else if (DriverController.a().getAsBoolean()) {
-            shooter.setShooterState(ShooterConstants.State.Spinup, 40.00, 40.00);
-        } else {
-            shooter.setShooterState(State.Idle, 0.00, 0.00);
+            intake.setIntakeState(IntakeConstants.State.IdleOut);
+        } else if (DriverController.rightTrigger().getAsBoolean()) {
+            intake.setIntakeState(IntakeConstants.State.Intake);
+        } else if (!DriverController.rightTrigger().getAsBoolean() && intake.state == IntakeConstants.State.Intake) {
+            intake.setIntakeState(IntakeConstants.State.IdleOut);
         }
 
         if (drivetrainLastState != DrivetrainChooser.getSelected()) {
             drivetrainApplyRequest(DrivetrainChooser.getSelected());
         }
 
+        if (ManipulatorController.leftTrigger().getAsBoolean()) {
+            DriverController.setRumble(RumbleType.kBothRumble, 0.10);
+        } else {
+            DriverController.setRumble(RumbleType.kBothRumble, 0.00);
+        }
+
         /* Manipulator Controls */
+        // Spinup = X
+        // Shoot = Right Trig
+        // Track Req = Left Trig
+        // Climb Track = Pov Right
+        // Climb Up = Pov Up
+        // Climb Down = Pov Down
+        // Agitate Intake = Left Bumper
+
+        if (ManipulatorController.x().getAsBoolean() && ManipulatorController.rightTrigger().getAsBoolean()) { // Long shot
+            shooter.setShooterState(ShooterConstants.State.Shoot, 42.00, 36.00);
+        } else if (ManipulatorController.x().getAsBoolean()) {
+            shooter.setShooterState(ShooterConstants.State.Spinup, 42.00, 36.00);
+        } else if (ManipulatorController.b().getAsBoolean() && ManipulatorController.rightTrigger().getAsBoolean()) { // Short shot
+            shooter.setShooterState(ShooterConstants.State.Shoot, 35.00, 27.00);
+        } else if (ManipulatorController.b().getAsBoolean()) {
+            shooter.setShooterState(ShooterConstants.State.Spinup, 35.00, 27.00);
+        } else {
+            shooter.setShooterState(State.Idle, 0.00, 0.00);
+        }
+
+        if (ManipulatorController.povUp().getAsBoolean()) {
+            climber.setClimberDumbControl(0.50);
+        } else if (ManipulatorController.povDown().getAsBoolean()) {
+            climber.setClimberDumbControl(-0.50);
+        } else {
+            climber.setClimberDumbControl(0.00);
+        }
 
         if (shooter.isShooterAtSpeed()) {
             ManipulatorController.setRumble(RumbleType.kBothRumble, 0.10);
@@ -183,8 +194,6 @@ public class ControlSub extends SubsystemBase {
         }
 
         /* Output */
-
-        SmartDashboard.putBoolean("Idle", weAreIdlingYo);
 
         SmartDashboard.putNumber("Hub Tracking Pid Output", hubPIDOutput);
 
@@ -214,7 +223,6 @@ public class ControlSub extends SubsystemBase {
         // Setting default command has drivetrain run set request periodically
         System.out.println("Setting new drivetrain request");
 
-        drivetrain.removeDefaultCommand();
         switch (stateToChangeTo) {
             case DisabledDrivetrain:
                 drivetrain.setDefaultCommand(
@@ -229,11 +237,11 @@ public class ControlSub extends SubsystemBase {
                 drivetrain.setDefaultCommand(
                     drivetrain.applyRequest(() -> ControllerDrive
                         .withVelocityX(
-                            MathUtil.applyDeadband(-DriverController.getLeftY() * (maxSpeed / 6.00), ControllerConstants.StickDeadzone)) // Drive forward with negative Y (forward)
+                            MathUtil.applyDeadband(DriverController.getLeftY(), ControllerConstants.StickDeadzone) * (maxSpeed / 6.00)) // Drive forward with negative Y (forward)
                         .withVelocityY(
-                            MathUtil.applyDeadband(-DriverController.getLeftX() * (maxSpeed / 6.00), ControllerConstants.StickDeadzone)) // Drive left with negative X (left)
+                            MathUtil.applyDeadband(DriverController.getLeftX(), ControllerConstants.StickDeadzone) * (maxSpeed / 6.00)) // Drive left with negative X (left)
                         .withRotationalRate(
-                            MathUtil.applyDeadband(-DriverController.getRightX() * maxAngularRate, ControllerConstants.StickDeadzone)) // Drive counterclockwise with negative X (left)
+                            MathUtil.applyDeadband(-DriverController.getRightX(), ControllerConstants.StickDeadzone) * (maxAngularRate / 4.00)) // Drive counterclockwise with negative X (left)
                     )
                 );
                 break;
@@ -242,13 +250,13 @@ public class ControlSub extends SubsystemBase {
                     drivetrain.applyRequest(() -> ControllerDrive
                         .withVelocityX(
                             MathUtil.applyDeadband(
-                                XSlewRateLimiter.calculate(-DriverController.getLeftY() * (maxSpeed / 2.50)), ControllerConstants.StickDeadzone)) // Drive forward with negative Y (forward)
+                                XSlewRateLimiter.calculate(DriverController.getLeftY()), ControllerConstants.StickDeadzone) * (maxSpeed / 2.50)) // Drive forward with negative Y (forward)
                         .withVelocityY(
                             MathUtil.applyDeadband(
-                                YSlewRateLimiter.calculate(-DriverController.getLeftX() * (maxSpeed / 2.50)), ControllerConstants.StickDeadzone)) // Drive left with negative X (left)
+                                YSlewRateLimiter.calculate(DriverController.getLeftX()), ControllerConstants.StickDeadzone) * (maxSpeed / 2.50)) // Drive left with negative X (left)
                         .withRotationalRate(
                             MathUtil.applyDeadband(
-                                RotateSlewRateLimiter.calculate(-DriverController.getRightX() * maxAngularRate), ControllerConstants.StickDeadzone)) // Drive counterclockwise with negative X (left)
+                                RotateSlewRateLimiter.calculate(-DriverController.getRightX()), ControllerConstants.StickDeadzone) * maxAngularRate) // Drive counterclockwise with negative X (left)
                     )
                 );
                 break;
@@ -257,13 +265,13 @@ public class ControlSub extends SubsystemBase {
                     drivetrain.applyRequest(() -> ControllerDrive
                         .withVelocityX(
                             MathUtil.applyDeadband(
-                                XSlewRateLimiter.calculate(-DriverController.getLeftY() * maxSpeed), ControllerConstants.StickDeadzone)) // Drive forward with negative Y (forward)
+                                XSlewRateLimiter.calculate(DriverController.getLeftY()), ControllerConstants.StickDeadzone) * maxSpeed) // Drive forward with negative Y (forward)
                         .withVelocityY(
                             MathUtil.applyDeadband(
-                                YSlewRateLimiter.calculate(-DriverController.getLeftX() * maxSpeed), ControllerConstants.StickDeadzone)) // Drive left with negative X (left)
+                                YSlewRateLimiter.calculate(DriverController.getLeftX()), ControllerConstants.StickDeadzone) * maxSpeed) // Drive left with negative X (left)
                         .withRotationalRate(
                             MathUtil.applyDeadband(
-                                RotateSlewRateLimiter.calculate(-DriverController.getRightX() * maxAngularRate), ControllerConstants.StickDeadzone)) // Drive counterclockwise with negative X (left)
+                                RotateSlewRateLimiter.calculate(-DriverController.getRightX() + trackingStuff), ControllerConstants.StickDeadzone) * maxAngularRate) // Drive counterclockwise with negative X (left)
                     )
                 );
                 break;
@@ -271,11 +279,11 @@ public class ControlSub extends SubsystemBase {
                 drivetrain.setDefaultCommand(
                     drivetrain.applyRequest(() -> ControllerDrive
                         .withVelocityX(
-                            MathUtil.applyDeadband(-DriverController.getLeftY() * maxSpeed, ControllerConstants.StickDeadzone)) // Drive forward with negative Y (forward)
+                            MathUtil.applyDeadband(DriverController.getLeftY(), ControllerConstants.StickDeadzone) * maxSpeed) // Drive forward with negative Y (forward)
                         .withVelocityY(
-                            MathUtil.applyDeadband(-DriverController.getLeftX() * maxSpeed, ControllerConstants.StickDeadzone)) // Drive left with negative X (left)
+                            MathUtil.applyDeadband(DriverController.getLeftX(), ControllerConstants.StickDeadzone) * maxSpeed) // Drive left with negative X (left)
                         .withRotationalRate(
-                            MathUtil.applyDeadband(-DriverController.getRightX() * maxAngularRate, ControllerConstants.StickDeadzone)) // Drive counterclockwise with negative X (left)
+                            MathUtil.applyDeadband(-DriverController.getRightX(), ControllerConstants.StickDeadzone) * maxAngularRate) // Drive counterclockwise with negative X (left)
                     )
                 );
                 break;
@@ -284,10 +292,10 @@ public class ControlSub extends SubsystemBase {
                     drivetrain.applyRequest(() -> TrackDrive
                         .withVelocityX(
                             MathUtil.applyDeadband(
-                                XSlewRateLimiter.calculate(-DriverController.getLeftY() * maxSpeed), ControllerConstants.StickDeadzone)) // Drive forward with negative Y (forward)
+                                XSlewRateLimiter.calculate(DriverController.getLeftY()), ControllerConstants.StickDeadzone) * maxSpeed) // Drive forward with negative Y (forward)
                         .withVelocityY(
                             MathUtil.applyDeadband(
-                                YSlewRateLimiter.calculate(-DriverController.getLeftX() * maxSpeed), ControllerConstants.StickDeadzone)) // Drive left with negative X (left)
+                                YSlewRateLimiter.calculate(DriverController.getLeftX()), ControllerConstants.StickDeadzone) * maxSpeed) // Drive left with negative X (left)
                         .withRotationalRate(
                             MathUtil.clamp(hubPIDOutput * maxSpeed, -1.00, 1.00)) // Drive counterclockwise with negative X (left)
                     )

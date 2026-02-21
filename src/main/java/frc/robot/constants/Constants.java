@@ -74,10 +74,19 @@ public final class Constants {
         // Meters, Seconds
         public static final InterpolatingDoubleTreeMap TimeOfFlightByDistance = InterpolatingDoubleTreeMap.ofEntries(
             Map.entry(0.00, 0.00),
-            Map.entry(0.00, 0.00)
+            Map.entry(0.50, 0.00),
+            Map.entry(1.00, 0.00),
+            Map.entry(1.50, 0.00),
+            Map.entry(2.00, 0.00),
+            Map.entry(2.50, 0.00),
+            Map.entry(3.00, 0.00),
+            Map.entry(3.50, 0.00),
+            Map.entry(4.00, 0.00),
+            Map.entry(4.50, 0.00),
+            Map.entry(5.00, 0.00)
         );
 
-        public static final double TrackingHubPIDkP = 0.00;
+        public static final double TrackingHubPIDkP = 0.05;
         public static final double TrackingHubPIDkI = 0.00;
         public static final double TrackingHubPIDkD = 0.00;
 
@@ -89,7 +98,7 @@ public final class Constants {
         public static final double TrackingClimbRotPIDkI = 0.00;
         public static final double TrackingClimbRotPIDkD = 0.00;
 
-        public static final String LimelightLeft = "llleft";
+        public static final String LimelightCenter = "limelight-center";
         public static final String LimelightRight = "llright";
         public static final String LimelightClimb = "llclimb";
     }
@@ -135,7 +144,7 @@ public final class Constants {
         public static final double RotateSlewRateLimiter = 40.00;
 
         public static final double RotateMagnitude = 0.90;
-        public static final double StickDeadzone = 0.2;
+        public static final double StickDeadzone = 0.20;
 
         public static final int XboxMenuButtonID = 7;
         public static final int XboxShareButtonID = 8;
@@ -164,16 +173,15 @@ public final class Constants {
         public static final double PivotPIDkI = 0.00;
         public static final double PivotPIDkD = 0.00;
 
-        public static final int IntakeCurrentLimit = 60;
-
-        public static final double IntakingSpeed = 40;
+        public static final int IntakeCurrentLimit = 120;
+        public static final double IntakingSpeed = 0.42;
 
         public static final int HopperIn = 1;
         public static final int HopperOut = 0;
 
         public static final double PivotInPos = 0.42;
-        public static final double PivotOutPos = 0.09;
-        public static final double SafeToRetractHopperPos = 0.38;
+        public static final double PivotOutPos = 0.08;
+        public static final double SafeToRetractHopperPos = 0.28;
 
         public static final int IntakeID = 34;
         public static final int PivotID = 37;
@@ -200,8 +208,8 @@ public final class Constants {
         // Used in determing if shooter is up to speed
         public static final double RPSThreshold = 1.00;
 
-        public static final double BeltsPIDkV = 0.00;
-        public static final double BeltsPIDkP = 0.20;
+        public static final double BeltsPIDkV = 0.11;
+        public static final double BeltsPIDkP = 0.15;
         public static final double BeltsPIDkI = 0.00;
         public static final double BeltsPIDkD = 0.00;
         
@@ -211,17 +219,17 @@ public final class Constants {
         public static final double FeederPIDkD = 0.00;
 
         public static final double BottomShooterPIDkV = 0.11;
-        public static final double BottomShooterPIDkP = 0.50;
+        public static final double BottomShooterPIDkP = 0.40;
         public static final double BottomShooterPIDkI = 0.00;
         public static final double BottomShooterPIDkD = 0.00;
 
         public static final double TopShooterPIDkV = 0.13;
-        public static final double TopShooterPIDkP = 0.50;
+        public static final double TopShooterPIDkP = 0.40;
         public static final double TopShooterPIDkI = 0.00;
         public static final double TopShooterPIDkD = 0.00;
 
         public static final double HoodShooterPIDkV = 0.11;
-        public static final double HoodShooterPIDkP = 0.50;
+        public static final double HoodShooterPIDkP = 0.40;
         public static final double HoodShooterPIDkI = 0.00;
         public static final double HoodShooterPIDkD = 0.00;
 
