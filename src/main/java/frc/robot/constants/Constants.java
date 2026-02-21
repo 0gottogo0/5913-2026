@@ -86,7 +86,7 @@ public final class Constants {
             Map.entry(5.00, 0.00)
         );
 
-        public static final double TrackingHubPIDkP = 0.00;
+        public static final double TrackingHubPIDkP = 0.05;
         public static final double TrackingHubPIDkI = 0.00;
         public static final double TrackingHubPIDkD = 0.00;
 

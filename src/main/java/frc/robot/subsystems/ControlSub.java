@@ -79,6 +79,7 @@ public class ControlSub extends SubsystemBase {
 
     // temp vars
     private boolean weAreIdlingYo = true;
+    private double trackingStuff = 0.00;
 
     public ControlSub() {
 
@@ -117,13 +118,19 @@ public class ControlSub extends SubsystemBase {
         // Check for input then call subsystems
 
         /* Driver Controls */
+        if (DriverController.leftTrigger().getAsBoolean()) {
+            trackingStuff = hubPIDOutput;
+        } else {
+            trackingStuff = 0.00;
+        }
+
         if (DriverController.povUp().getAsBoolean()) {
             intake.setIntakeState(IntakeConstants.State.Idle);
         } else if (DriverController.povDown().getAsBoolean()) {
             intake.setIntakeState(IntakeConstants.State.IdleOut);
-        } else if (DriverController.leftTrigger().getAsBoolean()) {
+        } else if (DriverController.rightTrigger().getAsBoolean()) {
             intake.setIntakeState(IntakeConstants.State.Intake);
-        } else if (!DriverController.leftTrigger().getAsBoolean() && intake.state == IntakeConstants.State.Intake) {
+        } else if (!DriverController.rightTrigger().getAsBoolean() && intake.state == IntakeConstants.State.Intake) {
             intake.setIntakeState(IntakeConstants.State.IdleOut);
         }
 
@@ -147,9 +154,11 @@ public class ControlSub extends SubsystemBase {
         // Agitate Intake = Left Bumper
 
         if (ManipulatorController.x().getAsBoolean() && ManipulatorController.rightTrigger().getAsBoolean()) {
-            shooter.setShooterState(ShooterConstants.State.Shoot, 30.00, 30.00);
+            shooter.setShooterState(ShooterConstants.State.Shoot, 42.00, 36.00);
+            //shooter.setShooterState(ShooterConstants.State.Shoot, 35.00, 27.00);
         } else if (ManipulatorController.x().getAsBoolean()) {
-            shooter.setShooterState(ShooterConstants.State.Spinup, 30.00, 30.00);
+            shooter.setShooterState(ShooterConstants.State.Spinup, 42.00, 36.00);
+            //shooter.setShooterState(ShooterConstants.State.Spinup, 35.00, 27.00);
         } else {
             shooter.setShooterState(State.Idle, 0.00, 0.00);
         }
@@ -218,7 +227,6 @@ public class ControlSub extends SubsystemBase {
         // Setting default command has drivetrain run set request periodically
         System.out.println("Setting new drivetrain request");
 
-        drivetrain.removeDefaultCommand();
         switch (stateToChangeTo) {
             case DisabledDrivetrain:
                 drivetrain.setDefaultCommand(
@@ -267,7 +275,7 @@ public class ControlSub extends SubsystemBase {
                                 YSlewRateLimiter.calculate(-DriverController.getLeftX()), ControllerConstants.StickDeadzone) * maxSpeed) // Drive left with negative X (left)
                         .withRotationalRate(
                             MathUtil.applyDeadband(
-                                RotateSlewRateLimiter.calculate(-DriverController.getRightX()), ControllerConstants.StickDeadzone) * maxAngularRate) // Drive counterclockwise with negative X (left)
+                                RotateSlewRateLimiter.calculate(-DriverController.getRightX() + trackingStuff), ControllerConstants.StickDeadzone) * maxAngularRate) // Drive counterclockwise with negative X (left)
                     )
                 );
                 break;
