@@ -38,13 +38,10 @@ public class AutoAim extends SubsystemBase {
 
     State state = State.Goal;
 
-    public AutoAim() {
-        
-    }
+    public AutoAim() {}
 
     @Override
     public void periodic() {
-
         if (DriverStation.isDisabled()) {
             NetworkTableInstance.getDefault().getTable(LimelightCenter).getEntry("pipeline").setNumber(1);
             NetworkTableInstance.getDefault().getTable(LimelightRight).getEntry("pipeline").setNumber(1);
@@ -73,8 +70,6 @@ public class AutoAim extends SubsystemBase {
 
         switch (state) {
             case Goal:
-                // Try catch statement because we might not be
-                // connected to driverstation
                 if (isBlue()) {
                     goalPose = BlueGoal;
                 } else {
@@ -161,14 +156,15 @@ public class AutoAim extends SubsystemBase {
      * 
      * @return true if on blue aliance
      */
+    @SuppressWarnings("unlikely-arg-type")
     public boolean isBlue() {
-        try {
-            if (DriverStation.getAlliance().get() == Alliance.Blue) {
+        if (DriverStation.isDSAttached()) {
+            if (DriverStation.getAlliance().equals(Alliance.Blue)) {
                 return true;
             } else {
                 return false;
             }
-        } catch (Exception e) {
+        } else {
             return true;
         }
     }
@@ -203,11 +199,8 @@ public class AutoAim extends SubsystemBase {
         // Code used for if we have a turret for degrees
         //calculatedShot[0] = robotPose.getRotation().getDegrees() - Math.atan(TurretRotatePointPose.minus(adjustedGoalPose).getX() / TurretRotatePointPose.minus(adjustedGoalPose).getY());
         // Code used for if we do not have a turret for degrees
-        //calculatedShot[0] = Math.toDegrees(Math.atan2(robotPose.getX() - adjustedGoalPose.getX(), robotPose.getY() - adjustedGoalPose.getY()));
         calculatedShot[0] = Math.toDegrees(Math.atan2(robotPose.getX() - adjustedGoalPose.getX(), robotPose.getY() - adjustedGoalPose.getY()));
-        // Gets distance for turret
-        //calculatedShot[1] =Math.sqrt(Math.pow(Math.abs(TurretRotatePointPose.getX() - adjustedGoalPose.getX()), 2) + Math.pow(Math.abs(TurretRotatePointPose.getY() - adjustedGoalPose.getY()), 2));
-        // Gets distance for no turret
+        // Gets distance
         calculatedShot[1] = Math.sqrt(Math.pow(Math.abs(TurretRotatePointPose.getX() - adjustedGoalPose.getX()), 2) + Math.pow(Math.abs(TurretRotatePointPose.getY() - adjustedGoalPose.getY()), 2));
         // Interpolates for top shooter
         calculatedShot[2] = TopShooterSpeedByDistance.get(calculatedShot[1]);
