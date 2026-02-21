@@ -153,18 +153,16 @@ public class ControlSub extends SubsystemBase {
         // Climb Down = Pov Down
         // Agitate Intake = Left Bumper
 
-        if (ManipulatorController.x().getAsBoolean() && ManipulatorController.rightTrigger().getAsBoolean()) {
+        if (ManipulatorController.x().getAsBoolean() && ManipulatorController.rightTrigger().getAsBoolean()) { // Long shot
             shooter.setShooterState(ShooterConstants.State.Shoot, 42.00, 36.00);
-            //shooter.setShooterState(ShooterConstants.State.Shoot, 35.00, 27.00);
         } else if (ManipulatorController.x().getAsBoolean()) {
             shooter.setShooterState(ShooterConstants.State.Spinup, 42.00, 36.00);
-            //shooter.setShooterState(ShooterConstants.State.Spinup, 35.00, 27.00);
+        } else if (ManipulatorController.b().getAsBoolean() && ManipulatorController.rightTrigger().getAsBoolean()) { // Short shot
+            shooter.setShooterState(ShooterConstants.State.Shoot, 35.00, 27.00);
+        } else if (ManipulatorController.b().getAsBoolean()) {
+            shooter.setShooterState(ShooterConstants.State.Spinup, 35.00, 27.00);
         } else {
             shooter.setShooterState(State.Idle, 0.00, 0.00);
-        }
-
-        if (ManipulatorController.a().getAsBoolean()) {
-            shooter.setShooterDumbControl(0.4, 0, 0, 0, 0);
         }
 
         if (ManipulatorController.povUp().getAsBoolean()) {
