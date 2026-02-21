@@ -147,11 +147,15 @@ public class ControlSub extends SubsystemBase {
         // Agitate Intake = Left Bumper
 
         if (ManipulatorController.x().getAsBoolean() && ManipulatorController.rightTrigger().getAsBoolean()) {
-            shooter.setShooterState(ShooterConstants.State.Shoot, 70.00, 50.00);
+            shooter.setShooterState(ShooterConstants.State.Shoot, 30.00, 30.00);
         } else if (ManipulatorController.x().getAsBoolean()) {
-            shooter.setShooterState(ShooterConstants.State.Spinup, 70.00, 50.00);
+            shooter.setShooterState(ShooterConstants.State.Spinup, 30.00, 30.00);
         } else {
             shooter.setShooterState(State.Idle, 0.00, 0.00);
+        }
+
+        if (ManipulatorController.a().getAsBoolean()) {
+            shooter.setShooterDumbControl(0.4, 0, 0, 0, 0);
         }
 
         if (ManipulatorController.povUp().getAsBoolean()) {

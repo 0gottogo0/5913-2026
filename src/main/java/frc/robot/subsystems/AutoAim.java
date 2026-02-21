@@ -30,7 +30,7 @@ public class AutoAim extends SubsystemBase {
     Pose2d goalPose = new Pose2d();
     Pose2d adjustedGoalPose = new Pose2d();
 
-    PoseEstimate LimelightLeftMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightLeft);
+    PoseEstimate LimelightLeftMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightCenter);
     PoseEstimate LimelightRightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightRight);
     PoseEstimate LimelightClimbMessurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LimelightClimb);
 
@@ -47,16 +47,16 @@ public class AutoAim extends SubsystemBase {
     public void periodic() {
 
         if (DriverStation.isDisabled()) {
-            NetworkTableInstance.getDefault().getTable(LimelightLeft).getEntry("pipeline").setNumber(1);
+            NetworkTableInstance.getDefault().getTable(LimelightCenter).getEntry("pipeline").setNumber(1);
             NetworkTableInstance.getDefault().getTable(LimelightRight).getEntry("pipeline").setNumber(1);
         } else {
-            NetworkTableInstance.getDefault().getTable(LimelightLeft).getEntry("pipeline").setNumber(0);
+            NetworkTableInstance.getDefault().getTable(LimelightCenter).getEntry("pipeline").setNumber(0);
             NetworkTableInstance.getDefault().getTable(LimelightRight).getEntry("pipeline").setNumber(0);
         }
 
         LimelightHelpers.SetRobotOrientation(LimelightClimb, robotPose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
 
-        LimelightLeftMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightLeft);
+        LimelightLeftMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightCenter);
         LimelightRightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightRight);
         LimelightClimbMessurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LimelightClimb);
 

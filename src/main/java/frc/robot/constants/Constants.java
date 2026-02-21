@@ -74,7 +74,16 @@ public final class Constants {
         // Meters, Seconds
         public static final InterpolatingDoubleTreeMap TimeOfFlightByDistance = InterpolatingDoubleTreeMap.ofEntries(
             Map.entry(0.00, 0.00),
-            Map.entry(0.00, 0.00)
+            Map.entry(0.50, 0.00),
+            Map.entry(1.00, 0.00),
+            Map.entry(1.50, 0.00),
+            Map.entry(2.00, 0.00),
+            Map.entry(2.50, 0.00),
+            Map.entry(3.00, 0.00),
+            Map.entry(3.50, 0.00),
+            Map.entry(4.00, 0.00),
+            Map.entry(4.50, 0.00),
+            Map.entry(5.00, 0.00)
         );
 
         public static final double TrackingHubPIDkP = 0.00;
@@ -89,7 +98,7 @@ public final class Constants {
         public static final double TrackingClimbRotPIDkI = 0.00;
         public static final double TrackingClimbRotPIDkD = 0.00;
 
-        public static final String LimelightLeft = "llleft";
+        public static final String LimelightCenter = "limelight-center";
         public static final String LimelightRight = "llright";
         public static final String LimelightClimb = "llclimb";
     }
@@ -164,7 +173,7 @@ public final class Constants {
         public static final double PivotPIDkI = 0.00;
         public static final double PivotPIDkD = 0.00;
 
-        public static final int IntakeCurrentLimit = 60;
+        public static final int IntakeCurrentLimit = 120;
         public static final double IntakingSpeed = 0.42;
 
         public static final int HopperIn = 1;
