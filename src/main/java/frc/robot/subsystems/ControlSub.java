@@ -28,6 +28,8 @@ import frc.robot.constants.TunerConstants;
 
 public class ControlSub extends SubsystemBase {
 
+    // Something with our drivetrain is fundamentally backwards and
+    // I dont know what it is
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     private double maxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
@@ -136,8 +138,8 @@ public class ControlSub extends SubsystemBase {
             drivetrainApplyRequest(DrivetrainChooser.getSelected());
         }
 
-        if (ManipulatorController.leftTrigger().getAsBoolean()) {
-            DriverController.setRumble(RumbleType.kBothRumble, 0.10);
+        if (ManipulatorController.povLeft().getAsBoolean()) {
+            DriverController.setRumble(RumbleType.kBothRumble, 0.20);
         } else {
             DriverController.setRumble(RumbleType.kBothRumble, 0.00);
         }
@@ -152,13 +154,9 @@ public class ControlSub extends SubsystemBase {
         // Agitate Intake = Left Bumper
 
         if (ManipulatorController.x().getAsBoolean() && ManipulatorController.rightTrigger().getAsBoolean()) { // Long shot
-            shooter.setShooterState(ShooterConstants.State.Shoot, 42.00, 36.00);
+            shooter.setShooterState(ShooterConstants.State.Shoot, 46.00, 40.00);
         } else if (ManipulatorController.x().getAsBoolean()) {
-            shooter.setShooterState(ShooterConstants.State.Spinup, 42.00, 36.00);
-        } else if (ManipulatorController.b().getAsBoolean() && ManipulatorController.rightTrigger().getAsBoolean()) { // Short shot
-            shooter.setShooterState(ShooterConstants.State.Shoot, 35.00, 27.00);
-        } else if (ManipulatorController.b().getAsBoolean()) {
-            shooter.setShooterState(ShooterConstants.State.Spinup, 35.00, 27.00);
+            shooter.setShooterState(ShooterConstants.State.Spinup, 46.00, 40.00);
         } else {
             shooter.setShooterState(State.Idle, 0.00, 0.00);
         }
@@ -172,7 +170,7 @@ public class ControlSub extends SubsystemBase {
         }
 
         if (shooter.isShooterAtSpeed()) {
-            ManipulatorController.setRumble(RumbleType.kBothRumble, 0.10);
+            ManipulatorController.setRumble(RumbleType.kBothRumble, 0.20);
         } else {
             ManipulatorController.setRumble(RumbleType.kBothRumble, 0.00);
         }

@@ -199,9 +199,9 @@ public class AutoAim extends SubsystemBase {
         // Code used for if we have a turret for degrees
         //calculatedShot[0] = robotPose.getRotation().getDegrees() - Math.atan(TurretRotatePointPose.minus(adjustedGoalPose).getX() / TurretRotatePointPose.minus(adjustedGoalPose).getY());
         // Code used for if we do not have a turret for degrees
-        calculatedShot[0] = Math.toDegrees(Math.atan2(robotPose.getX() - adjustedGoalPose.getX(), robotPose.getY() - adjustedGoalPose.getY()));
+        calculatedShot[0] = Math.toDegrees(Math.atan2(-(robotPose.getY() - adjustedGoalPose.getY()), -(robotPose.getX() - adjustedGoalPose.getX())));
         // Gets distance
-        calculatedShot[1] = Math.sqrt(Math.pow(Math.abs(TurretRotatePointPose.getX() - adjustedGoalPose.getX()), 2) + Math.pow(Math.abs(TurretRotatePointPose.getY() - adjustedGoalPose.getY()), 2));
+        calculatedShot[1] = Math.sqrt(Math.pow(Math.abs(robotPose.getX() - adjustedGoalPose.getX()), 2) + Math.pow(Math.abs(robotPose.getY() - adjustedGoalPose.getY()), 2));
         // Interpolates for top shooter
         calculatedShot[2] = TopShooterSpeedByDistance.get(calculatedShot[1]);
         // Interpolates for hood shooter

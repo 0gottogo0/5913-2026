@@ -54,7 +54,7 @@ public class Intake extends SubsystemBase {
 
 	private Timer unstickPivotTimer = new Timer();
 
-	public State state = State.Idle;
+	public State state = State.IdleOut;
 
   	public Intake() {
 		intakeConfig.idleMode(IdleMode.kCoast);

@@ -43,50 +43,40 @@ public final class Constants {
         
         // Meters, RPS
         public static final InterpolatingDoubleTreeMap TopShooterSpeedByDistance = InterpolatingDoubleTreeMap.ofEntries(
-            Map.entry(0.00, 0.00),
-            Map.entry(0.50, 0.00),
-            Map.entry(1.00, 0.00),
-            Map.entry(1.50, 0.00),
-            Map.entry(2.00, 0.00),
-            Map.entry(2.50, 0.00),
-            Map.entry(3.00, 0.00),
-            Map.entry(3.50, 0.00),
-            Map.entry(4.00, 0.00),
-            Map.entry(4.50, 0.00),
-            Map.entry(5.00, 0.00)
+            Map.entry(0.00, 34.00),
+            Map.entry(1.64, 34.00),
+            Map.entry(2.30, 36.00),
+            Map.entry(3.00, 38.00),
+            Map.entry(3.60, 42.00),
+            Map.entry(4.30, 46.00),
+            Map.entry(4.50, 46.00)
             );
     
         // Meters, RPS
         public static final InterpolatingDoubleTreeMap HoodShooterSpeedByDistance = InterpolatingDoubleTreeMap.ofEntries(
-            Map.entry(0.00, 0.00),
-            Map.entry(0.50, 0.00),
-            Map.entry(1.00, 0.00),
-            Map.entry(1.50, 0.00),
-            Map.entry(2.00, 0.00),
-            Map.entry(2.50, 0.00),
-            Map.entry(3.00, 0.00),
-            Map.entry(3.50, 0.00),
-            Map.entry(4.00, 0.00),
-            Map.entry(4.50, 0.00),
-            Map.entry(5.00, 0.00)
+            Map.entry(0.00, 5.00),
+            Map.entry(1.64, 5.00),
+            Map.entry(2.30, 8.00),
+            Map.entry(3.00, 10.00),
+            Map.entry(3.60, 20.00),
+            Map.entry(4.30, 35.00),
+            Map.entry(4.50, 40.00),
+            Map.entry(6.00, 40.00)
         );
             
         // Meters, Seconds
         public static final InterpolatingDoubleTreeMap TimeOfFlightByDistance = InterpolatingDoubleTreeMap.ofEntries(
-            Map.entry(0.00, 0.00),
-            Map.entry(0.50, 0.00),
-            Map.entry(1.00, 0.00),
-            Map.entry(1.50, 0.00),
-            Map.entry(2.00, 0.00),
-            Map.entry(2.50, 0.00),
-            Map.entry(3.00, 0.00),
-            Map.entry(3.50, 0.00),
-            Map.entry(4.00, 0.00),
-            Map.entry(4.50, 0.00),
-            Map.entry(5.00, 0.00)
+            Map.entry(0.00, 0.50),
+            Map.entry(1.64, 0.50),
+            Map.entry(2.30, 0.85),
+            Map.entry(3.00, 0.98),
+            Map.entry(3.60, 1.20),
+            Map.entry(4.30, 1.30),
+            Map.entry(4.50, 1.70),
+            Map.entry(6.00, 1.70)
         );
 
-        public static final double TrackingHubPIDkP = 0.05;
+        public static final double TrackingHubPIDkP = 0.04;
         public static final double TrackingHubPIDkI = 0.00;
         public static final double TrackingHubPIDkD = 0.00;
 
@@ -206,7 +196,7 @@ public final class Constants {
         public static final double UnstickRPS = 20.00;
         
         // Used in determing if shooter is up to speed
-        public static final double RPSThreshold = 1.00;
+        public static final double RPSThreshold = 2.00;
 
         public static final double BeltsPIDkV = 0.11;
         public static final double BeltsPIDkP = 0.15;
