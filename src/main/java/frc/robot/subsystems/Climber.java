@@ -19,7 +19,7 @@ public class Climber extends SubsystemBase {
 
 	// Kraken X60
     private TalonFX hookPivot = new TalonFX(MotorID);
-    private TalonFXConfiguration hootPivotConfig = new TalonFXConfiguration();
+    private TalonFXConfiguration hookPivotConfig = new TalonFXConfiguration();
 
 	private PositionVoltage hootPivotPositionVoltage = new PositionVoltage(0);
 
@@ -28,15 +28,15 @@ public class Climber extends SubsystemBase {
     public State state = State.Idle;
 
     public Climber() {
-        hootPivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-  	  	hootPivotConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-		hootPivotConfig.Slot0.kG = PIDkG;
-		hootPivotConfig.Slot0.kP = PIDkP;
-		hootPivotConfig.Slot0.kI = PIDkI;
-		hootPivotConfig.Slot0.kD = PIDkD;
+        hookPivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+  	  	hookPivotConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+		hookPivotConfig.Slot0.kG = PIDkG;
+		hookPivotConfig.Slot0.kP = PIDkP;
+		hookPivotConfig.Slot0.kI = PIDkI;
+		hookPivotConfig.Slot0.kD = PIDkD;
 
   	  	hookPivot.clearStickyFaults();
-  	  	hookPivot.getConfigurator().apply(hootPivotConfig);
+  	  	hookPivot.getConfigurator().apply(hookPivotConfig);
     }
 
     @Override

@@ -105,6 +105,10 @@ public class ControlSub extends SubsystemBase {
             drivetrain.applyRequest(() -> new SwerveRequest.SwerveDriveBrake())
         );
 
+        DriverController.y().whileTrue(
+            drivetrain.applyRequest(() -> new SwerveRequest.Idle())
+        );
+
         // Idle while the robot is disabled.
         RobotModeTriggers.disabled().whileTrue(
             drivetrain.applyRequest(() -> new SwerveRequest.Idle()).ignoringDisable(true)
@@ -164,9 +168,9 @@ public class ControlSub extends SubsystemBase {
         }
 
         if (ManipulatorController.povUp().getAsBoolean()) {
-            climber.setClimberDumbControl(0.50);
+            climber.setClimberDumbControl(0.20);
         } else if (ManipulatorController.povDown().getAsBoolean()) {
-            climber.setClimberDumbControl(-0.50);
+            climber.setClimberDumbControl(-0.20);
         } else {
             climber.setClimberDumbControl(0.00);
         }
