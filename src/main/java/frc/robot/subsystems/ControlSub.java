@@ -168,9 +168,9 @@ public class ControlSub extends SubsystemBase {
         }
 
         if (ManipulatorController.povUp().getAsBoolean()) {
-            climber.setClimberDumbControl(0.20);
+            climber.setClimberDumbControl(0.40);
         } else if (ManipulatorController.povDown().getAsBoolean()) {
-            climber.setClimberDumbControl(-0.20);
+            climber.setClimberDumbControl(-0.40);
         } else {
             climber.setClimberDumbControl(0.00);
         }
