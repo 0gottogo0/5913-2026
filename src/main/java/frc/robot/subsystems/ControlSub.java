@@ -177,9 +177,20 @@ public class ControlSub extends SubsystemBase {
 
         /* Auto Aim Control */
 
+        // This works ig
         autoAim.setAutoAimDrivetrainState(drivetrain);
 
-        hubPIDOutput = HubTrackingPidController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), autoAim.getShootOnMoveAimTarget()[0]);
+        // We can reverse the pid so it takes the shorter way around, its
+        // hard to explan in code comments but the rotation gets rolled
+        // over at 180, and -180 degrees (these exact degrees dont matter).
+        // If the pid is trying to go more then half a full rotation we can 
+        // just reverse it, it gets a bit rough in some edge cases however
+        // it works and thats all that really matters
+        if (Math.abs(drivetrain.getState().Pose.getRotation().getDegrees() - autoAim.getShootOnMoveAimTarget()[0]) > 180) {
+            hubPIDOutput = HubTrackingPidController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), autoAim.getShootOnMoveAimTarget()[0]);
+        } else {
+            hubPIDOutput = -HubTrackingPidController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), autoAim.getShootOnMoveAimTarget()[0]);
+        }
 
         climbXPIDOutput = ClimbTrackingXPIDController.calculate(drivetrain.getState().Pose.getX(), autoAim.getClimbDistance()[0]);
         climbYPIDOutput = ClimbTrackingYPIDController.calculate(drivetrain.getState().Pose.getY(), autoAim.getClimbDistance()[1]);
