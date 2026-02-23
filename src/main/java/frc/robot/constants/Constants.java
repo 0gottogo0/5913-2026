@@ -145,10 +145,10 @@ public final class Constants {
     
     public static final class IntakeConstants {
         public static enum State {
-            Idle,
+            IdleIn,
             IdleOut,
-            Intake,
-            Unstick,
+            IntakeIn,
+            IntakeOut,
             Outtake,
             DumbControl
         }

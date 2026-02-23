@@ -118,6 +118,12 @@ public class ControlSub extends SubsystemBase {
         // Check for input then call subsystems
 
         /* Driver Controls */
+        // Drive = Left Stick 
+        // Steer = Right Stick
+        // Intake = Right Trig
+        // Toggle Intake Pos = Left Bumper
+        // Track = Left Trig
+
         if (DriverController.leftTrigger().getAsBoolean()) {
             trackingStuff = hubPIDOutput;
         } else {
@@ -125,12 +131,12 @@ public class ControlSub extends SubsystemBase {
         }
 
         if (DriverController.povUp().getAsBoolean()) {
-            intake.setIntakeState(IntakeConstants.State.Idle);
+            intake.setIntakeState(IntakeConstants.State.IdleIn);
         } else if (DriverController.povDown().getAsBoolean()) {
             intake.setIntakeState(IntakeConstants.State.IdleOut);
         } else if (DriverController.rightTrigger().getAsBoolean()) {
-            intake.setIntakeState(IntakeConstants.State.Intake);
-        } else if (!DriverController.rightTrigger().getAsBoolean() && intake.state == IntakeConstants.State.Intake) {
+            intake.setIntakeState(IntakeConstants.State.IntakeOut);
+        } else if (!DriverController.rightTrigger().getAsBoolean() && intake.state == IntakeConstants.State.IntakeOut) {
             intake.setIntakeState(IntakeConstants.State.IdleOut);
         }
 
@@ -147,16 +153,15 @@ public class ControlSub extends SubsystemBase {
         /* Manipulator Controls */
         // Spinup = X
         // Shoot = Right Trig
-        // Track Req = Left Trig
+        // Track = Left Trig
         // Climb Track = Pov Right
         // Climb Up = Pov Up
         // Climb Down = Pov Down
-        // Agitate Intake = Left Bumper
 
-        if (ManipulatorController.x().getAsBoolean() && ManipulatorController.rightTrigger().getAsBoolean()) { // Long shot
-            shooter.setShooterState(ShooterConstants.State.Shoot, 46.00, 40.00);
+        if (ManipulatorController.x().getAsBoolean() && ManipulatorController.rightTrigger().getAsBoolean()) {
+            shooter.setShooterState(ShooterConstants.State.Shoot, autoAim.getShootOnMoveAimTarget()[2], autoAim.getShootOnMoveAimTarget()[3]);
         } else if (ManipulatorController.x().getAsBoolean()) {
-            shooter.setShooterState(ShooterConstants.State.Spinup, 46.00, 40.00);
+            shooter.setShooterState(ShooterConstants.State.Spinup, autoAim.getShootOnMoveAimTarget()[2], autoAim.getShootOnMoveAimTarget()[3]);
         } else {
             shooter.setShooterState(State.Idle, 0.00, 0.00);
         }

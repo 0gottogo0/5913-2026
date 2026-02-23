@@ -8,7 +8,6 @@ import static frc.robot.constants.Constants.IntakeConstants.*;
 import static frc.robot.constants.Constants.PneumaticConstants.PneumaticsHubID;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -23,7 +22,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Constants.IntakeConstants.State;
@@ -40,7 +38,6 @@ public class Intake extends SubsystemBase {
 
 	private DoubleSolenoid hopperSolenoid = new DoubleSolenoid(PneumaticsHubID, PneumaticsModuleType.CTREPCM, HopperIn, HopperOut);
 
-	private PositionVoltage pivotPositionVoltage = new PositionVoltage(0);
 	private PIDController pivotController = new PIDController(1.50, 0.00, 0.00);
 
 	private DutyCycleEncoder pivotEncoder = new DutyCycleEncoder(0);
@@ -49,10 +46,7 @@ public class Intake extends SubsystemBase {
 	private double pivotTargetSpeed = 0;
     private double pivotSetpoint = 0;
 	private double pivotPIDOutput = 0;
-	private boolean pivotExtension = false;
 	private boolean hopperExtension = false;
-
-	private Timer unstickPivotTimer = new Timer();
 
 	public State state = State.IdleOut;
 
@@ -73,9 +67,6 @@ public class Intake extends SubsystemBase {
 		pivot.clearStickyFaults();
 		pivot.getConfigurator().apply(pivotConfig);
 		
-		unstickPivotTimer.stop();
-		unstickPivotTimer.reset();
-
 		pivotSetpoint = pivotEncoder.get();
 
 		new Thread(() -> {
@@ -93,47 +84,41 @@ public class Intake extends SubsystemBase {
 		pivotPIDOutput = pivotController.calculate(pivotEncoder.get(), pivotSetpoint);
 
 		switch (state) {
-			case Idle:
+			case IdleIn:
 				intake.set(0.00);
-				//pivot.setControl(pivotPositionVoltage.withPosition(PivotInPos));
 				pivot.set(pivotPIDOutput);
 				pivotSetpoint = PivotInPos;
-
 				// Check if it is safe to retract hopper
 				if (pivotEncoder.get() > SafeToRetractHopperPos) {
 					hopperSolenoid.set(DoubleSolenoid.Value.kForward);
 				}
-				unstickPivotTimer.stop();
 				break;
             case IdleOut:
                 intake.set(0.00);
-				//pivot.setControl(pivotPositionVoltage.withPosition(PivotInPos));
 				pivot.set(pivotPIDOutput);
 				pivotSetpoint = PivotOutPos;
 				hopperSolenoid.set(DoubleSolenoid.Value.kReverse);
-				unstickPivotTimer.stop();
                 break;
-			case Intake:
+			case IntakeIn:
 				intake.set(IntakingSpeed);
-				//pivot.setControl(pivotPositionVoltage.withPosition(PivotOutPos));
+				pivot.set(pivotPIDOutput);
+				pivotSetpoint = PivotOutPos;
+				// Check if it is safe to retract hopper
+				if (pivotEncoder.get() > SafeToRetractHopperPos) {
+					hopperSolenoid.set(DoubleSolenoid.Value.kForward);
+				}
+				break;
+			case IntakeOut:
+				intake.set(IntakingSpeed);
 				pivot.set(pivotPIDOutput);
 				pivotSetpoint = PivotOutPos;
 				hopperSolenoid.set(DoubleSolenoid.Value.kReverse);
-				unstickPivotTimer.stop();
-				break;
-			case Unstick:
-				intake.set(IntakingSpeed);
-				pivotSetpoint = PivotOutPos;
-				hopperSolenoid.set(DoubleSolenoid.Value.kReverse);
-				//unstickPivotTimer.start();
 				break;
 			case Outtake:
 				intake.set(-IntakingSpeed);
-				//pivot.setControl(pivotPositionVoltage.withPosition(PivotOutPos));
 				pivot.set(pivotPIDOutput);
 				pivotSetpoint = PivotOutPos;
 				hopperSolenoid.set(DoubleSolenoid.Value.kReverse);
-				unstickPivotTimer.stop();
 				break;
 			case DumbControl:
 				intake.set(intakeTargetSpeed);
@@ -143,31 +128,11 @@ public class Intake extends SubsystemBase {
 				} else {
 					hopperSolenoid.set(DoubleSolenoid.Value.kForward);
 				}
-
-				unstickPivotTimer.stop();
 				break;
 		}
 
-		// Cycle between pivot in and out to agitate
-		// balls in hopper
-		if (unstickPivotTimer.isRunning() && unstickPivotTimer.hasElapsed(1)) {
-			unstickPivotTimer.reset();
-			if (pivotExtension) {
-				pivot.setControl(pivotPositionVoltage.withPosition(PivotInPos));
-				pivotExtension = false;
-			} else {
-				pivot.setControl(pivotPositionVoltage.withPosition(PivotOutPos));
-				pivotExtension = true;
-			}
-		}
-
-
-		SmartDashboard.putNumber("Intake Pivot Position", pivot.getPosition().getValueAsDouble());
-		SmartDashboard.putNumber("Intake Pivot Unstick Timer", unstickPivotTimer.get());
-		
-		// temp
+		SmartDashboard.putNumber("Intake Pivot Position", pivotEncoder.get());
 		SmartDashboard.putNumber("Intake Pivot PID Output", pivotPIDOutput);
-		SmartDashboard.putNumber("Intake Pivot Position 2 Electric Boogaloo", pivotEncoder.get());
 		SmartDashboard.putBoolean("Hopper Safe To Retract", pivotEncoder.get() > SafeToRetractHopperPos);
 
         SmartDashboard.putString("Intake State", state.toString());
