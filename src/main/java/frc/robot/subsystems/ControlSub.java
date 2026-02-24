@@ -317,6 +317,6 @@ public class ControlSub extends SubsystemBase {
     }
 
     public void tempAutoCommand() {
-        // Do stuff here
+        System.out.println("running tempAutoCommand");
     }
 }

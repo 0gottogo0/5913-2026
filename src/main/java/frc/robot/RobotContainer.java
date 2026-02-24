@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -18,12 +19,12 @@ public class RobotContainer {
     ControlSub control = new ControlSub();
 
     public RobotContainer() {
-        //NamedCommands.registerCommand("tempAutoCommand", control.run(
-        //    () -> control.tempAutoCommand()
-        //));
+        NamedCommands.registerCommand("tempAutoCommand", control.run(
+            () -> control.tempAutoCommand()
+        ));
 
         configureBindings();
-        
+
         control.drivetrain.configureAutoBuilder();
         autoChooser = AutoBuilder.buildAutoChooser("None");
         SmartDashboard.putData("Auto Chooser", autoChooser);
