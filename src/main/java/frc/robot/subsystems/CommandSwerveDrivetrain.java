@@ -239,7 +239,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 TunerConstants.kSpeedAt12Volts,
                 TunerConstants.kWheelCOF,
                 DCMotor.getKrakenX60(1).withReduction(TunerConstants.kDriveGearRatio),
-                Amps.of(20), 1),
+                Amps.of(20),
+                1),
             getModuleLocations());
             
         try{
