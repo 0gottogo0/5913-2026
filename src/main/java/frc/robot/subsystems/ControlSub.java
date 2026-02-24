@@ -63,6 +63,7 @@ public class ControlSub extends SubsystemBase {
 
     private double hubPIDOutput = 0.00;
     
+    private boolean isTracking = false;
     private boolean intakeRetracted = true;
 
     // temp vars
@@ -131,16 +132,6 @@ public class ControlSub extends SubsystemBase {
             }
         }
 
-        /*if (DriverController.povUp().getAsBoolean()) {
-            intake.setIntakeState(IntakeConstants.State.IdleIn);
-        } else if (DriverController.povDown().getAsBoolean()) {
-            intake.setIntakeState(IntakeConstants.State.IdleOut);
-        } else if (DriverController.rightTrigger().getAsBoolean()) {
-            intake.setIntakeState(IntakeConstants.State.IntakeOut);
-        } else if (!DriverController.rightTrigger().getAsBoolean() && intake.state == IntakeConstants.State.IntakeOut) {
-            intake.setIntakeState(IntakeConstants.State.IdleOut);
-        }*/
-
         if (drivetrainLastState != DrivetrainChooser.getSelected()) {
             drivetrainApplyRequest(DrivetrainChooser.getSelected());
         }
@@ -160,7 +151,7 @@ public class ControlSub extends SubsystemBase {
         // Climb Down = Pov Down
 
         // If we are tracking, do the speed interpolation too
-        if (DriverController.leftTrigger().getAsBoolean()) {
+        if (isTracking) {
             if (ManipulatorController.x().getAsBoolean() && ManipulatorController.rightTrigger().getAsBoolean()) {
                 shooter.setShooterState(ShooterConstants.State.Shoot, autoAim.getShootOnMoveAimTarget()[2], autoAim.getShootOnMoveAimTarget()[3]);
             } else if (ManipulatorController.x().getAsBoolean()) {
@@ -193,6 +184,12 @@ public class ControlSub extends SubsystemBase {
         }
 
         /* Auto Aim Control */
+
+        if (DriverController.leftTrigger().getAsBoolean() || ManipulatorController.leftTrigger().getAsBoolean()) {
+            isTracking = true;
+        } else {
+            isTracking = false;
+        }
 
         // This works ig
         autoAim.setAutoAimDrivetrainState(drivetrain);
