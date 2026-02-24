@@ -51,7 +51,7 @@ public class ControlSub extends SubsystemBase {
     
     private final SendableChooser<DrivetrainState> DrivetrainChooser = new SendableChooser<>();
 
-    //private boolean driverLastA = DriverController.a().getAsBoolean();
+    private boolean driverLastLeftBumper = DriverController.leftBumper().getAsBoolean();
 
     private DrivetrainState drivetrainLastState = DrivetrainChooser.getSelected();
     
@@ -112,10 +112,12 @@ public class ControlSub extends SubsystemBase {
         // Toggle Intake Pos = Left Bumper
         // Track = Left Trig
 
-        if (DriverController.povUp().getAsBoolean()) {
-            intakeRetracted = true;
-        } else if (DriverController.povDown().getAsBoolean()) {
-            intakeRetracted = false;
+        if (DriverController.leftBumper().getAsBoolean() && !driverLastLeftBumper) {
+            if (intakeRetracted) {
+                intakeRetracted = false;
+            } else {
+                intakeRetracted = true;
+            }
         }
 
         if (DriverController.rightTrigger().getAsBoolean()) {
@@ -211,7 +213,7 @@ public class ControlSub extends SubsystemBase {
         SmartDashboard.putNumber("Hub Tracking Pid Output", hubPIDOutput);
 
         // Inputs are now "outdated" and can be compared with new ones next scheduler run
-        //driverLastA = DriverController.a().getAsBoolean();
+        driverLastLeftBumper = DriverController.leftBumper().getAsBoolean();
 
         drivetrainLastState = DrivetrainChooser.getSelected();
     }
