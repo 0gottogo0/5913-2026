@@ -40,29 +40,18 @@ public class ControlSub extends SubsystemBase {
         //.withDeadband(maxSpeed * Controllers.StickDeadzone).withRotationalDeadband(maxAngularRate * Controllers.StickDeadzone)
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
-    private final SwerveRequest.RobotCentric TrackDrive = new SwerveRequest.RobotCentric()
-        .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
-
     private final SlewRateLimiter XSlewRateLimiter = new SlewRateLimiter(ControllerConstants.XSlewRateLimiter);
     private final SlewRateLimiter YSlewRateLimiter = new SlewRateLimiter(ControllerConstants.YSlewRateLimiter);
     private final SlewRateLimiter RotateSlewRateLimiter = new SlewRateLimiter(ControllerConstants.RotateSlewRateLimiter);
 
     private final PIDController HubTrackingPidController = new PIDController(AutoAimConstants.TrackingHubPIDkP, AutoAimConstants.TrackingHubPIDkI, AutoAimConstants.TrackingHubPIDkD);
     
-    private final PIDController ClimbTrackingXPIDController = new PIDController(AutoAimConstants.TrackingClimbMovePIDkP, AutoAimConstants.TrackingClimbMovePIDkI, AutoAimConstants.TrackingClimbMovePIDkD);
-    private final PIDController ClimbTrackingYPIDController = new PIDController(AutoAimConstants.TrackingClimbMovePIDkP, AutoAimConstants.TrackingClimbMovePIDkI, AutoAimConstants.TrackingClimbMovePIDkD);
-    private final PIDController ClimbTrackingRotPIDController = new PIDController(AutoAimConstants.TrackingClimbRotPIDkP, AutoAimConstants.TrackingClimbRotPIDkI, AutoAimConstants.TrackingClimbRotPIDkD);
-
     private final CommandXboxController DriverController = new CommandXboxController(ControllerConstants.DriverControllerID);
     private final CommandXboxController ManipulatorController = new CommandXboxController(ControllerConstants.ManipulatorControllerID);
     
     private final SendableChooser<DrivetrainState> DrivetrainChooser = new SendableChooser<>();
 
     //private boolean driverLastA = DriverController.a().getAsBoolean();
-    //private boolean driverLastB = DriverController.b().getAsBoolean();
-    //private boolean driverLastY = DriverController.y().getAsBoolean();
-    //private boolean driverLastPovUp = DriverController.povUp().getAsBoolean();
-    //private boolean driverLastPovDown = DriverController.povDown().getAsBoolean();
 
     private DrivetrainState drivetrainLastState = DrivetrainChooser.getSelected();
     
@@ -74,9 +63,7 @@ public class ControlSub extends SubsystemBase {
 
     private double hubPIDOutput = 0.00;
     
-    private double climbXPIDOutput = 0.00;
-    private double climbYPIDOutput = 0.00;
-    private double climbRotPIDOutput = 0.00;
+    private boolean intakeRetracted = true;
 
     // temp vars
     private double trackingStuff = 0.00;
@@ -124,13 +111,27 @@ public class ControlSub extends SubsystemBase {
         // Toggle Intake Pos = Left Bumper
         // Track = Left Trig
 
-        if (DriverController.leftTrigger().getAsBoolean()) {
-            trackingStuff = hubPIDOutput;
-        } else {
-            trackingStuff = 0.00;
+        if (DriverController.povUp().getAsBoolean()) {
+            intakeRetracted = true;
+        } else if (DriverController.povDown().getAsBoolean()) {
+            intakeRetracted = false;
         }
 
-        if (DriverController.povUp().getAsBoolean()) {
+        if (DriverController.rightTrigger().getAsBoolean()) {
+            if (intakeRetracted) {
+                intake.setIntakeState(IntakeConstants.State.IntakeIn);
+            } else {
+                intake.setIntakeState(IntakeConstants.State.IntakeOut);
+            }
+        } else {
+            if (intakeRetracted) {
+                intake.setIntakeState(IntakeConstants.State.IdleIn);
+            } else {
+                intake.setIntakeState(IntakeConstants.State.IdleOut);
+            }
+        }
+
+        /*if (DriverController.povUp().getAsBoolean()) {
             intake.setIntakeState(IntakeConstants.State.IdleIn);
         } else if (DriverController.povDown().getAsBoolean()) {
             intake.setIntakeState(IntakeConstants.State.IdleOut);
@@ -138,7 +139,7 @@ public class ControlSub extends SubsystemBase {
             intake.setIntakeState(IntakeConstants.State.IntakeOut);
         } else if (!DriverController.rightTrigger().getAsBoolean() && intake.state == IntakeConstants.State.IntakeOut) {
             intake.setIntakeState(IntakeConstants.State.IdleOut);
-        }
+        }*/
 
         if (drivetrainLastState != DrivetrainChooser.getSelected()) {
             drivetrainApplyRequest(DrivetrainChooser.getSelected());
@@ -158,12 +159,23 @@ public class ControlSub extends SubsystemBase {
         // Climb Up = Pov Up
         // Climb Down = Pov Down
 
-        if (ManipulatorController.x().getAsBoolean() && ManipulatorController.rightTrigger().getAsBoolean()) {
-            shooter.setShooterState(ShooterConstants.State.Shoot, autoAim.getShootOnMoveAimTarget()[2], autoAim.getShootOnMoveAimTarget()[3]);
-        } else if (ManipulatorController.x().getAsBoolean()) {
-            shooter.setShooterState(ShooterConstants.State.Spinup, autoAim.getShootOnMoveAimTarget()[2], autoAim.getShootOnMoveAimTarget()[3]);
+        // If we are tracking, do the speed interpolation too
+        if (DriverController.leftTrigger().getAsBoolean()) {
+            if (ManipulatorController.x().getAsBoolean() && ManipulatorController.rightTrigger().getAsBoolean()) {
+                shooter.setShooterState(ShooterConstants.State.Shoot, autoAim.getShootOnMoveAimTarget()[2], autoAim.getShootOnMoveAimTarget()[3]);
+            } else if (ManipulatorController.x().getAsBoolean()) {
+                shooter.setShooterState(ShooterConstants.State.Spinup, autoAim.getShootOnMoveAimTarget()[2], autoAim.getShootOnMoveAimTarget()[3]);
+            } else {
+                shooter.setShooterState(State.Idle, 0.00, 0.00);
+            }
         } else {
-            shooter.setShooterState(State.Idle, 0.00, 0.00);
+            if (ManipulatorController.x().getAsBoolean() && ManipulatorController.rightTrigger().getAsBoolean()) {
+                shooter.setShooterState(ShooterConstants.State.Shoot, 36.00, 8.00);
+            } else if (ManipulatorController.x().getAsBoolean()) {
+                shooter.setShooterState(ShooterConstants.State.Spinup, 36.00, 8.00);
+            } else {
+                shooter.setShooterState(State.Idle, 0.00, 0.00);
+            }
         }
 
         if (ManipulatorController.povUp().getAsBoolean()) {
@@ -190,37 +202,19 @@ public class ControlSub extends SubsystemBase {
         // over at 180, and -180 degrees (these exact degrees dont matter).
         // If the pid is trying to go more then half a full rotation we can 
         // just reverse it, it gets a bit rough in some edge cases however
-        // it works and thats all that really matters
+        // it works in those cases and thats all that really matters
         if (Math.abs(drivetrain.getState().Pose.getRotation().getDegrees() - autoAim.getShootOnMoveAimTarget()[0]) > 180) {
             hubPIDOutput = HubTrackingPidController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), autoAim.getShootOnMoveAimTarget()[0]);
         } else {
             hubPIDOutput = -HubTrackingPidController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), autoAim.getShootOnMoveAimTarget()[0]);
         }
 
-        climbXPIDOutput = ClimbTrackingXPIDController.calculate(drivetrain.getState().Pose.getX(), autoAim.getClimbDistance()[0]);
-        climbYPIDOutput = ClimbTrackingYPIDController.calculate(drivetrain.getState().Pose.getY(), autoAim.getClimbDistance()[1]);
-        
-        // Fix rot setpoints because I may have it backwards
-        if (autoAim.isBlue()) {
-            climbRotPIDOutput = ClimbTrackingRotPIDController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), 0.00);
-        } else {
-            climbRotPIDOutput = ClimbTrackingRotPIDController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), 180.00);
-        }
-
         /* Output */
 
         SmartDashboard.putNumber("Hub Tracking Pid Output", hubPIDOutput);
 
-        SmartDashboard.putNumber("Climb Tracking X Pid Output", climbXPIDOutput);
-        SmartDashboard.putNumber("Climb Tracking Y Pid Output", climbYPIDOutput);
-        SmartDashboard.putNumber("Climb Tracking Rot Pid Output", climbRotPIDOutput);
-
         // Inputs are now "outdated" and can be compared with new ones next scheduler run
         //driverLastA = DriverController.a().getAsBoolean();
-        //driverLastB = DriverController.b().getAsBoolean();
-        //driverLastY = DriverController.y().getAsBoolean();
-        //driverLastPovUp = DriverController.povUp().getAsBoolean();
-        //driverLastPovDown = DriverController.povDown().getAsBoolean();
 
         drivetrainLastState = DrivetrainChooser.getSelected();
     }
@@ -298,32 +292,6 @@ public class ControlSub extends SubsystemBase {
                             MathUtil.applyDeadband(DriverController.getLeftX(), ControllerConstants.StickDeadzone) * maxSpeed) // Drive left with negative X (left)
                         .withRotationalRate(
                             MathUtil.applyDeadband(-DriverController.getRightX(), ControllerConstants.StickDeadzone) * maxAngularRate) // Drive counterclockwise with negative X (left)
-                    )
-                );
-                break;
-            case HubTracking:
-                drivetrain.setDefaultCommand(
-                    drivetrain.applyRequest(() -> TrackDrive
-                        .withVelocityX(
-                            MathUtil.applyDeadband(
-                                XSlewRateLimiter.calculate(DriverController.getLeftY()), ControllerConstants.StickDeadzone) * maxSpeed) // Drive forward with negative Y (forward)
-                        .withVelocityY(
-                            MathUtil.applyDeadband(
-                                YSlewRateLimiter.calculate(DriverController.getLeftX()), ControllerConstants.StickDeadzone) * maxSpeed) // Drive left with negative X (left)
-                        .withRotationalRate(
-                            MathUtil.clamp(hubPIDOutput * maxSpeed, -1.00, 1.00)) // Drive counterclockwise with negative X (left)
-                    )
-                );
-                break;
-            case ClimbTracking:
-                drivetrain.setDefaultCommand(
-                    drivetrain.applyRequest(() -> TrackDrive
-                        .withVelocityX(
-                            MathUtil.clamp(climbXPIDOutput * maxSpeed, -1.00, 1.00)) // Drive forward with negative Y (forward)
-                        .withVelocityY(
-                            MathUtil.clamp(climbYPIDOutput * maxSpeed, -1.00, 1.00)) // Drive left with negative X (left)
-                        .withRotationalRate(
-                            MathUtil.clamp(climbRotPIDOutput * maxSpeed, -1.00, 1.00)) // Drive counterclockwise with negative X (left)
                     )
                 );
                 break;
