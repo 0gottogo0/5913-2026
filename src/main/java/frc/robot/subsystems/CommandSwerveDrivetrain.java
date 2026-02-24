@@ -10,6 +10,10 @@ import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -50,7 +54,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     //private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
 
     /* Swerve request to apply during robot-centric path following */
-    //private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
+    private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
     private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
@@ -222,22 +226,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return m_sysIdRoutineToApply.dynamic(direction);
     }
 
-    /*public void configureAutoBuilder() {
-        // Create the config with preset numbers and use gui if posible
-        RobotConfig config = new RobotConfig(
-            Pounds.of(114.8),
-            KilogramSquareMeters.of(5.0), 
-            new ModuleConfig(
-                TunerConstants.kWheelRadius,
-                TunerConstants.kSpeedAt12Volts,
-                0.7,
-                DCMotor.getKrakenX60(1).withReduction(TunerConstants.kDriveGearRatio),
-                Amps.of(20), 1), getModuleLocations());
+    public void configureAutoBuilder() {
+        // Use gui if posible
+        RobotConfig config = new RobotConfig(0, 0, null, 0); // Danger (I think)
         try{
-          config = RobotConfig.fromGUISettings();
+            config = RobotConfig.fromGUISettings();
         } catch (Exception e) {
-          // Handle exception as needed
-          e.printStackTrace();
+            // Handle exception as needed
+            e.printStackTrace();
         }
 
         // Configure AutoBuilder last
@@ -250,24 +246,24 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
             ), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
             new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
-                    new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-                    new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+                new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+                new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
             ),
             config, // The robot configuration
             () -> {
-              // Boolean supplier that controls when the path will be mirrored for the red alliance
-              // This will flip the path being followed to the red side of the field.
-              // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-            
-              var alliance = DriverStation.getAlliance();
-              if (alliance.isPresent()) {
-                return alliance.get() == DriverStation.Alliance.Red;
-              }
-              return false;
+                // Boolean supplier that controls when the path will be mirrored for the red alliance
+                // This will flip the path being followed to the red side of the field.
+                // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+                
+                var alliance = DriverStation.getAlliance();
+                if (alliance.isPresent()) {
+                    return alliance.get() == DriverStation.Alliance.Red;
+                }
+                return false;
             },
             this // Reference to this subsystem to set requirements
         );
-    }*/
+    }
 
     @Override
     public void periodic() {
