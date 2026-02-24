@@ -5,7 +5,6 @@
 package frc.robot.subsystems;
 
 import static frc.robot.constants.Constants.IntakeConstants.*;
-import static frc.robot.constants.Constants.PneumaticConstants.PneumaticsHubID;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -19,9 +18,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Constants.IntakeConstants.State;
@@ -36,8 +33,6 @@ public class Intake extends SubsystemBase {
 	private TalonFX pivot = new TalonFX(PivotID);
 	private TalonFXConfiguration pivotConfig = new TalonFXConfiguration(); 
 
-	private DoubleSolenoid hopperSolenoid = new DoubleSolenoid(PneumaticsHubID, PneumaticsModuleType.CTREPCM, HopperIn, HopperOut);
-
 	private PIDController pivotController = new PIDController(1.50, 0.00, 0.00);
 
 	private DutyCycleEncoder pivotEncoder = new DutyCycleEncoder(0);
@@ -46,7 +41,6 @@ public class Intake extends SubsystemBase {
 	private double pivotTargetSpeed = 0;
     private double pivotSetpoint = 0;
 	private double pivotPIDOutput = 0;
-	private boolean hopperExtension = false;
 
 	public State state = State.IdleOut;
 
@@ -88,52 +82,35 @@ public class Intake extends SubsystemBase {
 				intake.set(0.00);
 				pivot.set(pivotPIDOutput);
 				pivotSetpoint = PivotInPos;
-				// Check if it is safe to retract hopper
-				if (pivotEncoder.get() > SafeToRetractHopperPos) {
-					hopperSolenoid.set(DoubleSolenoid.Value.kForward);
-				}
 				break;
             case IdleOut:
                 intake.set(0.00);
 				pivot.set(pivotPIDOutput);
 				pivotSetpoint = PivotOutPos;
-				hopperSolenoid.set(DoubleSolenoid.Value.kReverse);
                 break;
 			case IntakeIn:
 				intake.set(IntakingSpeed);
 				pivot.set(pivotPIDOutput);
 				pivotSetpoint = PivotOutPos;
-				// Check if it is safe to retract hopper
-				if (pivotEncoder.get() > SafeToRetractHopperPos) {
-					hopperSolenoid.set(DoubleSolenoid.Value.kForward);
-				}
 				break;
 			case IntakeOut:
 				intake.set(IntakingSpeed);
 				pivot.set(pivotPIDOutput);
 				pivotSetpoint = PivotOutPos;
-				hopperSolenoid.set(DoubleSolenoid.Value.kReverse);
 				break;
 			case Outtake:
 				intake.set(-IntakingSpeed);
 				pivot.set(pivotPIDOutput);
 				pivotSetpoint = PivotOutPos;
-				hopperSolenoid.set(DoubleSolenoid.Value.kReverse);
 				break;
 			case DumbControl:
 				intake.set(intakeTargetSpeed);
 				pivot.set(pivotTargetSpeed);
-				if (hopperExtension) {
-					hopperSolenoid.set(DoubleSolenoid.Value.kReverse);
-				} else {
-					hopperSolenoid.set(DoubleSolenoid.Value.kForward);
-				}
 				break;
 		}
 
 		SmartDashboard.putNumber("Intake Pivot Position", pivotEncoder.get());
 		SmartDashboard.putNumber("Intake Pivot PID Output", pivotPIDOutput);
-		SmartDashboard.putBoolean("Hopper Safe To Retract", pivotEncoder.get() > SafeToRetractHopperPos);
 
         SmartDashboard.putString("Intake State", state.toString());
   	}
@@ -164,10 +141,9 @@ public class Intake extends SubsystemBase {
      * 
      * @param shouldHopperExtend Should the hopper extend
 	 */
-	public void setIntakeDumbControl(double intakeSpeedInPercent, double pivotSpeedInPercent, boolean shouldHopperExtend) {
+	public void setIntakeDumbControl(double intakeSpeedInPercent, double pivotSpeedInPercent) {
 		intakeTargetSpeed = intakeSpeedInPercent;
 		pivotTargetSpeed = pivotSpeedInPercent;
-        hopperExtension = shouldHopperExtend;
 		state = State.DumbControl;
 	}
 

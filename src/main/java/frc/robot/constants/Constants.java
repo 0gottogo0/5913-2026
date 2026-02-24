@@ -157,19 +157,11 @@ public final class Constants {
         public static final int IntakeCurrentLimit = 120;
         public static final double IntakingSpeed = 0.42;
 
-        public static final int HopperIn = 1;
-        public static final int HopperOut = 0;
-
         public static final double PivotInPos = 0.42;
         public static final double PivotOutPos = 0.08;
-        public static final double SafeToRetractHopperPos = 0.28;
 
         public static final int IntakeID = 34;
         public static final int PivotID = 37;
-    }
-    
-    public static final class PneumaticConstants {
-        public static final int PneumaticsHubID = 17;
     }
 
     public static final class ShooterConstants {

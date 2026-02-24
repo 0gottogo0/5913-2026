@@ -58,7 +58,6 @@ public class ControlSub extends SubsystemBase {
     public AutoAim autoAim = new AutoAim();
     public Climber climber = new Climber();
     public Intake intake = new Intake();
-    public Pneumatics pneumatics = new Pneumatics();
     public Shooter shooter = new Shooter();
 
     private double hubPIDOutput = 0.00;
