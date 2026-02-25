@@ -17,6 +17,8 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
+import edu.wpi.first.math.MathUsageId;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -75,7 +77,7 @@ public class Intake extends SubsystemBase {
 
   	@Override
   	public void periodic() {
-		pivotPIDOutput = pivotController.calculate(pivotEncoder.get(), pivotSetpoint);
+		pivotPIDOutput = MathUtil.clamp(pivotController.calculate(pivotEncoder.get(), pivotSetpoint), -PivotExtensionSpeed, PivotRetractSpeed);
 
 		switch (state) {
 			case IdleIn:

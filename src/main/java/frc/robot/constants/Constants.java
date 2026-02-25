@@ -157,7 +157,10 @@ public final class Constants {
         public static final int IntakeCurrentLimit = 120;
         public static final double IntakingSpeed = 0.42;
 
-        public static final double PivotInPos = 0.42;
+        public static final double PivotRetractSpeed = 0.75;
+        public static final double PivotExtensionSpeed = 0.25;
+
+        public static final double PivotInPos = 0.48;
         public static final double PivotOutPos = 0.08;
 
         public static final int IntakeID = 34;
