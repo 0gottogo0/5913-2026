@@ -87,7 +87,7 @@ public class AutoAim extends SubsystemBase {
                 }
                 break;
             case DumbControl:
-                goalPose = new Pose2d(0, 0, new Rotation2d(0));
+                // Do nothing, handled by setAutoAimDumbControl()
                 break;
         }
 
@@ -144,14 +144,10 @@ public class AutoAim extends SubsystemBase {
      */
     @SuppressWarnings("unlikely-arg-type")
     public boolean isBlue() {
-        if (DriverStation.isDSAttached()) {
-            if (DriverStation.getAlliance().equals(Alliance.Blue)) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
+        if (DriverStation.isDSAttached() && DriverStation.getAlliance().equals(Alliance.Blue)) {
             return true;
+        } else {
+            return false;
         }
     }
 
@@ -209,7 +205,7 @@ public class AutoAim extends SubsystemBase {
     }
 
     /**
-	 * Sets the state to autoaim too.
+	 * Sets the state or target.
 	 * <p> 
 	 * If wanting to control shots manualy then
      * use setAutoAimDumbControl()
@@ -221,9 +217,13 @@ public class AutoAim extends SubsystemBase {
     }
 
     /**
-     * Unimplimented
+     * Sets cordinate positions to shoot at
+     * <p>
+     * Uses FRC WPIBlue cordinates, more, and better information
+     * can be found in the Limelight docs under "3D Coordinate
+     * Systems In Detail"
      */
-    public void setAutoAimDumbControl() {
-
+    public void setAutoAimDumbControl(double x, double y) {
+        goalPose = new Pose2d(x, y, new Rotation2d(0.00));
     }
 }

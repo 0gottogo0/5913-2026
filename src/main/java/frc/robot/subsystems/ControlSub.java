@@ -60,13 +60,13 @@ public class ControlSub extends SubsystemBase {
     public Intake intake = new Intake();
     public Shooter shooter = new Shooter();
 
+    private double commandedMoveX = 0.00;
+    private double commandedMoveY = 0.00;
+    private double commandedRotate = 0.00;
     private double hubPIDOutput = 0.00;
     
     private boolean isTracking = false;
     private boolean intakeRetracted = true;
-
-    // temp vars
-    private double trackingStuff = 0.00;
 
     public ControlSub() {
 
@@ -111,6 +111,10 @@ public class ControlSub extends SubsystemBase {
         // Toggle Intake Pos = Left Bumper
         // Track = Left Trig
 
+        commandedMoveX = MathUtil.applyDeadband(DriverController.getLeftY(), ControllerConstants.StickDeadzone);
+        commandedMoveY = MathUtil.applyDeadband(DriverController.getLeftX(), ControllerConstants.StickDeadzone);
+        commandedRotate = MathUtil.applyDeadband(DriverController.getRightX(), ControllerConstants.StickDeadzone);
+
         if (DriverController.leftBumper().getAsBoolean() && !driverLastLeftBumper) {
             if (intakeRetracted) {
                 intakeRetracted = false;
@@ -137,7 +141,7 @@ public class ControlSub extends SubsystemBase {
             drivetrainApplyRequest(DrivetrainChooser.getSelected());
         }
 
-        if (ManipulatorController.povLeft().getAsBoolean()) {
+        if (isTracking) {
             DriverController.setRumble(RumbleType.kBothRumble, 0.20);
         } else {
             DriverController.setRumble(RumbleType.kBothRumble, 0.00);
@@ -186,12 +190,6 @@ public class ControlSub extends SubsystemBase {
 
         /* Auto Aim Control */
 
-        if (DriverController.leftTrigger().getAsBoolean() || ManipulatorController.leftTrigger().getAsBoolean()) {
-            isTracking = true;
-        } else {
-            isTracking = false;
-        }
-
         // This works ig
         autoAim.setAutoAimDrivetrainState(drivetrain);
 
@@ -207,6 +205,13 @@ public class ControlSub extends SubsystemBase {
             hubPIDOutput = -HubTrackingPidController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), autoAim.getShootOnMoveAimTarget()[0]);
         }
 
+        if (DriverController.leftTrigger().getAsBoolean() || ManipulatorController.leftTrigger().getAsBoolean()) {
+            commandedRotate += hubPIDOutput;
+            isTracking = true;
+        } else {
+            isTracking = false;
+        }
+
         /* Output */
 
         SmartDashboard.putNumber("Hub Tracking Pid Output", hubPIDOutput);
@@ -220,8 +225,8 @@ public class ControlSub extends SubsystemBase {
     /**
      * Apply drivetrain request with state
      * <p>
-     * Uses setDefaultCommand() so do not call this function
-     * every scheduler run.
+     * Uses setDefaultCommand() and the robot needs
+     * to be disabled to use
      * 
      * @param stateToChangeTo State to change the drivetrain to
      */
@@ -242,12 +247,9 @@ public class ControlSub extends SubsystemBase {
             case BabyMode:
                 drivetrain.setDefaultCommand(
                     drivetrain.applyRequest(() -> ControllerDrive
-                        .withVelocityX(
-                            MathUtil.applyDeadband(DriverController.getLeftY(), ControllerConstants.StickDeadzone) * (maxSpeed / 6.00)) // Drive forward with negative Y (forward)
-                        .withVelocityY(
-                            MathUtil.applyDeadband(DriverController.getLeftX(), ControllerConstants.StickDeadzone) * (maxSpeed / 6.00)) // Drive left with negative X (left)
-                        .withRotationalRate(
-                            MathUtil.applyDeadband(-DriverController.getRightX(), ControllerConstants.StickDeadzone) * (maxAngularRate / 4.00)) // Drive counterclockwise with negative X (left)
+                        .withVelocityX(commandedMoveX * (maxSpeed / 6.00)) // Drive forward with negative Y (forward)
+                        .withVelocityY(commandedMoveY * (maxSpeed / 6.00)) // Drive left with negative X (left)
+                        .withRotationalRate(commandedRotate * (maxAngularRate / 4.00)) // Drive counterclockwise with negative X (left)
                     )
                 );
                 break;
@@ -255,14 +257,11 @@ public class ControlSub extends SubsystemBase {
                 drivetrain.setDefaultCommand(
                     drivetrain.applyRequest(() -> ControllerDrive
                         .withVelocityX(
-                            MathUtil.applyDeadband(
-                                XSlewRateLimiter.calculate(DriverController.getLeftY()), ControllerConstants.StickDeadzone) * (maxSpeed / 2.50)) // Drive forward with negative Y (forward)
+                            XSlewRateLimiter.calculate(commandedMoveX) * (maxSpeed / 2.50)) // Drive forward with negative Y (forward)
                         .withVelocityY(
-                            MathUtil.applyDeadband(
-                                YSlewRateLimiter.calculate(DriverController.getLeftX()), ControllerConstants.StickDeadzone) * (maxSpeed / 2.50)) // Drive left with negative X (left)
+                            YSlewRateLimiter.calculate(commandedMoveY) * (maxSpeed / 2.50)) // Drive left with negative X (left)
                         .withRotationalRate(
-                            MathUtil.applyDeadband(
-                                RotateSlewRateLimiter.calculate(-DriverController.getRightX()), ControllerConstants.StickDeadzone) * maxAngularRate) // Drive counterclockwise with negative X (left)
+                            RotateSlewRateLimiter.calculate(commandedRotate) * maxAngularRate) // Drive counterclockwise with negative X (left)
                     )
                 );
                 break;
@@ -270,26 +269,20 @@ public class ControlSub extends SubsystemBase {
                 drivetrain.setDefaultCommand(
                     drivetrain.applyRequest(() -> ControllerDrive
                         .withVelocityX(
-                            MathUtil.applyDeadband(
-                                XSlewRateLimiter.calculate(DriverController.getLeftY()), ControllerConstants.StickDeadzone) * maxSpeed) // Drive forward with negative Y (forward)
+                            XSlewRateLimiter.calculate(commandedMoveX) * maxSpeed) // Drive forward with negative Y (forward)
                         .withVelocityY(
-                            MathUtil.applyDeadband(
-                                YSlewRateLimiter.calculate(DriverController.getLeftX()), ControllerConstants.StickDeadzone) * maxSpeed) // Drive left with negative X (left)
+                            YSlewRateLimiter.calculate(commandedMoveY) * maxSpeed) // Drive left with negative X (left)
                         .withRotationalRate(
-                            MathUtil.applyDeadband(
-                                RotateSlewRateLimiter.calculate(-DriverController.getRightX() + trackingStuff), ControllerConstants.StickDeadzone) * maxAngularRate) // Drive counterclockwise with negative X (left)
+                            RotateSlewRateLimiter.calculate(commandedRotate) * maxAngularRate) // Drive counterclockwise with negative X (left)
                     )
                 );
                 break;
             case GoCrazyGoStupid:
                 drivetrain.setDefaultCommand(
                     drivetrain.applyRequest(() -> ControllerDrive
-                        .withVelocityX(
-                            MathUtil.applyDeadband(DriverController.getLeftY(), ControllerConstants.StickDeadzone) * maxSpeed) // Drive forward with negative Y (forward)
-                        .withVelocityY(
-                            MathUtil.applyDeadband(DriverController.getLeftX(), ControllerConstants.StickDeadzone) * maxSpeed) // Drive left with negative X (left)
-                        .withRotationalRate(
-                            MathUtil.applyDeadband(-DriverController.getRightX(), ControllerConstants.StickDeadzone) * maxAngularRate) // Drive counterclockwise with negative X (left)
+                        .withVelocityX(commandedMoveX * maxSpeed) // Drive forward with negative Y (forward)
+                        .withVelocityY(commandedMoveY * maxSpeed) // Drive left with negative X (left)
+                        .withRotationalRate(commandedRotate * maxAngularRate) // Drive counterclockwise with negative X (left)
                     )
                 );
                 break;

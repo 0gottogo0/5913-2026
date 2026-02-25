@@ -292,10 +292,6 @@ public class Shooter extends SubsystemBase {
 	/**
 	 * Checks if the shooter is up to speed then
 	 * returns a boolean, uses ShooterConstants.RPSThreshold
-	 * <p>
-	 * Note: We only have an encoder on the bottom
-	 * shooter so it only checks the bottom shooter
-	 * motor if it is up to speed
 	 * 
 	 * @return True if the shooter is up to speed
 	 */

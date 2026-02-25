@@ -17,7 +17,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
-import edu.wpi.first.math.MathUsageId;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
@@ -72,7 +71,6 @@ public class Intake extends SubsystemBase {
     		} catch (Exception e) {
     		}
     	}).start();
-
   	}
 
   	@Override
