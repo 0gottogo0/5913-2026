@@ -177,8 +177,8 @@ public final class Constants {
         }
 
         public static final double BottomRatio = 1.10;
-        public static final double BeltsSpeed = 80.00;
-        public static final double FeedSpeed = 40.00;
+        public static final double BeltsSpeed = 100.00;
+        public static final double FeedSpeed = 100.00;
         public static final double UnstickRPS = 20.00;
         
         // Used in determing if shooter is up to speed
