@@ -12,6 +12,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -67,6 +68,7 @@ public class ControlSub extends SubsystemBase {
     
     private boolean isTracking = false;
     private boolean intakeRetracted = true;
+    private boolean runIntake = false;
 
     public ControlSub() {
 
@@ -121,17 +123,22 @@ public class ControlSub extends SubsystemBase {
 
         commandedMoveX = MathUtil.applyDeadband(DriverController.getLeftY(), ControllerConstants.StickDeadzone);
         commandedMoveY = MathUtil.applyDeadband(DriverController.getLeftX(), ControllerConstants.StickDeadzone);
-        commandedRotate = MathUtil.applyDeadband(DriverController.getRightX(), ControllerConstants.StickDeadzone);
+        commandedRotate = MathUtil.applyDeadband(-DriverController.getRightX(), ControllerConstants.StickDeadzone);
 
-        if (DriverController.leftBumper().getAsBoolean() && !driverLastLeftBumper) {
-            if (intakeRetracted) {
-                intakeRetracted = false;
-            } else {
-                intakeRetracted = true;
+        if (DriverStation.isTeleop()) {
+            if (DriverController.leftBumper().getAsBoolean() && !driverLastLeftBumper) {
+                if (intakeRetracted) {
+                    intakeRetracted = false;
+                } else {
+                    intakeRetracted = true;
+                }
             }
-        }
 
-        if (DriverController.rightTrigger().getAsBoolean()) {
+            runIntake = DriverController.rightTrigger().getAsBoolean();
+        }
+        
+
+        if (runIntake) {
             if (intakeRetracted) {
                 intake.setIntakeState(IntakeConstants.State.IntakeIn);
             } else {
@@ -159,7 +166,6 @@ public class ControlSub extends SubsystemBase {
         // Spinup = X
         // Shoot = Right Trig
         // Track = Left Trig
-        // Climb Track = Pov Right
         // Climb Up = Pov Up
         // Climb Down = Pov Down
 
@@ -208,16 +214,18 @@ public class ControlSub extends SubsystemBase {
         // just reverse it, it gets a bit rough in some edge cases however
         // it works in those cases and thats all that really matters
         if (Math.abs(drivetrain.getState().Pose.getRotation().getDegrees() - autoAim.getShootOnMoveAimTarget()[0]) > 180) {
-            hubPIDOutput = HubTrackingPidController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), autoAim.getShootOnMoveAimTarget()[0]);
-        } else {
             hubPIDOutput = -HubTrackingPidController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), autoAim.getShootOnMoveAimTarget()[0]);
+        } else {
+            hubPIDOutput = HubTrackingPidController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), autoAim.getShootOnMoveAimTarget()[0]);
         }
 
-        if (DriverController.leftTrigger().getAsBoolean() || ManipulatorController.leftTrigger().getAsBoolean()) {
-            commandedRotate += hubPIDOutput;
-            isTracking = true;
-        } else {
-            isTracking = false;
+        if (DriverStation.isTeleop()) {
+            if (DriverController.leftTrigger().getAsBoolean() || ManipulatorController.leftTrigger().getAsBoolean()) {
+                commandedRotate += hubPIDOutput;
+                isTracking = true;
+            } else {
+                isTracking = false;
+            }
         }
 
         /* Output */
@@ -297,7 +305,8 @@ public class ControlSub extends SubsystemBase {
         }
     }
 
-    public void tempAutoCommand() {
-        System.out.println("running tempAutoCommand");
+    public void startIntakeOut() {
+        intakeRetracted = false;
+        runIntake = true;
     }
 }

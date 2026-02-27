@@ -18,8 +18,8 @@ public class RobotContainer {
     ControlSub control = new ControlSub();
 
     public RobotContainer() {
-        NamedCommands.registerCommand("tempAutoCommand", control.run(
-            () -> control.tempAutoCommand()
+        NamedCommands.registerCommand("Run Intake Out", control.run(
+            () -> control.startIntakeOut()
         ));
 
         configureBindings();
