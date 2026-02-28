@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 0.682796052631579,
+        "y": 0.6597039473684208
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.682796052631579,
+        "y": 0.6597039473684205
+      },
+      "isLocked": false,
+      "linkedName": "Outpost"
+    },
+    {
+      "anchor": {
+        "x": 2.211776315789474,
+        "y": 1.9194298245614028
+      },
+      "prevControl": {
+        "x": 3.1637828947368423,
+        "y": 0.967423245614035
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "R Hub Shooting"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 6.48,
+    "maxAcceleration": 2.0,
+    "maxAngularVelocity": 360.0,
+    "maxAngularAcceleration": 90.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 40.92317766040319
+  },
+  "reversed": false,
+  "folder": "Comp",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": true
+}

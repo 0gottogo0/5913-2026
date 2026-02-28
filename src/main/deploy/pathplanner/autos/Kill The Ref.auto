@@ -5,21 +5,27 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "3ft Testing Path"
+            "name": "Run Intake Out"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Run Intake Out"
+            "name": "Start Spinup"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Kill The Ref"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Testing",
   "choreoAuto": false
 }

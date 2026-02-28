@@ -50,9 +50,10 @@ public class RobotContainer {
             () -> control.startShooting()
         ));
 
-        NamedCommands.registerCommand("Start Tracking", control.run(
+        NamedCommands.registerCommand("Stop Tracking", control.run(
             () -> control.stopTracking()
         ));
+
         NamedCommands.registerCommand("Start Tracking", control.run(
             () -> control.startTracking()
         ));

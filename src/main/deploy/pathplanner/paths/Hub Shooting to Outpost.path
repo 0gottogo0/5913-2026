@@ -3,32 +3,37 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.0,
-        "y": 0.0
+        "x": 2.211776315789474,
+        "y": 1.9194298245614028
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.25,
-        "y": 0.0
+        "x": 2.2213925438596496,
+        "y": 1.1020504385964898
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "R Hub Shooting"
     },
     {
       "anchor": {
-        "x": 1.0,
-        "y": 0.0
+        "x": 0.682796052631579,
+        "y": 0.6597039473684208
       },
       "prevControl": {
-        "x": 0.75,
-        "y": 0.0
+        "x": 1.3751644736842108,
+        "y": 0.6981688596491222
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Outpost"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.7533252720677154,
+      "rotationDegrees": 180.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -42,13 +47,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Comp",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 40.92317766040319
   },
   "useDefaultConstraints": true
 }

@@ -1,0 +1,43 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "Run Intake Out"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Start Tracking"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Hub Tracking Testing"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stop Intake In"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stop Tracking"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Testing",
+  "choreoAuto": false
+}
