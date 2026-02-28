@@ -67,8 +67,10 @@ public class ControlSub extends SubsystemBase {
     private double hubPIDOutput = 0.00;
     
     private boolean isTracking = false;
-    private boolean intakeRetracted = true;
-    private boolean runIntake = false;
+    private boolean isIntakeRetracted = true;
+    private boolean isIntaking = false;
+    private boolean isSpinup = false;
+    private boolean isShooting = false;
 
     public ControlSub() {
 
@@ -127,25 +129,31 @@ public class ControlSub extends SubsystemBase {
 
         if (DriverStation.isTeleop()) {
             if (DriverController.leftBumper().getAsBoolean() && !driverLastLeftBumper) {
-                if (intakeRetracted) {
-                    intakeRetracted = false;
+                if (isIntakeRetracted) {
+                    isIntakeRetracted = false;
                 } else {
-                    intakeRetracted = true;
+                    isIntakeRetracted = true;
                 }
             }
 
-            runIntake = DriverController.rightTrigger().getAsBoolean();
+            isIntaking = DriverController.rightTrigger().getAsBoolean();
+
+            if (isTracking) {
+                DriverController.setRumble(RumbleType.kBothRumble, 0.20);
+            } else {
+                DriverController.setRumble(RumbleType.kBothRumble, 0.00);
+            }
         }
         
 
-        if (runIntake) {
-            if (intakeRetracted) {
+        if (isIntaking) {
+            if (isIntakeRetracted) {
                 intake.setIntakeState(IntakeConstants.State.IntakeIn);
             } else {
                 intake.setIntakeState(IntakeConstants.State.IntakeOut);
             }
         } else {
-            if (intakeRetracted) {
+            if (isIntakeRetracted) {
                 intake.setIntakeState(IntakeConstants.State.IdleIn);
             } else {
                 intake.setIntakeState(IntakeConstants.State.IdleOut);
@@ -156,50 +164,49 @@ public class ControlSub extends SubsystemBase {
             drivetrainApplyRequest(DrivetrainChooser.getSelected());
         }
 
-        if (isTracking) {
-            DriverController.setRumble(RumbleType.kBothRumble, 0.20);
-        } else {
-            DriverController.setRumble(RumbleType.kBothRumble, 0.00);
-        }
-
         /* Manipulator Controls */
         // Spinup = X
         // Shoot = Right Trig
         // Track = Left Trig
         // Climb Up = Pov Up
         // Climb Down = Pov Down
+        
+        if (DriverStation.isTeleop()) {
+            isSpinup = ManipulatorController.x().getAsBoolean();
+            isShooting = ManipulatorController.rightTrigger().getAsBoolean();
+
+            if (ManipulatorController.povUp().getAsBoolean()) {
+                climber.setClimberDumbControl(1.00);
+            } else if (ManipulatorController.povDown().getAsBoolean()) {
+                climber.setClimberDumbControl(-1.00);
+            } else {
+                climber.setClimberDumbControl(0.00);
+            }
+
+            if (shooter.isShooterAtSpeed()) {
+                ManipulatorController.setRumble(RumbleType.kBothRumble, 0.20);
+            } else {
+                ManipulatorController.setRumble(RumbleType.kBothRumble, 0.00);
+            }
+        }
 
         // If we are tracking, do the speed interpolation too
         if (isTracking) {
-            if (ManipulatorController.x().getAsBoolean() && ManipulatorController.rightTrigger().getAsBoolean()) {
+            if (isSpinup && isShooting) {
                 shooter.setShooterState(ShooterConstants.State.Shoot, autoAim.getShootOnMoveAimTarget()[2], autoAim.getShootOnMoveAimTarget()[3]);
-            } else if (ManipulatorController.x().getAsBoolean()) {
+            } else if (isTracking) {
                 shooter.setShooterState(ShooterConstants.State.Spinup, autoAim.getShootOnMoveAimTarget()[2], autoAim.getShootOnMoveAimTarget()[3]);
             } else {
                 shooter.setShooterState(State.Idle, 0.00, 0.00);
             }
         } else {
-            if (ManipulatorController.x().getAsBoolean() && ManipulatorController.rightTrigger().getAsBoolean()) {
+            if (isSpinup && isShooting) {
                 shooter.setShooterState(ShooterConstants.State.Shoot, 36.00, 8.00);
-            } else if (ManipulatorController.x().getAsBoolean()) {
+            } else if (isTracking) {
                 shooter.setShooterState(ShooterConstants.State.Spinup, 36.00, 8.00);
             } else {
                 shooter.setShooterState(State.Idle, 0.00, 0.00);
             }
-        }
-
-        if (ManipulatorController.povUp().getAsBoolean()) {
-            climber.setClimberDumbControl(1.00);
-        } else if (ManipulatorController.povDown().getAsBoolean()) {
-            climber.setClimberDumbControl(-1.00);
-        } else {
-            climber.setClimberDumbControl(0.00);
-        }
-
-        if (shooter.isShooterAtSpeed()) {
-            ManipulatorController.setRumble(RumbleType.kBothRumble, 0.20);
-        } else {
-            ManipulatorController.setRumble(RumbleType.kBothRumble, 0.00);
         }
 
         /* Auto Aim Control */
@@ -220,12 +227,11 @@ public class ControlSub extends SubsystemBase {
         }
 
         if (DriverStation.isTeleop()) {
-            if (DriverController.leftTrigger().getAsBoolean() || ManipulatorController.leftTrigger().getAsBoolean()) {
-                commandedRotate += hubPIDOutput;
-                isTracking = true;
-            } else {
-                isTracking = false;
-            }
+            isTracking = DriverController.leftTrigger().getAsBoolean() || ManipulatorController.leftTrigger().getAsBoolean();
+        }
+
+        if (isTracking) {
+            commandedRotate += hubPIDOutput;
         }
 
         /* Output */
@@ -305,8 +311,55 @@ public class ControlSub extends SubsystemBase {
         }
     }
 
+    // Start using these in teleop?
+    // That way we dont have to use that stupid
+    // Driverstation.isTeleop() function again...
+    // ...maybe
+
+    // Atleast get rid of these variables and
+    // have these functions call the subsystem
+    // function calls themself
+    public void stopIntakeOut() {
+        isIntakeRetracted = false;
+        isIntaking = false;
+    }
+
+    public void stopIntakeIn() {
+        isIntakeRetracted = true;
+        isIntaking = false;
+    }
+
     public void startIntakeOut() {
-        intakeRetracted = false;
-        runIntake = true;
+        isIntakeRetracted = false;
+        isIntaking = true;
+    }
+
+    public void startIntakeIn() {
+        isIntakeRetracted = true;
+        isIntaking = true;
+    }
+
+    public void stopSpinup() {
+        isSpinup = false;
+    }
+
+    public void startSpinup() {
+        isSpinup = true;
+    }
+
+    public void stopShooting() {
+        isShooting = false;
+    }
+
+    public void startShooting() {
+        isShooting = true;
+    }
+
+    public void stopTracking() {
+        isTracking = false;
+    }
+
+    public void startTracking() {
+        isTracking = true;
     }
 }
