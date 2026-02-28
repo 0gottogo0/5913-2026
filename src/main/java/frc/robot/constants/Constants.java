@@ -69,7 +69,7 @@ public final class Constants {
             Map.entry(6.00, 1.70)
         );
 
-        public static final double TrackingHubPIDkP = 0.04;
+        public static final double TrackingHubPIDkP = 0.01;
         public static final double TrackingHubPIDkI = 0.00;
         public static final double TrackingHubPIDkD = 0.00;
 
@@ -154,14 +154,14 @@ public final class Constants {
         public static final double PivotPIDkI = 0.00;
         public static final double PivotPIDkD = 0.00;
 
-        public static final int IntakeCurrentLimit = 120;
-        public static final double IntakingSpeed = 0.42;
+        public static final int IntakeCurrentLimit = 80;
+        public static final double IntakingSpeed = 0.50;
 
         public static final double PivotRetractSpeed = 0.75;
         public static final double PivotExtensionSpeed = 0.25;
 
         public static final double PivotInPos = 0.48;
-        public static final double PivotOutPos = 0.08;
+        public static final double PivotOutPos = 0.09;
 
         public static final int IntakeID = 34;
         public static final int PivotID = 37;

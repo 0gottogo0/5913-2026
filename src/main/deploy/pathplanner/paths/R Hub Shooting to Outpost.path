@@ -3,24 +3,24 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.211776315789474,
-        "y": 1.9194298245614028
+        "x": 2.7983662280701753,
+        "y": 2.640646929824561
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.2213925438596496,
-        "y": 1.1020504385964898
+        "x": 2.8752960526315783,
+        "y": 0.4192982456140335
       },
       "isLocked": false,
       "linkedName": "R Hub Shooting"
     },
     {
       "anchor": {
-        "x": 0.682796052631579,
+        "x": 0.5385526315789475,
         "y": 0.6597039473684208
       },
       "prevControl": {
-        "x": 1.3751644736842108,
+        "x": 1.2309210526315792,
         "y": 0.6981688596491222
       },
       "nextControl": null,
@@ -39,7 +39,7 @@
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 6.48,
-    "maxAcceleration": 2.0,
+    "maxAcceleration": 3.5,
     "maxAngularVelocity": 360.0,
     "maxAngularAcceleration": 90.0,
     "nominalVoltage": 12.0,
@@ -50,7 +50,7 @@
     "rotation": 180.0
   },
   "reversed": false,
-  "folder": "Comp",
+  "folder": "Right Comp",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 40.92317766040319

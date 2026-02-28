@@ -18,43 +18,43 @@ public class RobotContainer {
     ControlSub control = new ControlSub();
 
     public RobotContainer() {
-        NamedCommands.registerCommand("Stop Intake Out", control.run(
+        NamedCommands.registerCommand("Stop Intake Out", control.runOnce(
             () -> control.stopIntakeOut()
         ));
 
-        NamedCommands.registerCommand("Stop Intake In", control.run(
+        NamedCommands.registerCommand("Stop Intake In", control.runOnce(
             () -> control.stopIntakeIn()
         ));
 
-        NamedCommands.registerCommand("Run Intake Out", control.run(
+        NamedCommands.registerCommand("Run Intake Out", control.runOnce(
             () -> control.startIntakeOut()
         ));
 
-        NamedCommands.registerCommand("Run Intake In", control.run(
+        NamedCommands.registerCommand("Run Intake In", control.runOnce(
             () -> control.startIntakeIn()
         ));
 
-        NamedCommands.registerCommand("Stop Spinup", control.run(
+        NamedCommands.registerCommand("Stop Spinup", control.runOnce(
             () -> control.stopSpinup()
         ));
 
-        NamedCommands.registerCommand("Start Spinup", control.run(
+        NamedCommands.registerCommand("Start Spinup", control.runOnce(
             () -> control.startSpinup()
         ));
 
-        NamedCommands.registerCommand("Stop Shoot", control.run(
+        NamedCommands.registerCommand("Stop Shooting", control.runOnce(
             () -> control.stopShooting()
         ));
 
-        NamedCommands.registerCommand("Start Shoot", control.run(
+        NamedCommands.registerCommand("Start Shooting", control.runOnce(
             () -> control.startShooting()
         ));
 
-        NamedCommands.registerCommand("Stop Tracking", control.run(
+        NamedCommands.registerCommand("Stop Tracking", control.runOnce(
             () -> control.stopTracking()
         ));
 
-        NamedCommands.registerCommand("Start Tracking", control.run(
+        NamedCommands.registerCommand("Start Tracking", control.runOnce(
             () -> control.startTracking()
         ));
 

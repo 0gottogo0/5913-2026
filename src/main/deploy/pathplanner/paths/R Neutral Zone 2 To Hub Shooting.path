@@ -1,0 +1,73 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 7.789188596491229,
+        "y": 3.6888157894736837
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 7.087203947368421,
+        "y": 5.823618421052632
+      },
+      "isLocked": false,
+      "linkedName": "R Neutral Zone Pass 2"
+    },
+    {
+      "anchor": {
+        "x": 2.721436403508772,
+        "y": 5.140866228070175
+      },
+      "prevControl": {
+        "x": 2.009835526315789,
+        "y": 6.035175438596491
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "L Hub Shooting"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.3373639661426845,
+      "rotationDegrees": 45.0
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.75,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 1.25,
+        "maxAcceleration": 3.5,
+        "maxAngularVelocity": 360.0,
+        "maxAngularAcceleration": 90.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 6.48,
+    "maxAcceleration": 3.5,
+    "maxAngularVelocity": 360.0,
+    "maxAngularAcceleration": 90.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -29.924
+  },
+  "reversed": false,
+  "folder": "Right Comp",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 90.0
+  },
+  "useDefaultConstraints": true
+}

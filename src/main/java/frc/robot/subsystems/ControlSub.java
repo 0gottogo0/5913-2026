@@ -123,8 +123,8 @@ public class ControlSub extends SubsystemBase {
         // Toggle Intake Pos = Left Bumper
         // Track = Left Trig
 
-        commandedMoveX = MathUtil.applyDeadband(DriverController.getLeftY(), ControllerConstants.StickDeadzone);
-        commandedMoveY = MathUtil.applyDeadband(DriverController.getLeftX(), ControllerConstants.StickDeadzone);
+        commandedMoveX = MathUtil.applyDeadband(-DriverController.getLeftY(), ControllerConstants.StickDeadzone);
+        commandedMoveY = MathUtil.applyDeadband(-DriverController.getLeftX(), ControllerConstants.StickDeadzone);
         commandedRotate = MathUtil.applyDeadband(-DriverController.getRightX(), ControllerConstants.StickDeadzone);
 
         if (DriverStation.isTeleop()) {
@@ -167,7 +167,7 @@ public class ControlSub extends SubsystemBase {
         /* Manipulator Controls */
         // Spinup = X
         // Shoot = Right Trig
-        // Track = Left Trig
+        // Track = Left Bumper
         // Climb Up = Pov Up
         // Climb Down = Pov Down
         
@@ -194,16 +194,16 @@ public class ControlSub extends SubsystemBase {
         if (isTracking) {
             if (isSpinup && isShooting) {
                 shooter.setShooterState(ShooterConstants.State.Shoot, autoAim.getShootOnMoveAimTarget()[2], autoAim.getShootOnMoveAimTarget()[3]);
-            } else if (isTracking) {
+            } else if (isSpinup) {
                 shooter.setShooterState(ShooterConstants.State.Spinup, autoAim.getShootOnMoveAimTarget()[2], autoAim.getShootOnMoveAimTarget()[3]);
             } else {
                 shooter.setShooterState(State.Idle, 0.00, 0.00);
             }
         } else {
             if (isSpinup && isShooting) {
-                shooter.setShooterState(ShooterConstants.State.Shoot, 36.00, 8.00);
-            } else if (isTracking) {
-                shooter.setShooterState(ShooterConstants.State.Spinup, 36.00, 8.00);
+                shooter.setShooterState(ShooterConstants.State.Shoot, 38.00, 10.00);
+            } else if (isSpinup) {
+                shooter.setShooterState(ShooterConstants.State.Spinup, 38.00, 10.00);
             } else {
                 shooter.setShooterState(State.Idle, 0.00, 0.00);
             }
@@ -227,7 +227,7 @@ public class ControlSub extends SubsystemBase {
         }
 
         if (DriverStation.isTeleop()) {
-            isTracking = DriverController.leftTrigger().getAsBoolean() || ManipulatorController.leftTrigger().getAsBoolean();
+            isTracking = DriverController.leftTrigger().getAsBoolean() || ManipulatorController.leftBumper().getAsBoolean();
         }
 
         if (isTracking) {

@@ -3,51 +3,55 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.6638267543859646,
-        "y": 3.0060635964912272
+        "x": 0.5193201754385965,
+        "y": 5.967861842105262
       },
       "prevControl": null,
       "nextControl": {
-        "x": -0.10573464912280706,
-        "y": 1.6020942982456134
+        "x": 1.5482565789473686,
+        "y": 6.054407894736841
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Depot"
     },
     {
       "anchor": {
-        "x": 0.9424342105263159,
-        "y": -0.4557785087719299
+        "x": 2.0675328947368423,
+        "y": 5.967861842105262
       },
       "prevControl": {
-        "x": -0.7788706140350876,
-        "y": -0.4942434210526326
+        "x": 1.644418859649123,
+        "y": 5.91016447368421
       },
       "nextControl": {
-        "x": 1.7492556597449198,
-        "y": -0.43774897918045236
+        "x": 2.549052997149221,
+        "y": 6.033523674252404
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 6.365986842105263,
-        "y": -0.4557785087719299
+        "x": 2.721436403508772,
+        "y": 5.140866228070175
       },
       "prevControl": {
-        "x": 5.365986842105263,
-        "y": -0.45577850877192977
+        "x": 3.0003070175438595,
+        "y": 5.89093201754386
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "L Hub Shooting"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.4788391777509066,
-      "rotationDegrees": 0.0
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 1.392986698911731,
+      "rotationDegrees": -29.924
     }
   ],
   "constraintZones": [],
@@ -63,13 +67,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -29.924
   },
   "reversed": false,
-  "folder": "Testing",
+  "folder": "Left Comp",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }
