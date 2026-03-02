@@ -53,6 +53,7 @@ public class ControlSub extends SubsystemBase {
     private final SendableChooser<DrivetrainState> DrivetrainChooser = new SendableChooser<>();
 
     private boolean driverLastLeftBumper = DriverController.leftBumper().getAsBoolean();
+    private boolean manipulatorLastLeftBumper = ManipulatorController.leftBumper().getAsBoolean();
 
     private DrivetrainState drivetrainLastState = DrivetrainChooser.getSelected();
     
@@ -167,7 +168,8 @@ public class ControlSub extends SubsystemBase {
         /* Manipulator Controls */
         // Spinup = X
         // Shoot = Right Trig
-        // Track = Left Bumper
+        // Track = Left Trig
+        // Toggle Intake Pos = Left Bumper
         // Climb Up = Pov Up
         // Climb Down = Pov Down
         
@@ -181,6 +183,14 @@ public class ControlSub extends SubsystemBase {
                 climber.setClimberDumbControl(-1.00);
             } else {
                 climber.setClimberDumbControl(0.00);
+            }
+
+            if (ManipulatorController.leftBumper().getAsBoolean() && !manipulatorLastLeftBumper) {
+                if (isIntakeRetracted) {
+                    isIntakeRetracted = false;
+                } else {
+                    isIntakeRetracted = true;
+                }
             }
 
             if (shooter.isShooterAtSpeed()) {
@@ -228,7 +238,7 @@ public class ControlSub extends SubsystemBase {
         }
 
         if (DriverStation.isTeleop()) {
-            isTracking = DriverController.leftTrigger().getAsBoolean() || ManipulatorController.leftBumper().getAsBoolean();
+            isTracking = DriverController.leftTrigger().getAsBoolean() || ManipulatorController.leftTrigger().getAsBoolean();
         }
 
         if (isTracking) {
@@ -241,6 +251,7 @@ public class ControlSub extends SubsystemBase {
 
         // Inputs are now "outdated" and can be compared with new ones next scheduler run
         driverLastLeftBumper = DriverController.leftBumper().getAsBoolean();
+        manipulatorLastLeftBumper = ManipulatorController.leftBumper().getAsBoolean();
 
         drivetrainLastState = DrivetrainChooser.getSelected();
     }
