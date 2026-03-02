@@ -214,14 +214,15 @@ public class ControlSub extends SubsystemBase {
         // This works ig
         autoAim.setAutoAimDrivetrainState(drivetrain);
 
-        // We can reverse the pid so it takes the shorter way around, its
-        // hard to explan in code comments but the rotation gets rolled
-        // over at 180, and -180 degrees (these exact degrees dont matter).
-        // If the pid is trying to go more then half a full rotation we can 
-        // just reverse it, it gets a bit rough in some edge cases however
-        // it works in those cases and thats all that really matters
+        // Check if we need to go further then half a rotation and if
+        // we do than we can add or subtract an entire rotation depending
+        // on which is least 
         if (Math.abs(drivetrain.getState().Pose.getRotation().getDegrees() - autoAim.getShootOnMoveAimTarget()[0]) > 180) {
-            hubPIDOutput = -HubTrackingPidController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), autoAim.getShootOnMoveAimTarget()[0]);
+            if (drivetrain.getState().Pose.getRotation().getDegrees() > autoAim.getShootOnMoveAimTarget()[0]) {
+                hubPIDOutput = HubTrackingPidController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), autoAim.getShootOnMoveAimTarget()[0] + 360);
+            } else {
+                hubPIDOutput = HubTrackingPidController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), autoAim.getShootOnMoveAimTarget()[0] - 360);
+            }
         } else {
             hubPIDOutput = HubTrackingPidController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), autoAim.getShootOnMoveAimTarget()[0]);
         }
