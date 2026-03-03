@@ -63,6 +63,10 @@ public class AutoAim extends SubsystemBase {
             drivetrain.addVisionMeasurement(LimelightCenterMeasurement.pose, LimelightCenterMeasurement.timestampSeconds);
         }
 
+        if (LimelightHopperMeasurement != null && LimelightHopperMeasurement.tagCount > 0) {
+            drivetrain.addVisionMeasurement(LimelightHopperMeasurement.pose, LimelightHopperMeasurement.timestampSeconds);
+        }
+
         switch (state) {
             case Goal:
                 if (isBlue()) {
