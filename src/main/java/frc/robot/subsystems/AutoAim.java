@@ -31,6 +31,7 @@ public class AutoAim extends SubsystemBase {
     Pose2d adjustedGoalPose = new Pose2d();
 
     PoseEstimate LimelightCenterMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightCenter);
+    PoseEstimate LimelightHopperMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightHopper);
 
     double calculatedShot[] = {0.00, 0.00, 0.00, 0.00, 0.00};
     double distanceFromClimb[] = {0.00, 0.00};
@@ -42,17 +43,21 @@ public class AutoAim extends SubsystemBase {
 
     @Override
     public void periodic() {
+
+        // Change pipeline depending on robot state
         if (DriverStation.isDisabled()) {
-            NetworkTableInstance.getDefault().getTable(LimelightCenter).getEntry("pipeline").setNumber(2);
-        } else if (hopperIn) {
             NetworkTableInstance.getDefault().getTable(LimelightCenter).getEntry("pipeline").setNumber(1);
+            NetworkTableInstance.getDefault().getTable(LimelightHopper).getEntry("pipeline").setNumber(2);
+        } else if (hopperIn) {
+            NetworkTableInstance.getDefault().getTable(LimelightCenter).getEntry("pipeline").setNumber(0);
+            NetworkTableInstance.getDefault().getTable(LimelightHopper).getEntry("pipeline").setNumber(1);
         } else {
             NetworkTableInstance.getDefault().getTable(LimelightCenter).getEntry("pipeline").setNumber(0);
+            NetworkTableInstance.getDefault().getTable(LimelightHopper).getEntry("pipeline").setNumber(0);
         }
 
-        LimelightHelpers.SetRobotOrientation(LimelightClimb, robotPose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
-
         LimelightCenterMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightCenter);
+        LimelightHopperMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightHopper);
 
         if (LimelightCenterMeasurement != null && LimelightCenterMeasurement.tagCount > 0) {
             drivetrain.addVisionMeasurement(LimelightCenterMeasurement.pose, LimelightCenterMeasurement.timestampSeconds);
