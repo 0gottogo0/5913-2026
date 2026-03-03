@@ -121,10 +121,6 @@ public class AutoAim extends SubsystemBase {
         SmartDashboard.putNumber("Adjusted Target Top Shooter Speed", getShootOnMoveAimTarget()[3]);
         SmartDashboard.putNumber("Adjusted Target Time Of Flight", getShootOnMoveAimTarget()[4]);
         SmartDashboard.putNumberArray("Adjusted Target Data", getShootOnMoveAimTarget());
-
-        SmartDashboard.putNumber("Distance From Climb X", getClimbDistance()[0]);
-        SmartDashboard.putNumber("Distance From Climb Y", getClimbDistance()[1]);
-        SmartDashboard.putNumberArray("Distance From Climb Data", getClimbDistance());
     }
 
     /**
@@ -192,17 +188,6 @@ public class AutoAim extends SubsystemBase {
         // Interpolates time of flight
         calculatedShot[4] = TimeOfFlightByDistance.get(calculatedShot[1]);
         return calculatedShot;
-    }
-
-    /**
-     * Gets the distance from the climb
-     * 
-     * @return An Array with an X and Y
-     */    
-    public double[] getClimbDistance() {
-        distanceFromClimb[0] = robotPose.getX() - goalPose.getX();
-        distanceFromClimb[1] = robotPose.getY() - goalPose.getY();
-        return distanceFromClimb;
     }
 
     /**
