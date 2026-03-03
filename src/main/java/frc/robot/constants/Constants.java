@@ -182,7 +182,7 @@ public final class Constants {
         public static final double UnstickRPS = 20.00;
         
         // Used in determing if shooter is up to speed
-        public static final double RPSThreshold = 2.00;
+        public static final double RPSThreshold = 1.25;
 
         public static final double BeltsPIDkV = 0.11;
         public static final double BeltsPIDkP = 0.15;

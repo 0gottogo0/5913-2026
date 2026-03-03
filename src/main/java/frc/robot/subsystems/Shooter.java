@@ -297,7 +297,7 @@ public class Shooter extends SubsystemBase {
 	 */
 	public boolean isShooterAtSpeed() {
 		if (state == State.Spinup || state == State.Shoot) {
-			return Math.abs(getTopShooterSpeed() - topTargetSpeed) < RPSThreshold && Math.abs(getBottomShooterSpeed() - topTargetSpeed) < RPSThreshold;
+			return getTopShooterSpeed() < topTargetSpeed - RPSThreshold;
 		} else {
 			return false;
 		}
