@@ -169,6 +169,7 @@ public class ControlSub extends SubsystemBase {
         // Spinup = X
         // Shoot = Right Trig
         // Track = Left Trig
+        // Select Target = Left Stick
         // Toggle Intake Pos = Left Bumper
         // Climb Up = Pov Up
         // Climb Down = Pov Down
@@ -223,6 +224,18 @@ public class ControlSub extends SubsystemBase {
 
         // This works ig
         autoAim.setAutoAimDrivetrainState(drivetrain);
+        
+        if (DriverStation.isTeleop()) {
+            isTracking = DriverController.leftTrigger().getAsBoolean() || ManipulatorController.leftTrigger().getAsBoolean();
+
+            if (ManipulatorController.getLeftY() < -0.50) {
+                autoAim.setAutoAimState(AutoAimConstants.State.NeutralZone);
+            } else if (ManipulatorController.getLeftY() > 0.50) {
+                autoAim.setAutoAimState(AutoAimConstants.State.AllianceZone);
+            } else {
+                autoAim.setAutoAimState(AutoAimConstants.State.Goal);
+            }
+        }
 
         // Check if we need to go further then half a rotation and if
         // we do than we can add or subtract an entire rotation depending
