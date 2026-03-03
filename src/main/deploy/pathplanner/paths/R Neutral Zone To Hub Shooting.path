@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.5385526315789475,
-        "y": 0.6597039473684208
+        "x": 7.779572368421054,
+        "y": 3.6022697368421044
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.5385526315789475,
-        "y": 0.6597039473684205
+        "x": 7.731491228070176,
+        "y": 2.054057017543859
       },
       "isLocked": false,
-      "linkedName": "Outpost"
+      "linkedName": "R Neutral Zone"
     },
     {
       "anchor": {
@@ -20,16 +20,35 @@
         "y": 2.640646929824561
       },
       "prevControl": {
-        "x": 2.7022039473684205,
-        "y": 0.9193421052631574
+        "x": 5.058179824561405,
+        "y": 2.0252083333333326
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "R Hub Shooting"
     }
   ],
-  "rotationTargets": [],
-  "constraintZones": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.3373639661426845,
+      "rotationDegrees": 45.0
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.75,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 1.25,
+        "maxAcceleration": 3.5,
+        "maxAngularVelocity": 360.0,
+        "maxAngularAcceleration": 90.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
@@ -48,7 +67,7 @@
   "folder": "Right Comp",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }
