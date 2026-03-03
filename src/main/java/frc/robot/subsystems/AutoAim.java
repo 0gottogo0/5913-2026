@@ -31,42 +31,31 @@ public class AutoAim extends SubsystemBase {
     Pose2d adjustedGoalPose = new Pose2d();
 
     PoseEstimate LimelightCenterMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightCenter);
-    PoseEstimate LimelightRightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightRight);
-    PoseEstimate LimelightClimbMessurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LimelightClimb);
 
     double calculatedShot[] = {0.00, 0.00, 0.00, 0.00, 0.00};
     double distanceFromClimb[] = {0.00, 0.00};
 
     State state = State.Goal;
+    boolean hopperIn = true;
 
     public AutoAim() {}
 
     @Override
     public void periodic() {
         if (DriverStation.isDisabled()) {
+            NetworkTableInstance.getDefault().getTable(LimelightCenter).getEntry("pipeline").setNumber(2);
+        } else if (hopperIn) {
             NetworkTableInstance.getDefault().getTable(LimelightCenter).getEntry("pipeline").setNumber(1);
-            NetworkTableInstance.getDefault().getTable(LimelightRight).getEntry("pipeline").setNumber(1);
         } else {
             NetworkTableInstance.getDefault().getTable(LimelightCenter).getEntry("pipeline").setNumber(0);
-            NetworkTableInstance.getDefault().getTable(LimelightRight).getEntry("pipeline").setNumber(0);
         }
 
         LimelightHelpers.SetRobotOrientation(LimelightClimb, robotPose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
 
         LimelightCenterMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightCenter);
-        LimelightRightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightRight);
-        LimelightClimbMessurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LimelightClimb);
 
         if (LimelightCenterMeasurement != null && LimelightCenterMeasurement.tagCount > 0) {
             drivetrain.addVisionMeasurement(LimelightCenterMeasurement.pose, LimelightCenterMeasurement.timestampSeconds);
-        }
-
-        if (LimelightRightMeasurement != null && LimelightRightMeasurement.tagCount > 0) {
-            drivetrain.addVisionMeasurement(LimelightRightMeasurement.pose, LimelightRightMeasurement.timestampSeconds);
-        }
-
-        if (LimelightClimbMessurement != null && LimelightClimbMessurement.tagCount > 0 && robotSpeed.omegaRadiansPerSecond < 2) {
-            drivetrain.addVisionMeasurement(LimelightClimbMessurement.pose, LimelightClimbMessurement.timestampSeconds);
         }
 
         switch (state) {
@@ -126,12 +115,16 @@ public class AutoAim extends SubsystemBase {
     /**
      * Give the auto aim subsystem the robots state
      * 
-     * @param drivetrainToGive The robots drivetrain
+     * @param drivetrainToSet The robots drivetrain
      */
-    public void setAutoAimDrivetrainState(CommandSwerveDrivetrain drivetrainToGive) {
-        drivetrain = drivetrainToGive;
+    public void setAutoAimDrivetrainState(CommandSwerveDrivetrain drivetrainToSet) {
+        drivetrain = drivetrainToSet;
         robotPose = drivetrain.getState().Pose;
         robotSpeed = drivetrain.getState().Speeds;
+    }
+
+    public void setAutoAimIntakeState(boolean isHopperIn) {
+        hopperIn = isHopperIn;
     }
 
     /**

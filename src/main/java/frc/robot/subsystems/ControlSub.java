@@ -224,6 +224,7 @@ public class ControlSub extends SubsystemBase {
 
         // This works ig
         autoAim.setAutoAimDrivetrainState(drivetrain);
+        autoAim.setAutoAimIntakeState(intake.getIntakePosition());
         
         if (DriverStation.isTeleop()) {
             isTracking = DriverController.leftTrigger().getAsBoolean() || ManipulatorController.leftTrigger().getAsBoolean();

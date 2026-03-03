@@ -116,6 +116,19 @@ public class Intake extends SubsystemBase {
   	}
 
 	/**
+	 * Gets the position of the intake.
+	
+	 * @return true if intake is in
+	 */
+	public Boolean getIntakePosition() {
+		if (pivotEncoder.get() > PivotInTriggerPos) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
 	 * Sets the state of the intake.
 	 * <p> 
 	 * If wanting to control the intake without PID
