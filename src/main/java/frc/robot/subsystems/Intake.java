@@ -43,7 +43,7 @@ public class Intake extends SubsystemBase {
     private double pivotSetpoint = 0;
 	private double pivotPIDOutput = 0;
 
-	public State state = State.IdleOut;
+	public State state = State.IdleIn;
 
   	public Intake() {
 		intakeConfig.idleMode(IdleMode.kCoast);
@@ -91,7 +91,7 @@ public class Intake extends SubsystemBase {
 			case IntakeIn:
 				intake.set(IntakingSpeed);
 				pivot.set(pivotPIDOutput);
-				pivotSetpoint = PivotOutPos;
+				pivotSetpoint = PivotInPos;
 				break;
 			case IntakeOut:
 				intake.set(IntakingSpeed);
@@ -114,6 +114,19 @@ public class Intake extends SubsystemBase {
 
         SmartDashboard.putString("Intake State", state.toString());
   	}
+
+	/**
+	 * Gets the position of the intake.
+	
+	 * @return true if intake is in
+	 */
+	public Boolean getIntakePosition() {
+		if (pivotEncoder.get() > PivotInTriggerPos) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 	/**
 	 * Sets the state of the intake.
