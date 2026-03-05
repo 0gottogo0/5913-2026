@@ -8,6 +8,7 @@ import static frc.robot.constants.Constants.AutoAimConstants.*;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -30,42 +31,40 @@ public class AutoAim extends SubsystemBase {
     Pose2d adjustedGoalPose = new Pose2d();
 
     PoseEstimate LimelightCenterMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightCenter);
-    PoseEstimate LimelightRightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightRight);
-    PoseEstimate LimelightClimbMessurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LimelightClimb);
+    PoseEstimate LimelightHopperMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightHopper);
 
     double calculatedShot[] = {0.00, 0.00, 0.00, 0.00, 0.00};
     double distanceFromClimb[] = {0.00, 0.00};
 
     State state = State.Goal;
+    boolean hopperIn = true;
 
     public AutoAim() {}
 
     @Override
     public void periodic() {
+
+        // Change pipeline depending on robot state
         if (DriverStation.isDisabled()) {
             NetworkTableInstance.getDefault().getTable(LimelightCenter).getEntry("pipeline").setNumber(1);
-            NetworkTableInstance.getDefault().getTable(LimelightRight).getEntry("pipeline").setNumber(1);
+            NetworkTableInstance.getDefault().getTable(LimelightHopper).getEntry("pipeline").setNumber(2);
+        } else if (hopperIn) {
+            NetworkTableInstance.getDefault().getTable(LimelightCenter).getEntry("pipeline").setNumber(0);
+            NetworkTableInstance.getDefault().getTable(LimelightHopper).getEntry("pipeline").setNumber(1);
         } else {
             NetworkTableInstance.getDefault().getTable(LimelightCenter).getEntry("pipeline").setNumber(0);
-            NetworkTableInstance.getDefault().getTable(LimelightRight).getEntry("pipeline").setNumber(0);
+            NetworkTableInstance.getDefault().getTable(LimelightHopper).getEntry("pipeline").setNumber(0);
         }
 
-        LimelightHelpers.SetRobotOrientation(LimelightClimb, robotPose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
-
         LimelightCenterMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightCenter);
-        LimelightRightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightRight);
-        LimelightClimbMessurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LimelightClimb);
+        LimelightHopperMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightHopper);
 
         if (LimelightCenterMeasurement != null && LimelightCenterMeasurement.tagCount > 0) {
             drivetrain.addVisionMeasurement(LimelightCenterMeasurement.pose, LimelightCenterMeasurement.timestampSeconds);
         }
 
-        if (LimelightRightMeasurement != null && LimelightRightMeasurement.tagCount > 0) {
-            drivetrain.addVisionMeasurement(LimelightRightMeasurement.pose, LimelightRightMeasurement.timestampSeconds);
-        }
-
-        if (LimelightClimbMessurement != null && LimelightClimbMessurement.tagCount > 0 && robotSpeed.omegaRadiansPerSecond < 2) {
-            drivetrain.addVisionMeasurement(LimelightClimbMessurement.pose, LimelightClimbMessurement.timestampSeconds);
+        if (LimelightHopperMeasurement != null && LimelightHopperMeasurement.tagCount > 0) {
+            drivetrain.addVisionMeasurement(LimelightHopperMeasurement.pose, LimelightHopperMeasurement.timestampSeconds);
         }
 
         switch (state) {
@@ -97,7 +96,7 @@ public class AutoAim extends SubsystemBase {
         // move, first take robot speed and times that
         // by our time of flight, then add that new
         // transform to the goal pose
-        adjustedGoalPose = goalPose;//.plus(new Transform2d(robotSpeed.vxMetersPerSecond, robotSpeed.vyMetersPerSecond, new Rotation2d()).times(TimeOfFlightByDistance.get(getAimTargetInDistance())));
+        adjustedGoalPose = goalPose.plus(new Transform2d(robotSpeed.vxMetersPerSecond, robotSpeed.vyMetersPerSecond, new Rotation2d()).times(TimeOfFlightByDistance.get(getAimTargetInDistance())));
 
         SmartDashboard.putNumber("Robot X", robotPose.getX());
         SmartDashboard.putNumber("Robot Y", robotPose.getY());
@@ -120,21 +119,21 @@ public class AutoAim extends SubsystemBase {
         SmartDashboard.putNumber("Adjusted Target Top Shooter Speed", getShootOnMoveAimTarget()[3]);
         SmartDashboard.putNumber("Adjusted Target Time Of Flight", getShootOnMoveAimTarget()[4]);
         SmartDashboard.putNumberArray("Adjusted Target Data", getShootOnMoveAimTarget());
-
-        SmartDashboard.putNumber("Distance From Climb X", getClimbDistance()[0]);
-        SmartDashboard.putNumber("Distance From Climb Y", getClimbDistance()[1]);
-        SmartDashboard.putNumberArray("Distance From Climb Data", getClimbDistance());
     }
 
     /**
      * Give the auto aim subsystem the robots state
      * 
-     * @param drivetrainToGive The robots drivetrain
+     * @param drivetrainToSet The robots drivetrain
      */
-    public void setAutoAimDrivetrainState(CommandSwerveDrivetrain drivetrainToGive) {
-        drivetrain = drivetrainToGive;
+    public void setAutoAimDrivetrainState(CommandSwerveDrivetrain drivetrainToSet) {
+        drivetrain = drivetrainToSet;
         robotPose = drivetrain.getState().Pose;
         robotSpeed = drivetrain.getState().Speeds;
+    }
+
+    public void setAutoAimIntakeState(boolean isHopperIn) {
+        hopperIn = isHopperIn;
     }
 
     /**
@@ -191,17 +190,6 @@ public class AutoAim extends SubsystemBase {
         // Interpolates time of flight
         calculatedShot[4] = TimeOfFlightByDistance.get(calculatedShot[1]);
         return calculatedShot;
-    }
-
-    /**
-     * Gets the distance from the climb
-     * 
-     * @return An Array with an X and Y
-     */    
-    public double[] getClimbDistance() {
-        distanceFromClimb[0] = robotPose.getX() - goalPose.getX();
-        distanceFromClimb[1] = robotPose.getY() - goalPose.getY();
-        return distanceFromClimb;
     }
 
     /**

@@ -12,6 +12,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -52,6 +53,7 @@ public class ControlSub extends SubsystemBase {
     private final SendableChooser<DrivetrainState> DrivetrainChooser = new SendableChooser<>();
 
     private boolean driverLastLeftBumper = DriverController.leftBumper().getAsBoolean();
+    private boolean manipulatorLastLeftBumper = ManipulatorController.leftBumper().getAsBoolean();
 
     private DrivetrainState drivetrainLastState = DrivetrainChooser.getSelected();
     
@@ -66,7 +68,10 @@ public class ControlSub extends SubsystemBase {
     private double hubPIDOutput = 0.00;
     
     private boolean isTracking = false;
-    private boolean intakeRetracted = true;
+    private boolean isIntakeRetracted = true;
+    private boolean isIntaking = false;
+    private boolean isSpinup = false;
+    private boolean isShooting = false;
 
     public ControlSub() {
 
@@ -119,26 +124,37 @@ public class ControlSub extends SubsystemBase {
         // Toggle Intake Pos = Left Bumper
         // Track = Left Trig
 
-        commandedMoveX = MathUtil.applyDeadband(DriverController.getLeftY(), ControllerConstants.StickDeadzone);
-        commandedMoveY = MathUtil.applyDeadband(DriverController.getLeftX(), ControllerConstants.StickDeadzone);
-        commandedRotate = MathUtil.applyDeadband(DriverController.getRightX(), ControllerConstants.StickDeadzone);
+        commandedMoveX = MathUtil.applyDeadband(-DriverController.getLeftY(), ControllerConstants.StickDeadzone);
+        commandedMoveY = MathUtil.applyDeadband(-DriverController.getLeftX(), ControllerConstants.StickDeadzone);
+        commandedRotate = MathUtil.applyDeadband(-DriverController.getRightX(), ControllerConstants.StickDeadzone);
 
-        if (DriverController.leftBumper().getAsBoolean() && !driverLastLeftBumper) {
-            if (intakeRetracted) {
-                intakeRetracted = false;
+        if (DriverStation.isTeleop()) {
+            if (DriverController.leftBumper().getAsBoolean() && !driverLastLeftBumper) {
+                if (isIntakeRetracted) {
+                    isIntakeRetracted = false;
+                } else {
+                    isIntakeRetracted = true;
+                }
+            }
+
+            isIntaking = DriverController.rightTrigger().getAsBoolean();
+
+            if (isTracking) {
+                DriverController.setRumble(RumbleType.kBothRumble, 0.20);
             } else {
-                intakeRetracted = true;
+                DriverController.setRumble(RumbleType.kBothRumble, 0.00);
             }
         }
+        
 
-        if (DriverController.rightTrigger().getAsBoolean()) {
-            if (intakeRetracted) {
+        if (isIntaking) {
+            if (isIntakeRetracted) {
                 intake.setIntakeState(IntakeConstants.State.IntakeIn);
             } else {
                 intake.setIntakeState(IntakeConstants.State.IntakeOut);
             }
         } else {
-            if (intakeRetracted) {
+            if (isIntakeRetracted) {
                 intake.setIntakeState(IntakeConstants.State.IdleIn);
             } else {
                 intake.setIntakeState(IntakeConstants.State.IdleOut);
@@ -149,75 +165,98 @@ public class ControlSub extends SubsystemBase {
             drivetrainApplyRequest(DrivetrainChooser.getSelected());
         }
 
-        if (isTracking) {
-            DriverController.setRumble(RumbleType.kBothRumble, 0.20);
-        } else {
-            DriverController.setRumble(RumbleType.kBothRumble, 0.00);
-        }
-
         /* Manipulator Controls */
         // Spinup = X
         // Shoot = Right Trig
         // Track = Left Trig
-        // Climb Track = Pov Right
+        // Select Target = Left Stick
+        // Toggle Intake Pos = Left Bumper
         // Climb Up = Pov Up
         // Climb Down = Pov Down
+        
+        if (DriverStation.isTeleop()) {
+            isSpinup = ManipulatorController.x().getAsBoolean();
+            isShooting = ManipulatorController.rightTrigger().getAsBoolean();
+
+            if (ManipulatorController.povUp().getAsBoolean()) {
+                climber.setClimberDumbControl(1.00);
+            } else if (ManipulatorController.povDown().getAsBoolean()) {
+                climber.setClimberDumbControl(-1.00);
+            } else {
+                climber.setClimberDumbControl(0.00);
+            }
+
+            if (ManipulatorController.leftBumper().getAsBoolean() && !manipulatorLastLeftBumper) {
+                if (isIntakeRetracted) {
+                    isIntakeRetracted = false;
+                } else {
+                    isIntakeRetracted = true;
+                }
+            }
+
+            if (shooter.isShooterAtSpeed()) {
+                ManipulatorController.setRumble(RumbleType.kBothRumble, 0.20);
+            } else {
+                ManipulatorController.setRumble(RumbleType.kBothRumble, 0.00);
+            }
+        }
 
         // If we are tracking, do the speed interpolation too
         if (isTracking) {
-            if (ManipulatorController.x().getAsBoolean() && ManipulatorController.rightTrigger().getAsBoolean()) {
+            if (isSpinup && isShooting) {
                 shooter.setShooterState(ShooterConstants.State.Shoot, autoAim.getShootOnMoveAimTarget()[2], autoAim.getShootOnMoveAimTarget()[3]);
-            } else if (ManipulatorController.x().getAsBoolean()) {
+            } else if (isSpinup) {
                 shooter.setShooterState(ShooterConstants.State.Spinup, autoAim.getShootOnMoveAimTarget()[2], autoAim.getShootOnMoveAimTarget()[3]);
             } else {
                 shooter.setShooterState(State.Idle, 0.00, 0.00);
             }
         } else {
-            if (ManipulatorController.x().getAsBoolean() && ManipulatorController.rightTrigger().getAsBoolean()) {
-                shooter.setShooterState(ShooterConstants.State.Shoot, 36.00, 8.00);
-            } else if (ManipulatorController.x().getAsBoolean()) {
-                shooter.setShooterState(ShooterConstants.State.Spinup, 36.00, 8.00);
+            if (isSpinup && isShooting) {
+                shooter.setShooterState(ShooterConstants.State.Shoot, 38.00, 10.00);
+            } else if (isSpinup) {
+                shooter.setShooterState(ShooterConstants.State.Spinup, 38.00, 10.00);
             } else {
                 shooter.setShooterState(State.Idle, 0.00, 0.00);
             }
-        }
-
-        if (ManipulatorController.povUp().getAsBoolean()) {
-            climber.setClimberDumbControl(1.00);
-        } else if (ManipulatorController.povDown().getAsBoolean()) {
-            climber.setClimberDumbControl(-1.00);
-        } else {
-            climber.setClimberDumbControl(0.00);
-        }
-
-        if (shooter.isShooterAtSpeed()) {
-            ManipulatorController.setRumble(RumbleType.kBothRumble, 0.20);
-        } else {
-            ManipulatorController.setRumble(RumbleType.kBothRumble, 0.00);
         }
 
         /* Auto Aim Control */
 
         // This works ig
         autoAim.setAutoAimDrivetrainState(drivetrain);
+        autoAim.setAutoAimIntakeState(intake.getIntakePosition());
+        
+        if (DriverStation.isTeleop()) {
+            isTracking = DriverController.leftTrigger().getAsBoolean() || ManipulatorController.leftTrigger().getAsBoolean();
 
-        // We can reverse the pid so it takes the shorter way around, its
-        // hard to explan in code comments but the rotation gets rolled
-        // over at 180, and -180 degrees (these exact degrees dont matter).
-        // If the pid is trying to go more then half a full rotation we can 
-        // just reverse it, it gets a bit rough in some edge cases however
-        // it works in those cases and thats all that really matters
-        if (Math.abs(drivetrain.getState().Pose.getRotation().getDegrees() - autoAim.getShootOnMoveAimTarget()[0]) > 180) {
-            hubPIDOutput = HubTrackingPidController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), autoAim.getShootOnMoveAimTarget()[0]);
-        } else {
-            hubPIDOutput = -HubTrackingPidController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), autoAim.getShootOnMoveAimTarget()[0]);
+            if (ManipulatorController.getLeftY() < -0.50) {
+                autoAim.setAutoAimState(AutoAimConstants.State.NeutralZone);
+            } else if (ManipulatorController.getLeftY() > 0.50) {
+                autoAim.setAutoAimState(AutoAimConstants.State.AllianceZone);
+            } else {
+                autoAim.setAutoAimState(AutoAimConstants.State.Goal);
+            }
         }
 
-        if (DriverController.leftTrigger().getAsBoolean() || ManipulatorController.leftTrigger().getAsBoolean()) {
-            commandedRotate += hubPIDOutput;
-            isTracking = true;
+        // Check if we need to go further then half a rotation and if
+        // we do than we can add or subtract an entire rotation depending
+        // on which is least 
+        if (Math.abs(drivetrain.getState().Pose.getRotation().getDegrees() - autoAim.getShootOnMoveAimTarget()[0]) > 180) {
+            if (drivetrain.getState().Pose.getRotation().getDegrees() > autoAim.getShootOnMoveAimTarget()[0]) {
+                hubPIDOutput = HubTrackingPidController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), autoAim.getShootOnMoveAimTarget()[0] + 360);
+            } else {
+                hubPIDOutput = HubTrackingPidController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), autoAim.getShootOnMoveAimTarget()[0] - 360);
+            }
         } else {
-            isTracking = false;
+            hubPIDOutput = HubTrackingPidController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), autoAim.getShootOnMoveAimTarget()[0]);
+        }
+
+        if (DriverStation.isTeleop()) {
+            isTracking = DriverController.leftTrigger().getAsBoolean() || ManipulatorController.leftTrigger().getAsBoolean();
+        }
+
+        if (isTracking) {
+            commandedRotate += hubPIDOutput;
         }
 
         /* Output */
@@ -226,6 +265,7 @@ public class ControlSub extends SubsystemBase {
 
         // Inputs are now "outdated" and can be compared with new ones next scheduler run
         driverLastLeftBumper = DriverController.leftBumper().getAsBoolean();
+        manipulatorLastLeftBumper = ManipulatorController.leftBumper().getAsBoolean();
 
         drivetrainLastState = DrivetrainChooser.getSelected();
     }
@@ -297,7 +337,55 @@ public class ControlSub extends SubsystemBase {
         }
     }
 
-    public void tempAutoCommand() {
-        System.out.println("running tempAutoCommand");
+    // Start using these in teleop?
+    // That way we dont have to use that stupid
+    // Driverstation.isTeleop() function again...
+    // ...maybe
+
+    // Atleast get rid of these variables and
+    // have these functions call the subsystem
+    // function calls themself
+    public void stopIntakeOut() {
+        isIntakeRetracted = false;
+        isIntaking = false;
+    }
+
+    public void stopIntakeIn() {
+        isIntakeRetracted = true;
+        isIntaking = false;
+    }
+
+    public void startIntakeOut() {
+        isIntakeRetracted = false;
+        isIntaking = true;
+    }
+
+    public void startIntakeIn() {
+        isIntakeRetracted = true;
+        isIntaking = true;
+    }
+
+    public void stopSpinup() {
+        isSpinup = false;
+    }
+
+    public void startSpinup() {
+        isSpinup = true;
+    }
+
+    public void stopShooting() {
+        isShooting = false;
+    }
+
+    public void startShooting() {
+        isShooting = true;
+    }
+
+    public void stopTracking() {
+        isTracking = false;
+    }
+
+    public void startTracking() {
+        isTracking = true;
     }
 }

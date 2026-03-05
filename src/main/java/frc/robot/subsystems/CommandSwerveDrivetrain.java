@@ -233,7 +233,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         // Use gui if posible
         RobotConfig config = new RobotConfig(
             Pounds.of(114.8),
-            KilogramSquareMeters.of(5.0), 
+            KilogramSquareMeters.of(10.00), 
             new ModuleConfig(
                 TunerConstants.kWheelRadius,
                 TunerConstants.kSpeedAt12Volts,
