@@ -49,6 +49,7 @@ public class ControlSub extends SubsystemBase {
     
     private final CommandXboxController DriverController = new CommandXboxController(ControllerConstants.DriverControllerID);
     private final CommandXboxController ManipulatorController = new CommandXboxController(ControllerConstants.ManipulatorControllerID);
+    private final CommandXboxController TestingController = new CommandXboxController(ControllerConstants.TestingCOntrollerID);
     
     private final SendableChooser<DrivetrainState> DrivetrainChooser = new SendableChooser<>();
 
@@ -61,6 +62,7 @@ public class ControlSub extends SubsystemBase {
     public Climber climber = new Climber();
     public Intake intake = new Intake();
     public Shooter shooter = new Shooter();
+    public ShooterV2 shooterV2 = new ShooterV2();
 
     private double commandedMoveX = 0.00;
     private double commandedMoveY = 0.00;
@@ -218,6 +220,19 @@ public class ControlSub extends SubsystemBase {
             } else {
                 shooter.setShooterState(State.Idle, 0.00, 0.00);
             }
+        }
+
+        /* Testing Controls */
+        // Spinup = X
+        // Shoot = A
+        // Kill/Stop = B
+
+        if (TestingController.x().getAsBoolean()) {
+            shooterV2.setShooterDumbControl(0.00, 0.40, 0.40);
+        } else if (TestingController.a().getAsBoolean()) {
+            shooterV2.setShooterDumbControl(0.40, 0.40, 0.40);
+        } else if (TestingController.b().getAsBoolean()) {
+            shooterV2.setShooterState(ShooterConstants.State.Idle, 0.00, 0.00);
         }
 
         /* Auto Aim Control */
