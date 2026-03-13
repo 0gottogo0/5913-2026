@@ -38,14 +38,19 @@ public class AutoAim extends SubsystemBase {
 
     State state = State.Goal;
     boolean hopperIn = true;
+    boolean idleCamera = false;
 
     public AutoAim() {}
 
     @Override
     public void periodic() {
 
+        if (DriverStation.isTeleopEnabled()) {
+            idleCamera = false;
+        }
+
         // Change pipeline depending on robot state
-        if (DriverStation.isDisabled()) {
+        if (DriverStation.isDisabled() || idleCamera) {
             NetworkTableInstance.getDefault().getTable(LimelightCenter).getEntry("pipeline").setNumber(1);
             NetworkTableInstance.getDefault().getTable(LimelightHopper).getEntry("pipeline").setNumber(2);
         } else if (hopperIn) {
@@ -69,11 +74,8 @@ public class AutoAim extends SubsystemBase {
 
         switch (state) {
             case Goal:
-                if (isBlue()) {
-                    goalPose = BlueGoal;
-                } else {
-                    goalPose = RedGoal;
-                }
+                goalPose = BlueGoal;
+                //goalPose = RedGoal;
                 break;
             case NeutralZone:
                 goalPose = NeutralZone;
@@ -100,6 +102,8 @@ public class AutoAim extends SubsystemBase {
 
         SmartDashboard.putNumber("Robot X", robotPose.getX());
         SmartDashboard.putNumber("Robot Y", robotPose.getY());
+        SmartDashboard.putNumber("Goal X", goalPose.getX());
+        SmartDashboard.putNumber("Goal Y", goalPose.getY());
         SmartDashboard.putNumber("Robot Rot", robotPose.getRotation().getDegrees());
         SmartDashboard.putNumber("Robot Speed X", robotSpeed.vxMetersPerSecond);
         SmartDashboard.putNumber("Robot Speed Y", robotSpeed.vyMetersPerSecond);
@@ -134,6 +138,10 @@ public class AutoAim extends SubsystemBase {
 
     public void setAutoAimIntakeState(boolean isHopperIn) {
         hopperIn = isHopperIn;
+    }
+
+    public void setCameraIdle(boolean value) {
+        idleCamera = value;
     }
 
     /**

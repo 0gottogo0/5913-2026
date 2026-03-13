@@ -212,9 +212,9 @@ public class ControlSub extends SubsystemBase {
             }
         } else {
             if (isSpinup && isShooting) {
-                shooter.setShooterState(ShooterConstants.State.Shoot, 38.00, 10.00);
+                shooter.setShooterState(ShooterConstants.State.Shoot, 38.00 * 1.67, 10.00);
             } else if (isSpinup) {
-                shooter.setShooterState(ShooterConstants.State.Spinup, 38.00, 10.00);
+                shooter.setShooterState(ShooterConstants.State.Spinup, 38.00 * 1.67, 10.00);
             } else {
                 shooter.setShooterState(State.Idle, 0.00, 0.00);
             }
@@ -228,14 +228,6 @@ public class ControlSub extends SubsystemBase {
         
         if (DriverStation.isTeleop()) {
             isTracking = DriverController.leftTrigger().getAsBoolean() || ManipulatorController.leftTrigger().getAsBoolean();
-
-            if (ManipulatorController.getLeftY() < -0.50) {
-                autoAim.setAutoAimState(AutoAimConstants.State.NeutralZone);
-            } else if (ManipulatorController.getLeftY() > 0.50) {
-                autoAim.setAutoAimState(AutoAimConstants.State.AllianceZone);
-            } else {
-                autoAim.setAutoAimState(AutoAimConstants.State.Goal);
-            }
         }
 
         // Check if we need to go further then half a rotation and if
@@ -387,5 +379,13 @@ public class ControlSub extends SubsystemBase {
 
     public void startTracking() {
         isTracking = true;
+    }
+
+    public void stopCameras() {
+        autoAim.setCameraIdle(true);
+    }
+
+    public void startCameras() {
+        autoAim.setCameraIdle(false);
     }
 }

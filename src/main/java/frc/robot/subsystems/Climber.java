@@ -18,8 +18,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Climber extends SubsystemBase {
 
 	// Kraken X60
-    private TalonFX hookPivot = new TalonFX(MotorID);
-    private TalonFXConfiguration hookPivotConfig = new TalonFXConfiguration();
+    //private TalonFX hookPivot = new TalonFX(MotorID);
+    //private TalonFXConfiguration hookPivotConfig = new TalonFXConfiguration();
 
 	private PositionVoltage hootPivotPositionVoltage = new PositionVoltage(0);
 
@@ -28,7 +28,7 @@ public class Climber extends SubsystemBase {
     public State state = State.Idle;
 
     public Climber() {
-        hookPivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        /*hookPivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
   	  	hookPivotConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 		hookPivotConfig.Slot0.kG = PIDkG;
 		hookPivotConfig.Slot0.kP = PIDkP;
@@ -36,27 +36,27 @@ public class Climber extends SubsystemBase {
 		hookPivotConfig.Slot0.kD = PIDkD;
 
   	  	hookPivot.clearStickyFaults();
-  	  	hookPivot.getConfigurator().apply(hookPivotConfig);
+  	  	hookPivot.getConfigurator().apply(hookPivotConfig);*/
     }
 
     @Override
     public void periodic() {
         switch (state) {
 			case Idle:
-            	hookPivot.set(0);
+            	//hookPivot.set(0);
 				break;
 			case ClimbUp:
-				hookPivot.setControl(hootPivotPositionVoltage.withPosition(ClimbUpSetpoint * PivotMotorRotationsToOneDegree));
+				//hookPivot.setControl(hootPivotPositionVoltage.withPosition(ClimbUpSetpoint * PivotMotorRotationsToOneDegree));
 				break;
 			case ClimbDown:
-				hookPivot.setControl(hootPivotPositionVoltage.withPosition(ClimbDownSetpoint * PivotMotorRotationsToOneDegree));
+				//hookPivot.setControl(hootPivotPositionVoltage.withPosition(ClimbDownSetpoint * PivotMotorRotationsToOneDegree));
 				break;
 			case DumbControl:
-				hookPivot.set(targetSpeed);
+				//hookPivot.set(targetSpeed);
 				break;
 		}
 
-		SmartDashboard.putNumber("Pivot Pos", hookPivot.getPosition().getValueAsDouble());
+		//SmartDashboard.putNumber("Pivot Pos", hookPivot.getPosition().getValueAsDouble());
 
 		SmartDashboard.putString("Climber State", state.toString());
     }

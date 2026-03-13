@@ -58,6 +58,14 @@ public class RobotContainer {
             () -> control.startTracking()
         ));
 
+        NamedCommands.registerCommand("Stop Cameras", control.runOnce(
+            () -> control.stopCameras()
+        ));
+
+        NamedCommands.registerCommand("Start Cameras", control.runOnce(
+            () -> control.startCameras()
+        ));
+
         configureBindings();
 
         control.drivetrain.configureAutoBuilder();
