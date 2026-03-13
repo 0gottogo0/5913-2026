@@ -95,13 +95,15 @@ public class Shooter extends SubsystemBase {
 
         hoodShooterConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
   	  	hoodShooterConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+		hoodShooterConfig.CurrentLimits.SupplyCurrentLimit = 80;
+		hoodShooterConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 		hoodShooterConfig.Slot0.kV = HoodShooterPIDkV;
 		hoodShooterConfig.Slot0.kP = HoodShooterPIDkP;
 		hoodShooterConfig.Slot0.kI = HoodShooterPIDkI;
 		hoodShooterConfig.Slot0.kD = HoodShooterPIDkD;
 
   	  	hoodShooter.clearStickyFaults();
-  	  	hoodShooter.getConfigurator().apply(hoodShooterConfig);
+		hoodShooter.getConfigurator().apply(hoodShooterConfig);
 	}
 
   	@Override

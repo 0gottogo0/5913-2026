@@ -36,13 +36,13 @@ public final class Constants {
         
         // Meters, RPS
         public static final InterpolatingDoubleTreeMap TopShooterSpeedByDistance = InterpolatingDoubleTreeMap.ofEntries(
-            Map.entry(0.00, 34.00),
-            Map.entry(1.64, 34.00),
-            Map.entry(2.30, 37.00),
-            Map.entry(3.00, 42.00),
-            Map.entry(3.60, 44.00),
-            Map.entry(4.30, 46.00),
-            Map.entry(4.50, 46.00)
+            Map.entry(0.00, 34.00 * 1.67),
+            Map.entry(1.64, 34.00 * 1.67),
+            Map.entry(2.30, 37.00 * 1.67),
+            Map.entry(3.00, 43.00 * 1.67),
+            Map.entry(3.60, 43.00 * 1.67),
+            Map.entry(4.30, 43.00 * 1.67),
+            Map.entry(4.50, 43.00 * 1.67)
             );
     
         // Meters, RPS
@@ -117,9 +117,9 @@ public final class Constants {
         }
 
         // Units allowed to change per seccond
-        public static final double XSlewRateLimiter = 12.00;
-        public static final double YSlewRateLimiter = 12.00;
-        public static final double RotateSlewRateLimiter = 40.00;
+        public static final double XSlewRateLimiter = 8.00;
+        public static final double YSlewRateLimiter = 8.00;
+        public static final double RotateSlewRateLimiter = 30.00;
 
         public static final double RotateMagnitude = 0.90;
         public static final double StickDeadzone = 0.20;
@@ -152,7 +152,7 @@ public final class Constants {
         public static final double PivotPIDkI = 0.00;
         public static final double PivotPIDkD = 0.00;
 
-        public static final int IntakeCurrentLimit = 160;
+        public static final int IntakeCurrentLimit = 90;
         public static final double IntakingSpeed = 0.65;
 
         public static final double PivotRetractSpeed = 0.75;

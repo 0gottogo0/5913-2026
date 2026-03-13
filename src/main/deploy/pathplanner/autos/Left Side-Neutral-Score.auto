@@ -7,6 +7,12 @@
         {
           "type": "named",
           "data": {
+            "name": "Stop Cameras"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "Run Intake Out"
           }
         },
@@ -44,6 +50,12 @@
           "type": "wait",
           "data": {
             "waitTime": 0.2
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Start Cameras"
           }
         },
         {
