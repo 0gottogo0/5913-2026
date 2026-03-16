@@ -228,9 +228,9 @@ public class ControlSub extends SubsystemBase {
         // Kill/Stop = B
 
         if (TestingController.x().getAsBoolean()) {
-            shooterV2.setShooterDumbControl(0.00, 0.40, 0.40);
+            shooterV2.setShooterDumbControl(0.00, 0.80, 0.50);
         } else if (TestingController.a().getAsBoolean()) {
-            shooterV2.setShooterDumbControl(0.40, 0.40, 0.40);
+            shooterV2.setShooterDumbControl(1.00, 0.80, 0.50);
         } else if (TestingController.b().getAsBoolean()) {
             shooterV2.setShooterState(ShooterConstants.State.Idle, 0.00, 0.00);
         }

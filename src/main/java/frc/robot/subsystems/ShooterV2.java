@@ -20,19 +20,19 @@ public class ShooterV2 extends SubsystemBase {
 	// Placeholder names
 
 	// Kraken X60
-	private TalonFX Right3 = new TalonFX(0);
+	private TalonFX Right3 = new TalonFX(50);
     private TalonFXConfiguration Right3Config = new TalonFXConfiguration();
 
 	// Kraken X60
-	private TalonFX Left4 = new TalonFX(BottomMotorID);
+	private TalonFX Left4 = new TalonFX(51);
     private TalonFXConfiguration Left4Config = new TalonFXConfiguration();
 
 	// Kraken X60
-  	private TalonFX Right4 = new TalonFX(TopMotorID);
+  	private TalonFX Right4 = new TalonFX(52);
   	private TalonFXConfiguration Right4Config = new TalonFXConfiguration();
 
 	// Kraken X44
-	private TalonFX Left2 = new TalonFX(HoodMotorID);
+	private TalonFX Left2 = new TalonFX(53);
   	private TalonFXConfiguration Left2Config = new TalonFXConfiguration();
 
 	private double right3TargetSpeed = 0.00;
@@ -96,14 +96,14 @@ public class ShooterV2 extends SubsystemBase {
 				Left2.set(0.00);
 				break;
 			case DumbControl:
-				Right3.set(right3TargetSpeed);
+				Right3.set(-right3TargetSpeed);
 				Left4.set(-left4TargetSpeed);
 				Right4.set(right4TargetSpeed);
-				Left2.set(-left2TargetSpeed);
+				Left2.set(left2TargetSpeed);
 				break;
 		} 
 
-		SmartDashboard.putString("Shooter State", state.toString());
+		SmartDashboard.putString("ShooterV2 State", state.toString());
   	}
 
 	/**
