@@ -83,29 +83,6 @@ public final class Constants {
         public static final String LimelightHopper = "limelight-hopper";
     }
 
-    public static final class ClimberConstants {
-        public static enum State {
-            Idle,
-            ClimbUp,
-            ClimbDown,
-            DumbControl
-        }
-
-        // How many rotations of the pivot motor does it take
-        // to move the hooks a degree 
-        public static final double PivotMotorRotationsToOneDegree = 0.00;
-
-        public static final double ClimbUpSetpoint =  0.00;
-        public static final double ClimbDownSetpoint = 0.00;
-
-        public static final double PIDkG = 0.00;
-        public static final double PIDkP = 0.20;
-        public static final double PIDkI = 0.00;
-        public static final double PIDkD = 0.00;
-
-        public static final int MotorID = 48;
-    }
-
     public static final class ControllerConstants {
         public static enum DrivetrainState {
             DisabledDrivetrain,

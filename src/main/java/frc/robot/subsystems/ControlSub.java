@@ -59,7 +59,6 @@ public class ControlSub extends SubsystemBase {
     private DrivetrainState drivetrainLastState = DrivetrainChooser.getSelected();
     
     public AutoAim autoAim = new AutoAim();
-    public Climber climber = new Climber();
     public Intake intake = new Intake();
     public Shooter shooter = new Shooter();
     public ShooterV2 shooterV2 = new ShooterV2();
@@ -179,14 +178,6 @@ public class ControlSub extends SubsystemBase {
         if (DriverStation.isTeleop()) {
             isSpinup = ManipulatorController.x().getAsBoolean();
             isShooting = ManipulatorController.rightTrigger().getAsBoolean();
-
-            if (ManipulatorController.povUp().getAsBoolean()) {
-                climber.setClimberDumbControl(1.00);
-            } else if (ManipulatorController.povDown().getAsBoolean()) {
-                climber.setClimberDumbControl(-1.00);
-            } else {
-                climber.setClimberDumbControl(0.00);
-            }
 
             if (ManipulatorController.leftBumper().getAsBoolean() && !manipulatorLastLeftBumper) {
                 if (isIntakeRetracted) {
