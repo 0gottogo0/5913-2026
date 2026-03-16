@@ -99,14 +99,14 @@ public class ShooterV2 extends SubsystemBase {
 				left2.set(0.00);
 				break;
 			case Spinup:
-				right3.setControl(right3VelocityVoltage.withVelocity(right3TargetSpeed));
-				left4.setControl(left4VelocityVoltage.withVelocity(left4TargetSpeed));
+				right3.setControl(right3VelocityVoltage.withVelocity(-right3TargetSpeed));
+				left4.setControl(left4VelocityVoltage.withVelocity(-left4TargetSpeed));
 				right4.setControl(right4VelocityVoltage.withVelocity(right4TargetSpeed));
 				left2.setControl(left2VelocityVoltage.withVelocity(left2TargetSpeed));
 				break;
 			case Shoot:
-				right3.setControl(right3VelocityVoltage.withVelocity(right3TargetSpeed));
-				left4.setControl(left4VelocityVoltage.withVelocity(left4TargetSpeed));
+				right3.setControl(right3VelocityVoltage.withVelocity(-right3TargetSpeed));
+				left4.setControl(left4VelocityVoltage.withVelocity(-left4TargetSpeed));
 				right4.setControl(right4VelocityVoltage.withVelocity(right4TargetSpeed));
 				left2.setControl(left2VelocityVoltage.withVelocity(left2TargetSpeed));
 				break;
