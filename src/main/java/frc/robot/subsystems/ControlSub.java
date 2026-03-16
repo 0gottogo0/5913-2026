@@ -116,7 +116,7 @@ public class ControlSub extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // Check for input then call subsystems
+        // Rewrite?
 
         /* Driver Controls */
         // Drive = Left Stick 
@@ -214,16 +214,16 @@ public class ControlSub extends SubsystemBase {
         }
 
         /* Testing Controls */
-        // Spinup = X
-        // Shoot = A
+        // Spinup (no 3" wheels) = X
+        // Shoot (with 3" wheels) = A
         // Kill/Stop = B
 
         if (TestingController.x().getAsBoolean()) {
-            shooterV2.setShooterDumbControl(0.00, 0.80, 0.50);
+            shooterV2.setShooterState(ShooterConstants.State.Shoot, 0.00, 60.00, 40.00);
         } else if (TestingController.a().getAsBoolean()) {
-            shooterV2.setShooterDumbControl(1.00, 0.80, 0.50);
+            shooterV2.setShooterState(ShooterConstants.State.Shoot,80.00, 60.00, 40.00);
         } else if (TestingController.b().getAsBoolean()) {
-            shooterV2.setShooterState(ShooterConstants.State.Idle, 0.00, 0.00);
+            shooterV2.setShooterState(ShooterConstants.State.Idle, 0.00, 0.00, 0.00);
         }
 
         /* Auto Aim Control */
