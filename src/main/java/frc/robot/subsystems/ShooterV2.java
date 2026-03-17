@@ -14,6 +14,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.constants.Constants.ShooterConstants.State;
 
 public class ShooterV2 extends SubsystemBase {
 
@@ -60,8 +61,8 @@ public class ShooterV2 extends SubsystemBase {
 
         left4Config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
   	  	left4Config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        left4Config.Slot0.kV = 0.00;
-		left4Config.Slot0.kP = 0.00;
+        left4Config.Slot0.kV = 0.12;
+		left4Config.Slot0.kP = 0.10;
 		left4Config.Slot0.kI = 0.00;
 		left4Config.Slot0.kD = 0.00;
 
@@ -70,8 +71,8 @@ public class ShooterV2 extends SubsystemBase {
 
   	  	right4Config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
   	  	right4Config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        right4Config.Slot0.kV = 0.00;
-		right4Config.Slot0.kP = 0.00;
+        right4Config.Slot0.kV = 0.12;
+		right4Config.Slot0.kP = 0.10;
 		right4Config.Slot0.kI = 0.00;
 		right4Config.Slot0.kD = 0.00;
 
@@ -80,8 +81,8 @@ public class ShooterV2 extends SubsystemBase {
 
         left2Config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
   	  	left2Config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        left2Config.Slot0.kV = 0.00;
-		left2Config.Slot0.kP = 0.00;
+        left2Config.Slot0.kV = 0.10;
+		left2Config.Slot0.kP = 0.10;
 		left2Config.Slot0.kI = 0.00;
 		left2Config.Slot0.kD = 0.00;
 
@@ -99,13 +100,13 @@ public class ShooterV2 extends SubsystemBase {
 				left2.set(0.00);
 				break;
 			case Spinup:
-				right3.setControl(right3VelocityVoltage.withVelocity(-right3TargetSpeed));
+				right3.set(0.00);
 				left4.setControl(left4VelocityVoltage.withVelocity(-left4TargetSpeed));
 				right4.setControl(right4VelocityVoltage.withVelocity(right4TargetSpeed));
 				left2.setControl(left2VelocityVoltage.withVelocity(left2TargetSpeed));
 				break;
 			case Shoot:
-				right3.setControl(right3VelocityVoltage.withVelocity(-right3TargetSpeed));
+				right3.set(-1.00);
 				left4.setControl(left4VelocityVoltage.withVelocity(-left4TargetSpeed));
 				right4.setControl(right4VelocityVoltage.withVelocity(right4TargetSpeed));
 				left2.setControl(left2VelocityVoltage.withVelocity(left2TargetSpeed));
@@ -123,6 +124,10 @@ public class ShooterV2 extends SubsystemBase {
 				left2.set(left2TargetSpeed);
 				break;
 		} 
+
+		SmartDashboard.putNumber("l4speed", left4.getRotorVelocity().getValueAsDouble());
+		SmartDashboard.putNumber("r4speed", right4.getRotorVelocity().getValueAsDouble());
+		SmartDashboard.putNumber("l2speed", left2.getRotorVelocity().getValueAsDouble());
 
 		SmartDashboard.putString("ShooterV2 State", state.toString());
   	}

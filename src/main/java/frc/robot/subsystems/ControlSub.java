@@ -219,9 +219,9 @@ public class ControlSub extends SubsystemBase {
         // Kill/Stop = B
 
         if (TestingController.x().getAsBoolean()) {
-            shooterV2.setShooterState(ShooterConstants.State.Shoot, 0.00, 60.00, 40.00);
+            shooterV2.setShooterState(ShooterConstants.State.Spinup, 0.00, 90.00, 35.00);
         } else if (TestingController.a().getAsBoolean()) {
-            shooterV2.setShooterState(ShooterConstants.State.Shoot,80.00, 60.00, 40.00);
+            shooterV2.setShooterState(ShooterConstants.State.Shoot,0.00, 90.00, 35.00);
         } else if (TestingController.b().getAsBoolean()) {
             shooterV2.setShooterState(ShooterConstants.State.Idle, 0.00, 0.00, 0.00);
         }
