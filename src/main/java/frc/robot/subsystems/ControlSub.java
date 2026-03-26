@@ -61,7 +61,6 @@ public class ControlSub extends SubsystemBase {
     public AutoAim autoAim = new AutoAim();
     public Intake intake = new Intake();
     public Shooter shooter = new Shooter();
-    public ShooterV2 shooterV2 = new ShooterV2();
 
     private double commandedMoveX = 0.00;
     private double commandedMoveY = 0.00;
@@ -214,17 +213,6 @@ public class ControlSub extends SubsystemBase {
         }
 
         /* Testing Controls */
-        // Spinup (no 3" wheels) = X
-        // Shoot (with 3" wheels) = A
-        // Kill/Stop = B
-
-        if (TestingController.x().getAsBoolean()) {
-            shooterV2.setShooterState(ShooterConstants.State.Shoot, 0.00, 60.00, 40.00);
-        } else if (TestingController.a().getAsBoolean()) {
-            shooterV2.setShooterState(ShooterConstants.State.Shoot,80.00, 60.00, 40.00);
-        } else if (TestingController.b().getAsBoolean()) {
-            shooterV2.setShooterState(ShooterConstants.State.Idle, 0.00, 0.00, 0.00);
-        }
 
         /* Auto Aim Control */
 

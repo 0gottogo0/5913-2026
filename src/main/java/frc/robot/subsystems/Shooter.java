@@ -19,32 +19,46 @@ import frc.robot.constants.Constants.ShooterConstants.State;
 public class Shooter extends SubsystemBase {
 
     // Kraken X44
-    private TalonFX belts = new TalonFX(BeltsID);
-    private TalonFXConfiguration beltsConfig = new TalonFXConfiguration();
+    private TalonFX bottomRollers = new TalonFX(BottomRollersID);
+    private TalonFXConfiguration bottomRollersConfig = new TalonFXConfiguration();
 
-	// Kraken X44
+	// Kraken X60
+	// 3"
 	private TalonFX feeder = new TalonFX(FeederMotorID);
 	private TalonFXConfiguration feederConfig = new TalonFXConfiguration();
 
 	// Kraken X60
+	// Bottom 4"
 	private TalonFX bottomShooter = new TalonFX(BottomMotorID);
     private TalonFXConfiguration bottomShooterConfig = new TalonFXConfiguration();
 
+	// Reminder: Front is the intake. Why? Idrfk.
+
 	// Kraken X60
-  	private TalonFX topShooter = new TalonFX(TopMotorID);
-  	private TalonFXConfiguration topShooterConfig = new TalonFXConfiguration();
+	// Top 4"
+  	private TalonFX leftShooter = new TalonFX(LeftMotorID);
+  	private TalonFXConfiguration leftShooterConfig = new TalonFXConfiguration();
+
+	// Kraken X60
+	// Top 4"
+  	private TalonFX rightShooter = new TalonFX(RightMotorID);
+  	private TalonFXConfiguration rightShooterConfig = new TalonFXConfiguration();
 
 	// Kraken X44
+	// 2"
 	private TalonFX hoodShooter = new TalonFX(HoodMotorID);
   	private TalonFXConfiguration hoodShooterConfig = new TalonFXConfiguration();
 
-	private VelocityVoltage beltsVelocityVoltage = new VelocityVoltage(0);
+	// Guess on why we use a pid on the bottom
+	// rollers? I'll wait...
+	private VelocityVoltage rollersVelocityVoltage = new VelocityVoltage(0);
 	private VelocityVoltage feederVelocityVoltage = new VelocityVoltage(0);
     private VelocityVoltage bottomShooterVelocityVoltage = new VelocityVoltage(0);
-	private VelocityVoltage topShooterVelocityVoltage = new VelocityVoltage(0);
+	private VelocityVoltage leftShooterVelocityVoltage = new VelocityVoltage(0);
+	private VelocityVoltage rightShooterVelocityVoltage = new VelocityVoltage(0);
     private VelocityVoltage hoodShooterVelocityVoltage = new VelocityVoltage(0);
 
-	private double beltsTargetSpeed = 0.00;
+	private double rollersTargetSpeed = 0.00;
 	private double feederTargetSpeed = 0.00;
 	private double bottomTargetSpeed = 0.00;
   	private double topTargetSpeed = 0.00;
@@ -53,15 +67,15 @@ public class Shooter extends SubsystemBase {
 	public State state = State.Idle;
 
   	public Shooter() {
-		beltsConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-  	  	beltsConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-		beltsConfig.Slot0.kV = BeltsPIDkV;
-		beltsConfig.Slot0.kP = BeltsPIDkP;
-		beltsConfig.Slot0.kI = BeltsPIDkI;
-		beltsConfig.Slot0.kD = BeltsPIDkD;
+		bottomRollersConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+  	  	bottomRollersConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+		bottomRollersConfig.Slot0.kV = BeltsPIDkV;
+		bottomRollersConfig.Slot0.kP = BeltsPIDkP;
+		bottomRollersConfig.Slot0.kI = BeltsPIDkI;
+		bottomRollersConfig.Slot0.kD = BeltsPIDkD;
 
-  	  	belts.clearStickyFaults();
-  	  	belts.getConfigurator().apply(beltsConfig);
+  	  	bottomRollers.clearStickyFaults();
+  	  	bottomRollers.getConfigurator().apply(bottomRollersConfig);
 
 		feederConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 		feederConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -83,15 +97,25 @@ public class Shooter extends SubsystemBase {
         bottomShooter.clearStickyFaults();
   	  	bottomShooter.getConfigurator().apply(bottomShooterConfig);
 
-  	  	topShooterConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-  	  	topShooterConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-		topShooterConfig.Slot0.kV = TopShooterPIDkV;
-		topShooterConfig.Slot0.kP = TopShooterPIDkP;
-		topShooterConfig.Slot0.kI = TopShooterPIDkI;
-		topShooterConfig.Slot0.kD = TopShooterPIDkD;
+  	  	leftShooterConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+  	  	leftShooterConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+		leftShooterConfig.Slot0.kV = LeftShooterPIDkV;
+		leftShooterConfig.Slot0.kP = LeftShooterPIDkP;
+		leftShooterConfig.Slot0.kI = LeftShooterPIDkI;
+		leftShooterConfig.Slot0.kD = LeftShooterPIDkD;
 
-  	  	topShooter.clearStickyFaults();
-  	  	topShooter.getConfigurator().apply(topShooterConfig);
+  	  	leftShooter.clearStickyFaults();
+  	  	leftShooter.getConfigurator().apply(leftShooterConfig);
+
+		rightShooterConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+  	  	rightShooterConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+		rightShooterConfig.Slot0.kV = RightShooterPIDkV;
+		rightShooterConfig.Slot0.kP = RightShooterPIDkP;
+		rightShooterConfig.Slot0.kI = RightShooterPIDkI;
+		rightShooterConfig.Slot0.kD = RightShooterPIDkD;
+
+  	  	rightShooter.clearStickyFaults();
+  	  	rightShooter.getConfigurator().apply(rightShooterConfig);
 
         hoodShooterConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
   	  	hoodShooterConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -110,66 +134,62 @@ public class Shooter extends SubsystemBase {
   	public void periodic() {
   	  	switch (state) {
 			case Idle:
-                belts.set(0.00);
+                bottomRollers.set(0.00);
 				feeder.set(0.00);
 				bottomShooter.set(0.00);
-				topShooter.set(0.00);
+				leftShooter.set(0.00);
+				rightShooter.set(0.00);
 				hoodShooter.set(0.00);
 				break;
 			case Spinup:
-                belts.set(0.00);
+                bottomRollers.set(0.00);
 				feeder.set(0.00);
-				bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(topTargetSpeed * BottomRatio));
-				topShooter.setControl(topShooterVelocityVoltage.withVelocity(topTargetSpeed));
+				bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(topTargetSpeed));
+				leftShooter.setControl(leftShooterVelocityVoltage.withVelocity(topTargetSpeed));
+				rightShooter.setControl(rightShooterVelocityVoltage.withVelocity(-topTargetSpeed));
 				hoodShooter.setControl(hoodShooterVelocityVoltage.withVelocity(-hoodTargetSpeed));
 				break;
 			case Shoot:
-                belts.setControl(beltsVelocityVoltage.withVelocity(BeltsSpeed));
+                bottomRollers.setControl(rollersVelocityVoltage.withVelocity(BeltsSpeed));
 				feeder.setControl(feederVelocityVoltage.withVelocity(FeedSpeed));
-				bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(topTargetSpeed * BottomRatio));
-				topShooter.setControl(topShooterVelocityVoltage.withVelocity(topTargetSpeed));
+				bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(topTargetSpeed));
+				leftShooter.setControl(leftShooterVelocityVoltage.withVelocity(topTargetSpeed));
+				rightShooter.setControl(rightShooterVelocityVoltage.withVelocity(-topTargetSpeed));
 				hoodShooter.setControl(hoodShooterVelocityVoltage.withVelocity(-hoodTargetSpeed));
 				break;
-			case Unstick:
-                belts.setControl(beltsVelocityVoltage.withVelocity(BeltsSpeed));
-				feeder.setControl(feederVelocityVoltage.withVelocity(FeedSpeed));
-				bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(UnstickRPS));
-				topShooter.setControl(topShooterVelocityVoltage.withVelocity(UnstickRPS));
-				hoodShooter.setControl(hoodShooterVelocityVoltage.withVelocity(-UnstickRPS));
-				break;
 			case DumbControl:
-                belts.set(beltsTargetSpeed);
+                bottomRollers.set(rollersTargetSpeed);
 				feeder.set(feederTargetSpeed);
 				bottomShooter.set(bottomTargetSpeed);
-				topShooter.set(topTargetSpeed);
+				leftShooter.set(topTargetSpeed);
+				rightShooter.set(-topTargetSpeed);
 				hoodShooter.set(-hoodTargetSpeed);
 				break;
 		}
 
         SmartDashboard.putNumber("Belts RPS", getBeltsSpeed());
-		SmartDashboard.putNumber("Belts Target RPS", beltsTargetSpeed);
-		SmartDashboard.putNumber("Belts Target Diff", beltsTargetSpeed - getBeltsSpeed());
-		SmartDashboard.putNumber("Belts Target Percentage", Math.abs(getBeltsSpeed() / beltsTargetSpeed - 1));
+		SmartDashboard.putNumber("Belts Target RPS", rollersTargetSpeed);
+		SmartDashboard.putNumber("Belts Target Diff", rollersTargetSpeed - getBeltsSpeed());
 
         SmartDashboard.putNumber("Feeder Shooter RPS", getFeederShooterSpeed());
 		SmartDashboard.putNumber("Feeder Shooter Target RPS", feederTargetSpeed);
 		SmartDashboard.putNumber("Feeder Shooter Target Diff", feederTargetSpeed - getFeederShooterSpeed());
-		SmartDashboard.putNumber("Feeder Shooter Target Percentage", Math.abs(getFeederShooterSpeed() / feederTargetSpeed - 1));
 
         SmartDashboard.putNumber("Bottom Shooter RPS", getBottomShooterSpeed());
-		SmartDashboard.putNumber("Bottom Shooter Target RPS", bottomTargetSpeed * BottomRatio);
-		SmartDashboard.putNumber("Bottom Shooter Target Diff", (bottomTargetSpeed * BottomRatio) - getBottomShooterSpeed());
-		SmartDashboard.putNumber("Bottom Shooter Target Percentage", Math.abs(getBottomShooterSpeed() / (bottomTargetSpeed * BottomRatio) - 1));
+		SmartDashboard.putNumber("Bottom Shooter Target RPS", bottomTargetSpeed);
+		SmartDashboard.putNumber("Bottom Shooter Target Diff", (bottomTargetSpeed) - getBottomShooterSpeed());
 
-		SmartDashboard.putNumber("Top Shooter RPS", getTopShooterSpeed());
-		SmartDashboard.putNumber("Top Shooter Target RPS", topTargetSpeed);
-		SmartDashboard.putNumber("Top Shooter Target Diff", topTargetSpeed - getTopShooterSpeed());
-		SmartDashboard.putNumber("Top Shooter Target Percentage", Math.abs(getTopShooterSpeed() / topTargetSpeed - 1));
+		SmartDashboard.putNumber("Left Shooter RPS", getLeftShooterSpeed());
+		SmartDashboard.putNumber("Left Shooter Target RPS", topTargetSpeed);
+		SmartDashboard.putNumber("Left Shooter Target Diff", topTargetSpeed - getLeftShooterSpeed());
+        
+        SmartDashboard.putNumber("Right Shooter RPS", getRightShooterSpeed());
+		SmartDashboard.putNumber("Right Shooter Target RPS", topTargetSpeed);
+		SmartDashboard.putNumber("Right Shooter Target Diff", topTargetSpeed - getRightShooterSpeed());
 
 		SmartDashboard.putNumber("Hood Shooter RPS", getHoodShooterSpeed());
 		SmartDashboard.putNumber("Hood Shooter Target RPS", hoodTargetSpeed);
 		SmartDashboard.putNumber("Hood Shooter Target Diff", hoodTargetSpeed - getHoodShooterSpeed());
-		SmartDashboard.putNumber("Hood Shooter Target Percentage", Math.abs(getHoodShooterSpeed() / hoodTargetSpeed - 1));
         
 		SmartDashboard.putString("Shooter State", state.toString());
 
@@ -182,7 +202,7 @@ public class Shooter extends SubsystemBase {
 	 * @return Speed in RPS
 	 */
     private double getBeltsSpeed() {
-        return belts.getRotorVelocity().getValueAsDouble();
+        return bottomRollers.getRotorVelocity().getValueAsDouble();
     }
 
 	/**
@@ -204,12 +224,21 @@ public class Shooter extends SubsystemBase {
     }
 
 	/**
-	 * Returns the speed of the top shooter motor
+	 * Returns the speed of the left shooter motor
 	 * 
 	 * @return Speed in RPS
 	 */
-	private double getTopShooterSpeed() {
-		return topShooter.getRotorVelocity().getValueAsDouble();
+	private double getLeftShooterSpeed() {
+		return leftShooter.getRotorVelocity().getValueAsDouble();
+	}
+
+    /**
+	 * Returns the speed of the right shooter motor
+	 * 
+	 * @return Speed in RPS
+	 */
+	private double getRightShooterSpeed() {
+		return rightShooter.getRotorVelocity().getValueAsDouble();
 	}
 
     /**
@@ -258,7 +287,7 @@ public class Shooter extends SubsystemBase {
 	 * @param hoodSpeedInPercent The speed to control in percent
 	 */
 	public void setShooterDumbControl(double feedSpeedInPercent, double topSpeedInPercent, double hoodSpeedInPercent) {
-		beltsTargetSpeed = feedSpeedInPercent;
+		rollersTargetSpeed = feedSpeedInPercent;
         feederTargetSpeed = feedSpeedInPercent;
 		bottomTargetSpeed = topSpeedInPercent;
         topTargetSpeed = topSpeedInPercent;
@@ -283,7 +312,7 @@ public class Shooter extends SubsystemBase {
 	 * @param hoodSpeedInPercent The speed to control in percent
 	 */
 	public void setShooterDumbControl(double beltsSpeedInPercent, double feedSpeedInPercent, double bottomSpeedInPercent, double topSpeedInPercent, double hoodSpeedInPercent) {
-        beltsTargetSpeed = beltsSpeedInPercent;
+        rollersTargetSpeed = beltsSpeedInPercent;
         feederTargetSpeed = feedSpeedInPercent;
         bottomTargetSpeed = bottomSpeedInPercent;
 		topTargetSpeed = topSpeedInPercent;
@@ -299,7 +328,8 @@ public class Shooter extends SubsystemBase {
 	 */
 	public boolean isShooterAtSpeed() {
 		if (state == State.Spinup || state == State.Shoot) {
-			return getTopShooterSpeed() < topTargetSpeed - RPSThreshold;
+            // Idk just get the left one
+			return getLeftShooterSpeed() > (topTargetSpeed - RPSThreshold);
 		} else {
 			return false;
 		}

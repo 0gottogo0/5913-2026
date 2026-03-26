@@ -148,14 +148,12 @@ public final class Constants {
             Idle,
             Spinup,
             Shoot,
-            Unstick,
             DumbControl
         }
-
-        public static final double BottomRatio = 1.50;
+        
+        // Might be a good idea to tune this or something
         public static final double BeltsSpeed = 100.00;
         public static final double FeedSpeed = 100.00;
-        public static final double UnstickRPS = 20.00;
         
         // Used in determing if shooter is up to speed
         public static final double RPSThreshold = 1.25;
@@ -175,20 +173,26 @@ public final class Constants {
         public static final double BottomShooterPIDkI = 0.00;
         public static final double BottomShooterPIDkD = 0.00;
 
-        public static final double TopShooterPIDkV = 0.13;
-        public static final double TopShooterPIDkP = 0.90;
-        public static final double TopShooterPIDkI = 0.00;
-        public static final double TopShooterPIDkD = 0.00;
+        public static final double LeftShooterPIDkV = 0.13;
+        public static final double LeftShooterPIDkP = 0.90;
+        public static final double LeftShooterPIDkI = 0.00;
+        public static final double LeftShooterPIDkD = 0.00;
+
+        public static final double RightShooterPIDkV = 0.13;
+        public static final double RightShooterPIDkP = 0.90;
+        public static final double RightShooterPIDkI = 0.00;
+        public static final double RightShooterPIDkD = 0.00;
 
         public static final double HoodShooterPIDkV = 0.11;
         public static final double HoodShooterPIDkP = 0.60;
         public static final double HoodShooterPIDkI = 0.00;
         public static final double HoodShooterPIDkD = 0.00;
 
-        public static final int BeltsID = 45;
+        public static final int BottomRollersID = 45;
         public static final int FeederMotorID = 43;
         public static final int BottomMotorID = 39;
-        public static final int TopMotorID = 40;
+        public static final int LeftMotorID = 40;
+        public static final int RightMotorID = 48;
         public static final int HoodMotorID = 47;
     }
 }
