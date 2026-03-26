@@ -79,8 +79,8 @@ public final class Constants {
         public static final double TrackingClimbRotPIDkI = 0.00;
         public static final double TrackingClimbRotPIDkD = 0.00;
 
-        public static final String LimelightCenter = "limelight-center";
-        public static final String LimelightHopper = "limelight-hopper";
+        public static final String LimelightLeft = "limelight-left";
+        public static final String LimelightRight = "limelight-right";
     }
 
     public static final class ControllerConstants {

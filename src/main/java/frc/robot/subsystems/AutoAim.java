@@ -12,7 +12,6 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
@@ -27,64 +26,59 @@ public class AutoAim extends SubsystemBase {
 
     Pose2d TurretRotatePointPose = new Pose2d();
 
-    Pose2d goalPose = new Pose2d();
+    Pose2d blueGoalPose = new Pose2d();
+    Pose2d redGoalPose = new Pose2d();
     Pose2d adjustedGoalPose = new Pose2d();
 
-    PoseEstimate LimelightCenterMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightCenter);
-    PoseEstimate LimelightHopperMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightHopper);
+    PoseEstimate LimelightLeftMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightLeft);
+    PoseEstimate LimelightRightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightRight);
 
     double calculatedShot[] = {0.00, 0.00, 0.00, 0.00, 0.00};
     double distanceFromClimb[] = {0.00, 0.00};
 
     State state = State.Goal;
-    boolean hopperIn = true;
-    boolean idleCamera = false;
 
     public AutoAim() {}
 
     @Override
     public void periodic() {
 
-        if (DriverStation.isTeleopEnabled()) {
-            idleCamera = false;
-        }
-
         // Change pipeline depending on robot state
-        if (DriverStation.isDisabled() || idleCamera) {
-            NetworkTableInstance.getDefault().getTable(LimelightCenter).getEntry("pipeline").setNumber(1);
-            NetworkTableInstance.getDefault().getTable(LimelightHopper).getEntry("pipeline").setNumber(2);
-        } else if (hopperIn) {
-            NetworkTableInstance.getDefault().getTable(LimelightCenter).getEntry("pipeline").setNumber(0);
-            NetworkTableInstance.getDefault().getTable(LimelightHopper).getEntry("pipeline").setNumber(1);
+        if (DriverStation.isDisabled()) {
+            NetworkTableInstance.getDefault().getTable(LimelightLeft).getEntry("pipeline").setNumber(1);
+            NetworkTableInstance.getDefault().getTable(LimelightRight).getEntry("pipeline").setNumber(1);
         } else {
-            NetworkTableInstance.getDefault().getTable(LimelightCenter).getEntry("pipeline").setNumber(0);
-            NetworkTableInstance.getDefault().getTable(LimelightHopper).getEntry("pipeline").setNumber(0);
+            NetworkTableInstance.getDefault().getTable(LimelightLeft).getEntry("pipeline").setNumber(0);
+            NetworkTableInstance.getDefault().getTable(LimelightRight).getEntry("pipeline").setNumber(0);
         }
 
-        LimelightCenterMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightCenter);
-        LimelightHopperMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightHopper);
+        LimelightLeftMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightLeft);
+        LimelightRightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightRight);
 
-        if (LimelightCenterMeasurement != null && LimelightCenterMeasurement.tagCount > 0) {
-            drivetrain.addVisionMeasurement(LimelightCenterMeasurement.pose, LimelightCenterMeasurement.timestampSeconds);
+        if (LimelightLeftMeasurement != null && LimelightLeftMeasurement.tagCount > 0) {
+            drivetrain.addVisionMeasurement(LimelightLeftMeasurement.pose, LimelightLeftMeasurement.timestampSeconds);
         }
 
-        if (LimelightHopperMeasurement != null && LimelightHopperMeasurement.tagCount > 0) {
-            drivetrain.addVisionMeasurement(LimelightHopperMeasurement.pose, LimelightHopperMeasurement.timestampSeconds);
+        if (LimelightRightMeasurement != null && LimelightRightMeasurement.tagCount > 0) {
+            drivetrain.addVisionMeasurement(LimelightRightMeasurement.pose, LimelightRightMeasurement.timestampSeconds);
         }
 
         switch (state) {
             case Goal:
-                goalPose = BlueGoal;
-                //goalPose = RedGoal;
+                if (isBlue()) {
+                    blueGoalPose = BlueGoal;
+                } else {
+                    blueGoalPose = RedGoal;
+                }
                 break;
             case NeutralZone:
-                goalPose = NeutralZone;
+                blueGoalPose = NeutralZone;
                 break;
             case AllianceZone:
                 if (isBlue()) {
-                    goalPose = BlueZone;
+                    blueGoalPose = BlueZone;
                 } else {
-                    goalPose = RedZone;
+                    blueGoalPose = RedZone;
                 }
                 break;
             case DumbControl:
@@ -98,12 +92,10 @@ public class AutoAim extends SubsystemBase {
         // move, first take robot speed and times that
         // by our time of flight, then add that new
         // transform to the goal pose
-        adjustedGoalPose = goalPose.plus(new Transform2d(robotSpeed.vxMetersPerSecond, robotSpeed.vyMetersPerSecond, new Rotation2d()).times(TimeOfFlightByDistance.get(getAimTargetInDistance())));
+        adjustedGoalPose = blueGoalPose.plus(new Transform2d(robotSpeed.vxMetersPerSecond, robotSpeed.vyMetersPerSecond, new Rotation2d()).times(TimeOfFlightByDistance.get(getAimTargetInDistance())));
 
         SmartDashboard.putNumber("Robot X", robotPose.getX());
         SmartDashboard.putNumber("Robot Y", robotPose.getY());
-        SmartDashboard.putNumber("Goal X", goalPose.getX());
-        SmartDashboard.putNumber("Goal Y", goalPose.getY());
         SmartDashboard.putNumber("Robot Rot", robotPose.getRotation().getDegrees());
         SmartDashboard.putNumber("Robot Speed X", robotSpeed.vxMetersPerSecond);
         SmartDashboard.putNumber("Robot Speed Y", robotSpeed.vyMetersPerSecond);
@@ -136,26 +128,17 @@ public class AutoAim extends SubsystemBase {
         robotSpeed = drivetrain.getState().Speeds;
     }
 
-    public void setAutoAimIntakeState(boolean isHopperIn) {
-        hopperIn = isHopperIn;
-    }
-
-    public void setCameraIdle(boolean value) {
-        idleCamera = value;
-    }
-
     /**
      * Are we on the blue aliance
      * 
      * @return true if on blue aliance
      */
-    @SuppressWarnings("unlikely-arg-type")
     public boolean isBlue() {
-        if (DriverStation.isDSAttached() && DriverStation.getAlliance().equals(Alliance.Blue)) {
-            return true;
-        } else {
-            return false;
+        var alliance = DriverStation.getAlliance();
+        if (alliance.isPresent()) {
+            return alliance.get() == DriverStation.Alliance.Blue;
         }
+        return false;
     }
 
     /**
@@ -164,7 +147,7 @@ public class AutoAim extends SubsystemBase {
      * @return Aim tagret in degrees
      */
     private double getAimTargetInDegrees() {
-        return robotPose.getRotation().getDegrees() - Math.atan(TurretRotatePointPose.minus(goalPose).getX() / TurretRotatePointPose.minus(goalPose).getY());
+        return robotPose.getRotation().getDegrees() - Math.atan(TurretRotatePointPose.minus(blueGoalPose).getX() / TurretRotatePointPose.minus(blueGoalPose).getY());
     }
     
     /**
@@ -173,7 +156,7 @@ public class AutoAim extends SubsystemBase {
      * @return Aim target in meters
      */
     private double getAimTargetInDistance() {
-        return Math.abs(Math.sqrt(Math.pow(TurretRotatePointPose.minus(goalPose).getX(), 2) + Math.pow(TurretRotatePointPose.minus(goalPose).getY(), 2)));
+        return Math.abs(Math.sqrt(Math.pow(TurretRotatePointPose.minus(blueGoalPose).getX(), 2) + Math.pow(TurretRotatePointPose.minus(blueGoalPose).getY(), 2)));
     }
 
     /**
@@ -220,6 +203,6 @@ public class AutoAim extends SubsystemBase {
      * Systems In Detail"
      */
     public void setAutoAimDumbControl(double x, double y) {
-        goalPose = new Pose2d(x, y, new Rotation2d(0.00));
+        blueGoalPose = new Pose2d(x, y, new Rotation2d(0.00));
     }
 }

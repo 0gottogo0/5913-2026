@@ -58,14 +58,6 @@ public class RobotContainer {
             () -> control.startTracking()
         ));
 
-        NamedCommands.registerCommand("Stop Cameras", control.runOnce(
-            () -> control.stopCameras()
-        ));
-
-        NamedCommands.registerCommand("Start Cameras", control.runOnce(
-            () -> control.startCameras()
-        ));
-
         configureBindings();
 
         control.drivetrain.configureAutoBuilder();
@@ -75,6 +67,9 @@ public class RobotContainer {
 
     private void configureBindings() {
         // subsystems/ControlSub.java
+
+        // Should we have just had a periotic function
+        // in this file? prob.
     }
 
     public Command getAutonomousCommand() {

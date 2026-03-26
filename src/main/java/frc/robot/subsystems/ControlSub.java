@@ -169,8 +169,9 @@ public class ControlSub extends SubsystemBase {
         // Spinup = X
         // Shoot = Right Trig
         // Track = Left Trig
-        // Select Target = Left Stick
+        // Intake = 
         // Toggle Intake Pos = Left Bumper
+        // Manual Target = Left Stick
         // Climb Up = Pov Up
         // Climb Down = Pov Down
         
@@ -218,7 +219,6 @@ public class ControlSub extends SubsystemBase {
 
         // This works ig
         autoAim.setAutoAimDrivetrainState(drivetrain);
-        autoAim.setAutoAimIntakeState(intake.getIntakePosition());
         
         if (DriverStation.isTeleop()) {
             isTracking = DriverController.leftTrigger().getAsBoolean() || ManipulatorController.leftTrigger().getAsBoolean();
@@ -373,13 +373,5 @@ public class ControlSub extends SubsystemBase {
 
     public void startTracking() {
         isTracking = true;
-    }
-
-    public void stopCameras() {
-        autoAim.setCameraIdle(true);
-    }
-
-    public void startCameras() {
-        autoAim.setCameraIdle(false);
     }
 }
