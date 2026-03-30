@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
@@ -26,7 +27,7 @@ public class AutoAim extends SubsystemBase {
 
     Pose2d TurretRotatePointPose = new Pose2d();
 
-    Pose2d blueGoalPose = new Pose2d();
+    Pose2d goalPose = new Pose2d();
     Pose2d redGoalPose = new Pose2d();
     Pose2d adjustedGoalPose = new Pose2d();
 
@@ -38,7 +39,11 @@ public class AutoAim extends SubsystemBase {
 
     State state = State.Goal;
 
-    public AutoAim() {}
+    Field2d field = new Field2d();
+
+    public AutoAim() {
+        SmartDashboard.putData("Field", field);
+    }
 
     @Override
     public void periodic() {
@@ -66,33 +71,27 @@ public class AutoAim extends SubsystemBase {
         switch (state) {
             case Goal:
                 if (isBlue()) {
-                    blueGoalPose = BlueGoal;
+                    goalPose = BlueGoal;
                 } else {
-                    blueGoalPose = RedGoal;
+                    goalPose = RedGoal;
                 }
                 break;
-            case NeutralZone:
-                blueGoalPose = NeutralZone;
-                break;
-            case AllianceZone:
-                if (isBlue()) {
-                    blueGoalPose = BlueZone;
-                } else {
-                    blueGoalPose = RedZone;
-                }
+            case SnakeDrive:
+                goalPose = new Pose2d(robotSpeed.vxMetersPerSecond, robotSpeed.vyMetersPerSecond, new Rotation2d(0));
                 break;
             case DumbControl:
                 // Do nothing, handled by setAutoAimDumbControl()
                 break;
         }
 
+        // Only for turret
         //TurretRotatePointPose = robotPose.plus(TurretRotatePoint);
 
         // To adjust the goal pose when shooting on the
         // move, first take robot speed and times that
         // by our time of flight, then add that new
         // transform to the goal pose
-        adjustedGoalPose = blueGoalPose.plus(new Transform2d(robotSpeed.vxMetersPerSecond, robotSpeed.vyMetersPerSecond, new Rotation2d()).times(TimeOfFlightByDistance.get(getAimTargetInDistance())));
+        adjustedGoalPose = goalPose.plus(new Transform2d(robotSpeed.vxMetersPerSecond, robotSpeed.vyMetersPerSecond, new Rotation2d()).times(TimeOfFlightByDistance.get(getAimTargetInDistance())));
 
         SmartDashboard.putNumber("Robot X", robotPose.getX());
         SmartDashboard.putNumber("Robot Y", robotPose.getY());
@@ -104,7 +103,7 @@ public class AutoAim extends SubsystemBase {
         // These are useless if we dont have a turret ;-;
         SmartDashboard.putNumber("Turret X", TurretRotatePointPose.getX());
         SmartDashboard.putNumber("Turret Y", TurretRotatePointPose.getY());
-
+        
         SmartDashboard.putNumber("Target Angle", getAimTargetInDegrees());
         SmartDashboard.putNumber("Target Distance", getAimTargetInDistance());
         SmartDashboard.putNumber("Target Time Of Flight", TimeOfFlightByDistance.get(getAimTargetInDistance()));
@@ -115,6 +114,11 @@ public class AutoAim extends SubsystemBase {
         SmartDashboard.putNumber("Adjusted Target Top Shooter Speed", getShootOnMoveAimTarget()[3]);
         SmartDashboard.putNumber("Adjusted Target Time Of Flight", getShootOnMoveAimTarget()[4]);
         SmartDashboard.putNumberArray("Adjusted Target Data", getShootOnMoveAimTarget());
+
+        // For visualization of target, NOTE: the target is
+        // above the ground and balls will not land on the 
+        // target, but they will pass through the target
+        field.setRobotPose(adjustedGoalPose);
     }
 
     /**
@@ -147,7 +151,7 @@ public class AutoAim extends SubsystemBase {
      * @return Aim tagret in degrees
      */
     private double getAimTargetInDegrees() {
-        return robotPose.getRotation().getDegrees() - Math.atan(TurretRotatePointPose.minus(blueGoalPose).getX() / TurretRotatePointPose.minus(blueGoalPose).getY());
+        return robotPose.getRotation().getDegrees() - Math.atan(TurretRotatePointPose.minus(goalPose).getX() / TurretRotatePointPose.minus(goalPose).getY());
     }
     
     /**
@@ -156,7 +160,7 @@ public class AutoAim extends SubsystemBase {
      * @return Aim target in meters
      */
     private double getAimTargetInDistance() {
-        return Math.abs(Math.sqrt(Math.pow(TurretRotatePointPose.minus(blueGoalPose).getX(), 2) + Math.pow(TurretRotatePointPose.minus(blueGoalPose).getY(), 2)));
+        return Math.abs(Math.sqrt(Math.pow(TurretRotatePointPose.minus(goalPose).getX(), 2) + Math.pow(TurretRotatePointPose.minus(goalPose).getY(), 2)));
     }
 
     /**
@@ -203,6 +207,6 @@ public class AutoAim extends SubsystemBase {
      * Systems In Detail"
      */
     public void setAutoAimDumbControl(double x, double y) {
-        blueGoalPose = new Pose2d(x, y, new Rotation2d(0.00));
+        goalPose = new Pose2d(x, y, new Rotation2d(0.00));
     }
 }

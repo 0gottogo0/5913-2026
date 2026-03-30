@@ -11,8 +11,7 @@ public final class Constants {
     public static final class AutoAimConstants {
         public static enum State {
             Goal,
-            NeutralZone,
-            AllianceZone,
+            SnakeDrive,
             DumbControl
         }
 
