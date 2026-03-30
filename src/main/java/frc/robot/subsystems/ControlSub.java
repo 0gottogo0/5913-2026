@@ -123,6 +123,7 @@ public class ControlSub extends SubsystemBase {
         // Intake = Right Trig
         // Toggle Intake Pos = Left Bumper
         // Track = Left Trig
+        // Snake Drive = A
 
         commandedMoveX = MathUtil.applyDeadband(-DriverController.getLeftY(), ControllerConstants.StickDeadzone);
         commandedMoveY = MathUtil.applyDeadband(-DriverController.getLeftX(), ControllerConstants.StickDeadzone);
@@ -171,9 +172,8 @@ public class ControlSub extends SubsystemBase {
         // Track = Left Trig
         // Intake = 
         // Toggle Intake Pos = Left Bumper
-        // Manual Target = Left Stick
-        // Climb Up = Pov Up
-        // Climb Down = Pov Down
+        // Set Hub as Target = 
+        // Manual Target = 
         
         if (DriverStation.isTeleop()) {
             isSpinup = ManipulatorController.x().getAsBoolean();
@@ -214,6 +214,14 @@ public class ControlSub extends SubsystemBase {
         }
 
         /* Testing Controls */
+        // Should be used for Sys Check at events imo
+        // Shoot = B
+
+        if (TestingController.b().getAsBoolean()) {
+            shooter.setShooterState(ShooterConstants.State.Shoot, 38.00 * 1.67, 10.00);
+        } else {
+            shooter.setShooterState(State.Idle, 0.00, 0.00);
+        }
 
         /* Auto Aim Control */
 
