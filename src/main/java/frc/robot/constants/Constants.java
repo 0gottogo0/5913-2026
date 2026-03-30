@@ -83,15 +83,6 @@ public final class Constants {
     }
 
     public static final class ControllerConstants {
-        public static enum DrivetrainState {
-            DisabledDrivetrain,
-            BabyMode,
-            SlowTC,
-            EventTC,
-            GoCrazyGoStupid, // Thank you team 4539 for this great
-                             // name idea at the 2025 NMRC Chamionship 
-        }
-
         // Units allowed to change per seccond
         public static final double XSlewRateLimiter = 8.00;
         public static final double YSlewRateLimiter = 8.00;

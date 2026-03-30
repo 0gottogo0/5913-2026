@@ -14,7 +14,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -22,7 +21,6 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.constants.Constants.AutoAimConstants;
 import frc.robot.constants.Constants.ControllerConstants;
 import frc.robot.constants.Constants.IntakeConstants;
-import frc.robot.constants.Constants.ControllerConstants.DrivetrainState;
 import frc.robot.constants.Constants.ShooterConstants.State;
 import frc.robot.constants.Constants.ShooterConstants;
 import frc.robot.constants.TunerConstants;
@@ -51,13 +49,9 @@ public class ControlSub extends SubsystemBase {
     private final CommandXboxController ManipulatorController = new CommandXboxController(ControllerConstants.ManipulatorControllerID);
     private final CommandXboxController TestingController = new CommandXboxController(ControllerConstants.TestingCOntrollerID);
     
-    private final SendableChooser<DrivetrainState> DrivetrainChooser = new SendableChooser<>();
-
     private boolean driverLastLeftBumper = DriverController.leftBumper().getAsBoolean();
     private boolean manipulatorLastLeftBumper = ManipulatorController.leftBumper().getAsBoolean();
 
-    private DrivetrainState drivetrainLastState = DrivetrainChooser.getSelected();
-    
     public AutoAim autoAim = new AutoAim();
     public Intake intake = new Intake();
     public Shooter shooter = new Shooter();
@@ -76,21 +70,6 @@ public class ControlSub extends SubsystemBase {
     public ControlSub() {
 
         /* Driver Controls */
-        DrivetrainChooser.setDefaultOption("Disable Drivetrain", DrivetrainState.DisabledDrivetrain);
-        //DrivetrainChooser.addOption("Disable Drivetrain", DrivetrainState.DisabledDrivetrain);
-        //DrivetrainChooser.setDefaultOption("Baby Movement", DrivetrainState.BabyMode);
-        DrivetrainChooser.addOption("Baby Movement", DrivetrainState.BabyMode);
-        //DrivetrainChooser.setDefaultOption("Slow Traction Control", DrivetrainState.SlowTC);
-        DrivetrainChooser.addOption("Slow Traction Control", DrivetrainState.SlowTC);
-        //DrivetrainChooser.setDefaultOption("Event Traction Control", DrivetrainState.EventTC);
-        DrivetrainChooser.addOption("Event Traction Control", DrivetrainState.EventTC);
-        //DrivetrainChooser.setDefaultOption("Defence Mode (Go Crazy)", DrivetrainState.GoCrazyGoStupid);
-        DrivetrainChooser.addOption("Defence Mode (Go Crazy)", DrivetrainState.GoCrazyGoStupid);
-        
-        SmartDashboard.putData("Drivetrain Mode", DrivetrainChooser);
-
-        drivetrainApplyRequest(DrivetrainChooser.getSelected());
-
         DriverController.button(ControllerConstants.XboxMenuButtonID).onTrue(
             drivetrain.runOnce(drivetrain::seedFieldCentric)
         );
@@ -111,12 +90,16 @@ public class ControlSub extends SubsystemBase {
         RobotModeTriggers.disabled().whileTrue(
             drivetrain.applyRequest(() -> new SwerveRequest.Idle()).ignoringDisable(true)
         );
+
+        drivetrain.setDefaultCommand(
+            drivetrain.applyRequest(() -> ControllerDrive
+                .withVelocityX(commandedMoveX * maxSpeed) // Drive forward with negative Y (forward)
+                .withVelocityY(commandedMoveY * maxSpeed) // Drive left with negative X (left)
+                .withRotationalRate(commandedRotate * maxAngularRate)));
     }
 
     @Override
     public void periodic() {
-        // Rewrite?
-
         /* Driver Controls */
         // Drive = Left Stick 
         // Steer = Right Stick
@@ -124,10 +107,13 @@ public class ControlSub extends SubsystemBase {
         // Toggle Intake Pos = Left Bumper
         // Track = Left Trig
         // Snake Drive = A
+        // GoCrazyGoStupid
 
-        commandedMoveX = MathUtil.applyDeadband(-DriverController.getLeftY(), ControllerConstants.StickDeadzone);
-        commandedMoveY = MathUtil.applyDeadband(-DriverController.getLeftX(), ControllerConstants.StickDeadzone);
-        commandedRotate = MathUtil.applyDeadband(-DriverController.getRightX(), ControllerConstants.StickDeadzone);
+        commandedMoveX = XSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getLeftY(), ControllerConstants.StickDeadzone));
+        commandedMoveY = YSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getLeftX(), ControllerConstants.StickDeadzone));
+        commandedRotate = RotateSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getRightX(), ControllerConstants.StickDeadzone));
+        // Thank you team 4539 for this great
+        // name idea at the 2025 NMRC Chamionship
 
         if (DriverStation.isTeleop()) {
             if (DriverController.leftBumper().getAsBoolean() && !driverLastLeftBumper) {
@@ -160,10 +146,6 @@ public class ControlSub extends SubsystemBase {
             } else {
                 intake.setIntakeState(IntakeConstants.State.IdleOut);
             }
-        }
-
-        if (drivetrainLastState != DrivetrainChooser.getSelected()) {
-            drivetrainApplyRequest(DrivetrainChooser.getSelected());
         }
 
         /* Manipulator Controls */
@@ -260,75 +242,6 @@ public class ControlSub extends SubsystemBase {
         // Inputs are now "outdated" and can be compared with new ones next scheduler run
         driverLastLeftBumper = DriverController.leftBumper().getAsBoolean();
         manipulatorLastLeftBumper = ManipulatorController.leftBumper().getAsBoolean();
-
-        drivetrainLastState = DrivetrainChooser.getSelected();
-    }
-
-    /**
-     * Apply drivetrain request with state
-     * <p>
-     * Uses setDefaultCommand() and the robot needs
-     * to be disabled to use
-     * 
-     * @param stateToChangeTo State to change the drivetrain to
-     */
-    private void drivetrainApplyRequest(DrivetrainState stateToChangeTo) {
-        // Setting default command has drivetrain run set request periodically
-        System.out.println("Setting new drivetrain request");
-
-        switch (stateToChangeTo) {
-            case DisabledDrivetrain:
-                drivetrain.setDefaultCommand(
-                    drivetrain.applyRequest(() -> ControllerDrive
-                        .withVelocityX(0.00) // Drive forward with negative Y (forward)
-                        .withVelocityY(0.00) // Drive left with negative X (left)
-                        .withRotationalRate(0.00) // Drive counterclockwise with negative X (left)
-                    )
-                );
-                break;
-            case BabyMode:
-                drivetrain.setDefaultCommand(
-                    drivetrain.applyRequest(() -> ControllerDrive
-                        .withVelocityX(commandedMoveX * (maxSpeed / 6.00)) // Drive forward with negative Y (forward)
-                        .withVelocityY(commandedMoveY * (maxSpeed / 6.00)) // Drive left with negative X (left)
-                        .withRotationalRate(commandedRotate * (maxAngularRate / 4.00)) // Drive counterclockwise with negative X (left)
-                    )
-                );
-                break;
-            case SlowTC:
-                drivetrain.setDefaultCommand(
-                    drivetrain.applyRequest(() -> ControllerDrive
-                        .withVelocityX(
-                            XSlewRateLimiter.calculate(commandedMoveX) * (maxSpeed / 2.50)) // Drive forward with negative Y (forward)
-                        .withVelocityY(
-                            YSlewRateLimiter.calculate(commandedMoveY) * (maxSpeed / 2.50)) // Drive left with negative X (left)
-                        .withRotationalRate(
-                            RotateSlewRateLimiter.calculate(commandedRotate) * maxAngularRate) // Drive counterclockwise with negative X (left)
-                    )
-                );
-                break;
-            case EventTC:
-                drivetrain.setDefaultCommand(
-                    drivetrain.applyRequest(() -> ControllerDrive
-                        .withVelocityX(
-                            XSlewRateLimiter.calculate(commandedMoveX) * maxSpeed) // Drive forward with negative Y (forward)
-                        .withVelocityY(
-                            YSlewRateLimiter.calculate(commandedMoveY) * maxSpeed) // Drive left with negative X (left)
-                        .withRotationalRate(
-                            RotateSlewRateLimiter.calculate(commandedRotate) * maxAngularRate) // Drive counterclockwise with negative X (left)
-                    )
-                );
-                break;
-            case GoCrazyGoStupid:
-                drivetrain.setDefaultCommand(
-                    drivetrain.applyRequest(() -> ControllerDrive
-                        .withVelocityX(commandedMoveX * maxSpeed) // Drive forward with negative Y (forward)
-                        .withVelocityY(commandedMoveY * maxSpeed) // Drive left with negative X (left)
-                        .withRotationalRate(commandedRotate * maxAngularRate) // Drive counterclockwise with negative X (left)
-                    )
-                );
-                break;
-        }
     }
 
     // Start using these in teleop?
