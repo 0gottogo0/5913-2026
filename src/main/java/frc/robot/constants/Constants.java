@@ -91,12 +91,14 @@ public final class Constants {
         public static final double RotateMagnitude = 0.90;
         public static final double StickDeadzone = 0.20;
 
+        public static final double AutoAimTargetSpeed = 0.01;
+
         public static final int XboxMenuButtonID = 7;
         public static final int XboxShareButtonID = 8;
 
         public static final int DriverControllerID = 0;
         public static final int ManipulatorControllerID = 1;
-        public static final int TestingCOntrollerID = 2;
+        public static final int TestingControllerID = 2;
     }
     
     public static final class IntakeConstants {

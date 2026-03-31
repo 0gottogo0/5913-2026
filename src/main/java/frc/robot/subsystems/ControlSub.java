@@ -13,7 +13,9 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -47,10 +49,14 @@ public class ControlSub extends SubsystemBase {
     
     private final CommandXboxController DriverController = new CommandXboxController(ControllerConstants.DriverControllerID);
     private final CommandXboxController ManipulatorController = new CommandXboxController(ControllerConstants.ManipulatorControllerID);
-    private final CommandXboxController TestingController = new CommandXboxController(ControllerConstants.TestingCOntrollerID);
+    private final CommandXboxController TestingController = new CommandXboxController(ControllerConstants.TestingControllerID);
+
+    private final SendableChooser<Alliance> AllianceSelecter = new SendableChooser<>();
     
     private boolean driverLastLeftBumper = DriverController.leftBumper().getAsBoolean();
+    private boolean driverLastRightTrigger = DriverController.leftTrigger().getAsBoolean();
     private boolean manipulatorLastLeftBumper = ManipulatorController.leftBumper().getAsBoolean();
+    private boolean manipulatorLastRightBumper = ManipulatorController.rightBumper().getAsBoolean();
 
     public AutoAim autoAim = new AutoAim();
     public Intake intake = new Intake();
@@ -60,6 +66,9 @@ public class ControlSub extends SubsystemBase {
     private double commandedMoveY = 0.00;
     private double commandedRotate = 0.00;
     private double hubPIDOutput = 0.00;
+
+    private double autoAimTargetX = 0.00;
+    private double autoAimTargetY = 0.00;
     
     private boolean isTracking = false;
     private boolean isIntakeRetracted = true;
@@ -96,6 +105,12 @@ public class ControlSub extends SubsystemBase {
                 .withVelocityX(commandedMoveX * maxSpeed) // Drive forward with negative Y (forward)
                 .withVelocityY(commandedMoveY * maxSpeed) // Drive left with negative X (left)
                 .withRotationalRate(commandedRotate * maxAngularRate)));
+
+        /* AutoAim Controls */
+        // Should make this work on its own but idk I cant get it
+        // to work with the fms
+        AllianceSelecter.setDefaultOption("Blue Alliance", Alliance.Blue);
+        AllianceSelecter.addOption("Red Alliance", Alliance.Red);
     }
 
     @Override
@@ -107,13 +122,17 @@ public class ControlSub extends SubsystemBase {
         // Toggle Intake Pos = Left Bumper
         // Track = Left Trig
         // Snake Drive = A
-        // GoCrazyGoStupid
+        // GoCrazyGoStupid = B
 
-        commandedMoveX = XSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getLeftY(), ControllerConstants.StickDeadzone));
-        commandedMoveY = YSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getLeftX(), ControllerConstants.StickDeadzone));
-        commandedRotate = RotateSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getRightX(), ControllerConstants.StickDeadzone));
-        // Thank you team 4539 for this great
-        // name idea at the 2025 NMRC Chamionship
+        if (DriverController.b().getAsBoolean()) {
+            commandedMoveX = MathUtil.applyDeadband(-DriverController.getLeftY(), ControllerConstants.StickDeadzone);
+            commandedMoveY = MathUtil.applyDeadband(-DriverController.getLeftX(), ControllerConstants.StickDeadzone);
+            commandedRotate = MathUtil.applyDeadband(-DriverController.getRightX(), ControllerConstants.StickDeadzone);
+        } else {
+            commandedMoveX = XSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getLeftY(), ControllerConstants.StickDeadzone));
+            commandedMoveY = YSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getLeftX(), ControllerConstants.StickDeadzone));
+            commandedRotate = RotateSlewRateLimiter.calculate(MathUtil.applyDeadband(-DriverController.getRightX(), ControllerConstants.StickDeadzone));
+        }
 
         if (DriverStation.isTeleop()) {
             if (DriverController.leftBumper().getAsBoolean() && !driverLastLeftBumper) {
@@ -124,27 +143,19 @@ public class ControlSub extends SubsystemBase {
                 }
             }
 
-            isIntaking = DriverController.rightTrigger().getAsBoolean();
+            // When we start intaking, put the intake out, however
+            // we should be able to move the intake in and out while
+            // intaking
+            if (DriverController.rightTrigger().getAsBoolean() && !driverLastRightTrigger) {
+                isIntakeRetracted = false;
+            }
 
+            isIntaking = DriverController.rightTrigger().getAsBoolean();
+            
             if (isTracking) {
                 DriverController.setRumble(RumbleType.kBothRumble, 0.20);
             } else {
                 DriverController.setRumble(RumbleType.kBothRumble, 0.00);
-            }
-        }
-        
-
-        if (isIntaking) {
-            if (isIntakeRetracted) {
-                intake.setIntakeState(IntakeConstants.State.IntakeIn);
-            } else {
-                intake.setIntakeState(IntakeConstants.State.IntakeOut);
-            }
-        } else {
-            if (isIntakeRetracted) {
-                intake.setIntakeState(IntakeConstants.State.IdleIn);
-            } else {
-                intake.setIntakeState(IntakeConstants.State.IdleOut);
             }
         }
 
@@ -152,10 +163,10 @@ public class ControlSub extends SubsystemBase {
         // Spinup = X
         // Shoot = Right Trig
         // Track = Left Trig
-        // Intake = 
+        // Intake = Right Bumper
         // Toggle Intake Pos = Left Bumper
-        // Set Hub as Target = 
-        // Manual Target = 
+        // Set Hub as Target = Pov Right
+        // Manual Target = Right Stick
         
         if (DriverStation.isTeleop()) {
             isSpinup = ManipulatorController.x().getAsBoolean();
@@ -169,10 +180,36 @@ public class ControlSub extends SubsystemBase {
                 }
             }
 
+            // When we start intaking, put the intake out, however
+            // we should be able to move the intake in and out while
+            // intaking
+            if (ManipulatorController.rightBumper().getAsBoolean() && !manipulatorLastRightBumper) {
+                isIntakeRetracted = false;
+            }
+
+            isIntaking = ManipulatorController.rightBumper().getAsBoolean();
+
             if (shooter.isShooterAtSpeed()) {
                 ManipulatorController.setRumble(RumbleType.kBothRumble, 0.20);
             } else {
                 ManipulatorController.setRumble(RumbleType.kBothRumble, 0.00);
+            }
+
+            autoAimTargetX = MathUtil.applyDeadband(-ManipulatorController.getRightY(), ControllerConstants.StickDeadzone);
+            autoAimTargetY = MathUtil.applyDeadband(-ManipulatorController.getRightX(), ControllerConstants.StickDeadzone);
+        }
+
+        if (isIntaking) {
+            if (isIntakeRetracted) {
+                intake.setIntakeState(IntakeConstants.State.IntakeIn);
+            } else {
+                intake.setIntakeState(IntakeConstants.State.IntakeOut);
+            }
+        } else {
+            if (isIntakeRetracted) {
+                intake.setIntakeState(IntakeConstants.State.IdleIn);
+            } else {
+                intake.setIntakeState(IntakeConstants.State.IdleOut);
             }
         }
 
@@ -209,6 +246,21 @@ public class ControlSub extends SubsystemBase {
 
         // This works ig
         autoAim.setAutoAimDrivetrainState(drivetrain);
+
+        if (DriverController.a().getAsBoolean()) {
+            autoAim.setAutoAimState(AutoAimConstants.State.SnakeDrive);
+        } else {
+            autoAim.setAutoAimDumbControl(autoAimTargetX, autoAimTargetY);
+        }
+
+        if (ManipulatorController.povRight().getAsBoolean()) {
+            //autoAim.setAutoAimState(AutoAimConstants.State.Goal); idk figure out a way to make the goal state not useless or sumthin
+            if (AllianceSelecter.getSelected() == Alliance.Blue) {
+                autoAim.setAutoAimDumbControl(AutoAimConstants.BlueGoal.getX(), AutoAimConstants.BlueGoal.getY());
+            } else {
+                autoAim.setAutoAimDumbControl(AutoAimConstants.RedGoal.getX(), AutoAimConstants.RedGoal.getY());
+            }
+        }
         
         if (DriverStation.isTeleop()) {
             isTracking = DriverController.leftTrigger().getAsBoolean() || ManipulatorController.leftTrigger().getAsBoolean();
@@ -241,13 +293,10 @@ public class ControlSub extends SubsystemBase {
 
         // Inputs are now "outdated" and can be compared with new ones next scheduler run
         driverLastLeftBumper = DriverController.leftBumper().getAsBoolean();
+        driverLastRightTrigger = DriverController.leftTrigger().getAsBoolean();
         manipulatorLastLeftBumper = ManipulatorController.leftBumper().getAsBoolean();
+        manipulatorLastRightBumper = ManipulatorController.rightBumper().getAsBoolean();
     }
-
-    // Start using these in teleop?
-    // That way we dont have to use that stupid
-    // Driverstation.isTeleop() function again...
-    // ...maybe
 
     // Atleast get rid of these variables and
     // have these functions call the subsystem
