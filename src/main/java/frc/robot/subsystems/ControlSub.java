@@ -195,8 +195,10 @@ public class ControlSub extends SubsystemBase {
                 ManipulatorController.setRumble(RumbleType.kBothRumble, 0.00);
             }
 
-            autoAimTargetX = MathUtil.applyDeadband(-ManipulatorController.getRightY(), ControllerConstants.StickDeadzone);
-            autoAimTargetY = MathUtil.applyDeadband(-ManipulatorController.getRightX(), ControllerConstants.StickDeadzone);
+            // Times by delta incase loop overun happens? should be reliable
+            // and stable enough... (wait till manipulator crashes out)
+            autoAimTargetX += MathUtil.applyDeadband(-ManipulatorController.getRightY(), ControllerConstants.StickDeadzone) * ControllerConstants.AutoAimTargetSpeed;
+            autoAimTargetY += MathUtil.applyDeadband(-ManipulatorController.getRightX(), ControllerConstants.StickDeadzone) * ControllerConstants.AutoAimTargetSpeed;
         }
 
         if (isIntaking) {
@@ -234,36 +236,49 @@ public class ControlSub extends SubsystemBase {
 
         /* Testing Controls */
         // Should be used for Sys Check at events imo
-        // Shoot = B
+        // Rollers/Feed = A
+        // Shooters = B
+        // All = X
 
-        if (TestingController.b().getAsBoolean()) {
-            shooter.setShooterState(ShooterConstants.State.Shoot, 38.00 * 1.67, 10.00);
-        } else {
-            shooter.setShooterState(State.Idle, 0.00, 0.00);
+        if (DriverStation.isTeleop()) {
+            if (TestingController.a().getAsBoolean()) {
+                shooter.setShooterDumbControl(1.00, 0.50, 0.00, 0.00, 0.00);
+            } else if (TestingController.b().getAsBoolean()) {
+                shooter.setShooterDumbControl(0.00, 0.00, 0.30, 0.30, 0.30);
+            } else if (TestingController.x().getAsBoolean()) {
+                shooter.setShooterDumbControl(1.00, 0.50, 0.30, 0.30, 0.30);
+            } else {
+                shooter.setShooterState(State.Idle, 0.00, 0.00);
+            }
         }
 
         /* Auto Aim Control */
 
         // This works ig
         autoAim.setAutoAimDrivetrainState(drivetrain);
-
-        if (DriverController.a().getAsBoolean()) {
-            autoAim.setAutoAimState(AutoAimConstants.State.SnakeDrive);
-        } else {
-            autoAim.setAutoAimDumbControl(autoAimTargetX, autoAimTargetY);
-        }
-
-        if (ManipulatorController.povRight().getAsBoolean()) {
-            //autoAim.setAutoAimState(AutoAimConstants.State.Goal); idk figure out a way to make the goal state not useless or sumthin
-            if (AllianceSelecter.getSelected() == Alliance.Blue) {
-                autoAim.setAutoAimDumbControl(AutoAimConstants.BlueGoal.getX(), AutoAimConstants.BlueGoal.getY());
-            } else {
-                autoAim.setAutoAimDumbControl(AutoAimConstants.RedGoal.getX(), AutoAimConstants.RedGoal.getY());
-            }
-        }
         
         if (DriverStation.isTeleop()) {
             isTracking = DriverController.leftTrigger().getAsBoolean() || ManipulatorController.leftTrigger().getAsBoolean();
+
+            // If driver needs tracking let them have it, else manipulator can do whatever ig
+            if (DriverController.a().getAsBoolean()) {
+                autoAim.setAutoAimState(AutoAimConstants.State.SnakeDrive);
+            } else {
+                autoAim.setAutoAimDumbControl(autoAimTargetX, autoAimTargetY);
+            }
+
+            if (ManipulatorController.povRight().getAsBoolean()) {
+                //autoAim.setAutoAimState(AutoAimConstants.State.Goal); idk figure out a way to make the goal state not useless or sumthin
+                if (AllianceSelecter.getSelected() == Alliance.Blue) {
+                    //autoAim.setAutoAimDumbControl(AutoAimConstants.BlueGoal.getX(), AutoAimConstants.BlueGoal.getY());
+                    autoAimTargetX = AutoAimConstants.BlueGoal.getX();
+                    autoAimTargetY = AutoAimConstants.BlueGoal.getY();
+                } else {
+                    //autoAim.setAutoAimDumbControl(AutoAimConstants.RedGoal.getX(), AutoAimConstants.RedGoal.getY());
+                    autoAimTargetX = AutoAimConstants.BlueGoal.getX();
+                    autoAimTargetY = AutoAimConstants.BlueGoal.getY();
+                }
+            }
         }
 
         // Check if we need to go further then half a rotation and if

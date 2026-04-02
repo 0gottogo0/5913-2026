@@ -18,7 +18,7 @@ import frc.robot.constants.Constants.ShooterConstants.State;
 
 public class Shooter extends SubsystemBase {
 
-    // Kraken X44
+    // Kraken X60
     private TalonFX bottomRollers = new TalonFX(BottomRollersID);
     private TalonFXConfiguration bottomRollersConfig = new TalonFXConfiguration();
 
@@ -32,7 +32,8 @@ public class Shooter extends SubsystemBase {
 	private TalonFX bottomShooter = new TalonFX(BottomMotorID);
     private TalonFXConfiguration bottomShooterConfig = new TalonFXConfiguration();
 
-	// Reminder: Front is the intake. Why? Idrfk.
+	// Reminder: Front is the intake, for left and right imagine
+	// your in the middle of the robot looking front. Why? Idrfk.
 
 	// Kraken X60
 	// Top 4"
@@ -44,7 +45,7 @@ public class Shooter extends SubsystemBase {
   	private TalonFX rightShooter = new TalonFX(RightMotorID);
   	private TalonFXConfiguration rightShooterConfig = new TalonFXConfiguration();
 
-	// Kraken X44
+	// Kraken X60
 	// 2"
 	private TalonFX hoodShooter = new TalonFX(HoodMotorID);
   	private TalonFXConfiguration hoodShooterConfig = new TalonFXConfiguration();
