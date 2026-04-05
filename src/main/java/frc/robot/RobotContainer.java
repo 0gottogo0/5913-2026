@@ -34,6 +34,14 @@ public class RobotContainer {
             () -> control.startIntakeIn()
         ));
 
+        NamedCommands.registerCommand("Start Agitate Intake", control.runOnce(
+            () -> control.startIntakeAgitating()
+        ));
+
+        NamedCommands.registerCommand("Stop Agitate Intake", control.runOnce(
+            () -> control.stopIntakeAgitating()
+        ));
+
         NamedCommands.registerCommand("Stop Spinup", control.runOnce(
             () -> control.stopSpinup()
         ));
@@ -48,14 +56,6 @@ public class RobotContainer {
 
         NamedCommands.registerCommand("Start Shooting", control.runOnce(
             () -> control.startShooting()
-        ));
-
-        NamedCommands.registerCommand("Stop Tracking", control.runOnce(
-            () -> control.stopTracking()
-        ));
-
-        NamedCommands.registerCommand("Start Tracking", control.runOnce(
-            () -> control.startTracking()
         ));
 
         configureBindings();

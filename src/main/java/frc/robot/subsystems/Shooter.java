@@ -145,21 +145,28 @@ public class Shooter extends SubsystemBase {
 			case Spinup:
                 bottomRollers.set(0.00);
 				feeder.set(0.00);
-				bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(topTargetSpeed));
+				bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(BottomShooterSpeed));
 				leftShooter.setControl(leftShooterVelocityVoltage.withVelocity(topTargetSpeed));
 				rightShooter.setControl(rightShooterVelocityVoltage.withVelocity(-topTargetSpeed));
 				hoodShooter.setControl(hoodShooterVelocityVoltage.withVelocity(-hoodTargetSpeed));
 				break;
 			case Shoot:
-                bottomRollers.setControl(rollersVelocityVoltage.withVelocity(BeltsSpeed));
+                bottomRollers.setControl(rollersVelocityVoltage.withVelocity(-BeltsSpeed));
 				feeder.setControl(feederVelocityVoltage.withVelocity(FeedSpeed));
-				bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(topTargetSpeed));
+				bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(BottomShooterSpeed));
 				leftShooter.setControl(leftShooterVelocityVoltage.withVelocity(topTargetSpeed));
 				rightShooter.setControl(rightShooterVelocityVoltage.withVelocity(-topTargetSpeed));
 				hoodShooter.setControl(hoodShooterVelocityVoltage.withVelocity(-hoodTargetSpeed));
 				break;
+			case Unstick: 
+				bottomRollers.setControl(rollersVelocityVoltage.withVelocity(BeltsSpeed));
+				feeder.setControl(feederVelocityVoltage.withVelocity(-FeedSpeed));
+				bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(-BottomShooterSpeed));
+				leftShooter.setControl(leftShooterVelocityVoltage.withVelocity(topTargetSpeed));
+				rightShooter.setControl(rightShooterVelocityVoltage.withVelocity(-topTargetSpeed));
+				hoodShooter.setControl(hoodShooterVelocityVoltage.withVelocity(-hoodTargetSpeed));
 			case DumbControl:
-                bottomRollers.set(rollersTargetSpeed);
+                bottomRollers.set(-rollersTargetSpeed);
 				feeder.set(feederTargetSpeed);
 				bottomShooter.set(bottomTargetSpeed);
 				leftShooter.set(topTargetSpeed);

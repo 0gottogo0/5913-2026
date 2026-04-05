@@ -56,7 +56,6 @@ public class ControlSub extends SubsystemBase {
     private boolean driverLastLeftBumper = DriverController.leftBumper().getAsBoolean();
     private boolean driverLastRightTrigger = DriverController.leftTrigger().getAsBoolean();
     private boolean manipulatorLastLeftBumper = ManipulatorController.leftBumper().getAsBoolean();
-    private boolean manipulatorLastRightBumper = ManipulatorController.rightBumper().getAsBoolean();
 
     public AutoAim autoAim = new AutoAim();
     public Intake intake = new Intake();
@@ -71,8 +70,9 @@ public class ControlSub extends SubsystemBase {
     private double autoAimTargetY = 0.00;
     
     private boolean isTracking = false;
-    private boolean isIntakeRetracted = true;
+    private boolean isIntakeRetracted = false;
     private boolean isIntaking = false;
+    private boolean isAgitating = false;
     private boolean isSpinup = false;
     private boolean isShooting = false;
 
@@ -163,8 +163,7 @@ public class ControlSub extends SubsystemBase {
         // Spinup = X
         // Shoot = Right Trig
         // Track = Left Trig
-        // Intake = Right Bumper
-        // Toggle Intake Pos = Left Bumper
+        // Toggle Intake Agitate = Left Bumper
         // Set Hub as Target = Pov Right
         // Manual Target = Right Stick
         
@@ -173,21 +172,12 @@ public class ControlSub extends SubsystemBase {
             isShooting = ManipulatorController.rightTrigger().getAsBoolean();
 
             if (ManipulatorController.leftBumper().getAsBoolean() && !manipulatorLastLeftBumper) {
-                if (isIntakeRetracted) {
-                    isIntakeRetracted = false;
+                if (isAgitating) {
+                    isAgitating = false;
                 } else {
-                    isIntakeRetracted = true;
+                    isAgitating = true;
                 }
             }
-
-            // When we start intaking, put the intake out, however
-            // we should be able to move the intake in and out while
-            // intaking
-            if (ManipulatorController.rightBumper().getAsBoolean() && !manipulatorLastRightBumper) {
-                isIntakeRetracted = false;
-            }
-
-            isIntaking = ManipulatorController.rightBumper().getAsBoolean();
 
             if (shooter.isShooterAtSpeed()) {
                 ManipulatorController.setRumble(RumbleType.kBothRumble, 0.20);
@@ -197,11 +187,12 @@ public class ControlSub extends SubsystemBase {
 
             // Times by delta incase loop overun happens? should be reliable
             // and stable enough... (wait till manipulator crashes out)
-            autoAimTargetX += MathUtil.applyDeadband(-ManipulatorController.getRightY(), ControllerConstants.StickDeadzone) * ControllerConstants.AutoAimTargetSpeed;
-            autoAimTargetY += MathUtil.applyDeadband(-ManipulatorController.getRightX(), ControllerConstants.StickDeadzone) * ControllerConstants.AutoAimTargetSpeed;
+            autoAimTargetX += ManipulatorController.getRightX() * ControllerConstants.AutoAimTargetSpeed;
+            autoAimTargetY += -ManipulatorController.getRightY() * ControllerConstants.AutoAimTargetSpeed;
         }
-
-        if (isIntaking) {
+        if (isAgitating) {
+            intake.setIntakeState(IntakeConstants.State.Agitate);
+        } else if (isIntaking) {
             if (isIntakeRetracted) {
                 intake.setIntakeState(IntakeConstants.State.IntakeIn);
             } else {
@@ -226,9 +217,9 @@ public class ControlSub extends SubsystemBase {
             }
         } else {
             if (isSpinup && isShooting) {
-                shooter.setShooterState(ShooterConstants.State.Shoot, 38.00 * 1.67, 10.00);
+                shooter.setShooterState(ShooterConstants.State.Shoot, 60.00, 20.00);
             } else if (isSpinup) {
-                shooter.setShooterState(ShooterConstants.State.Spinup, 38.00 * 1.67, 10.00);
+                shooter.setShooterState(ShooterConstants.State.Spinup, 60.00, 20.00);
             } else {
                 shooter.setShooterState(State.Idle, 0.00, 0.00);
             }
@@ -239,14 +230,17 @@ public class ControlSub extends SubsystemBase {
         // Rollers/Feed = A
         // Shooters = B
         // All = X
+        // All W/ PID = Y
 
-        if (DriverStation.isTeleop()) {
+        if (DriverStation.isTeleop() && TestingController.isConnected()) {
             if (TestingController.a().getAsBoolean()) {
                 shooter.setShooterDumbControl(1.00, 0.50, 0.00, 0.00, 0.00);
             } else if (TestingController.b().getAsBoolean()) {
                 shooter.setShooterDumbControl(0.00, 0.00, 0.30, 0.30, 0.30);
             } else if (TestingController.x().getAsBoolean()) {
                 shooter.setShooterDumbControl(1.00, 0.50, 0.30, 0.30, 0.30);
+            } else if (TestingController.y().getAsBoolean()) {
+                shooter.setShooterState(State.Shoot, 50.00, 50.00);
             } else {
                 shooter.setShooterState(State.Idle, 0.00, 0.00);
             }
@@ -258,7 +252,7 @@ public class ControlSub extends SubsystemBase {
         autoAim.setAutoAimDrivetrainState(drivetrain);
         
         if (DriverStation.isTeleop()) {
-            isTracking = DriverController.leftTrigger().getAsBoolean() || ManipulatorController.leftTrigger().getAsBoolean();
+            isTracking = DriverController.leftTrigger().getAsBoolean() || ManipulatorController.leftTrigger().getAsBoolean() || DriverController.a().getAsBoolean();
 
             // If driver needs tracking let them have it, else manipulator can do whatever ig
             if (DriverController.a().getAsBoolean()) {
@@ -275,10 +269,12 @@ public class ControlSub extends SubsystemBase {
                     autoAimTargetY = AutoAimConstants.BlueGoal.getY();
                 } else {
                     //autoAim.setAutoAimDumbControl(AutoAimConstants.RedGoal.getX(), AutoAimConstants.RedGoal.getY());
-                    autoAimTargetX = AutoAimConstants.BlueGoal.getX();
-                    autoAimTargetY = AutoAimConstants.BlueGoal.getY();
+                    autoAimTargetX = AutoAimConstants.RedGoal.getX();
+                    autoAimTargetY = AutoAimConstants.RedGoal.getY();
                 }
             }
+
+            SmartDashboard.putData("Alliance", AllianceSelecter);
         }
 
         // Check if we need to go further then half a rotation and if
@@ -310,7 +306,6 @@ public class ControlSub extends SubsystemBase {
         driverLastLeftBumper = DriverController.leftBumper().getAsBoolean();
         driverLastRightTrigger = DriverController.leftTrigger().getAsBoolean();
         manipulatorLastLeftBumper = ManipulatorController.leftBumper().getAsBoolean();
-        manipulatorLastRightBumper = ManipulatorController.rightBumper().getAsBoolean();
     }
 
     // Atleast get rid of these variables and
@@ -336,6 +331,14 @@ public class ControlSub extends SubsystemBase {
         isIntaking = true;
     }
 
+    public void startIntakeAgitating() {
+        isAgitating = true;
+    }
+
+    public void stopIntakeAgitating() {
+        isAgitating = false;
+    }
+
     public void stopSpinup() {
         isSpinup = false;
     }
@@ -350,13 +353,5 @@ public class ControlSub extends SubsystemBase {
 
     public void startShooting() {
         isShooting = true;
-    }
-
-    public void stopTracking() {
-        isTracking = false;
-    }
-
-    public void startTracking() {
-        isTracking = true;
     }
 }
