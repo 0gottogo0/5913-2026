@@ -8,10 +8,10 @@ import static frc.robot.constants.Constants.AutoAimConstants.*;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
@@ -26,73 +26,63 @@ public class AutoAim extends SubsystemBase {
 
     Pose2d TurretRotatePointPose = new Pose2d();
 
-    Pose2d blueGoalPose = new Pose2d();
+    Pose2d goalPose = new Pose2d();
     Pose2d redGoalPose = new Pose2d();
     Pose2d adjustedGoalPose = new Pose2d();
 
-    PoseEstimate LimelightLeftMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightLeft);
-    PoseEstimate LimelightRightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightRight);
+    PoseEstimate LimelightCenterMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightCenter);
 
     double calculatedShot[] = {0.00, 0.00, 0.00, 0.00, 0.00};
     double distanceFromClimb[] = {0.00, 0.00};
 
     State state = State.Goal;
 
-    public AutoAim() {}
+    Field2d field = new Field2d();
+
+    public AutoAim() {
+        
+    }
 
     @Override
     public void periodic() {
 
         // Change pipeline depending on robot state
         if (DriverStation.isDisabled()) {
-            NetworkTableInstance.getDefault().getTable(LimelightLeft).getEntry("pipeline").setNumber(1);
-            NetworkTableInstance.getDefault().getTable(LimelightRight).getEntry("pipeline").setNumber(1);
+            NetworkTableInstance.getDefault().getTable(LimelightCenter).getEntry("pipeline").setNumber(1);
         } else {
-            NetworkTableInstance.getDefault().getTable(LimelightLeft).getEntry("pipeline").setNumber(0);
-            NetworkTableInstance.getDefault().getTable(LimelightRight).getEntry("pipeline").setNumber(0);
+            NetworkTableInstance.getDefault().getTable(LimelightCenter).getEntry("pipeline").setNumber(0);
         }
 
-        LimelightLeftMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightLeft);
-        LimelightRightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightRight);
+        LimelightCenterMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightCenter);
 
-        if (LimelightLeftMeasurement != null && LimelightLeftMeasurement.tagCount > 0) {
-            drivetrain.addVisionMeasurement(LimelightLeftMeasurement.pose, LimelightLeftMeasurement.timestampSeconds);
-        }
-
-        if (LimelightRightMeasurement != null && LimelightRightMeasurement.tagCount > 0) {
-            drivetrain.addVisionMeasurement(LimelightRightMeasurement.pose, LimelightRightMeasurement.timestampSeconds);
+        if (LimelightCenterMeasurement != null && LimelightCenterMeasurement.tagCount > 0) {
+            drivetrain.addVisionMeasurement(LimelightCenterMeasurement.pose, LimelightCenterMeasurement.timestampSeconds);
         }
 
         switch (state) {
             case Goal:
                 if (isBlue()) {
-                    blueGoalPose = BlueGoal;
+                    goalPose = BlueGoal;
                 } else {
-                    blueGoalPose = RedGoal;
+                    goalPose = RedGoal;
                 }
                 break;
-            case NeutralZone:
-                blueGoalPose = NeutralZone;
-                break;
-            case AllianceZone:
-                if (isBlue()) {
-                    blueGoalPose = BlueZone;
-                } else {
-                    blueGoalPose = RedZone;
-                }
-                break;
+            case SnakeDrive:
+                // Brokie
             case DumbControl:
                 // Do nothing, handled by setAutoAimDumbControl()
                 break;
         }
 
+        // Only for turret
         //TurretRotatePointPose = robotPose.plus(TurretRotatePoint);
 
         // To adjust the goal pose when shooting on the
         // move, first take robot speed and times that
         // by our time of flight, then add that new
         // transform to the goal pose
-        adjustedGoalPose = blueGoalPose.plus(new Transform2d(robotSpeed.vxMetersPerSecond, robotSpeed.vyMetersPerSecond, new Rotation2d()).times(TimeOfFlightByDistance.get(getAimTargetInDistance())));
+        adjustedGoalPose = goalPose;//.plus(new Transform2d(robotSpeed.vxMetersPerSecond, robotSpeed.vyMetersPerSecond, new Rotation2d()).times(TimeOfFlightByDistance.get(getAimTargetInDistance())));
+        // we arnt shooting on the move so I commented out a ton of shi lol
 
         SmartDashboard.putNumber("Robot X", robotPose.getX());
         SmartDashboard.putNumber("Robot Y", robotPose.getY());
@@ -104,10 +94,10 @@ public class AutoAim extends SubsystemBase {
         // These are useless if we dont have a turret ;-;
         SmartDashboard.putNumber("Turret X", TurretRotatePointPose.getX());
         SmartDashboard.putNumber("Turret Y", TurretRotatePointPose.getY());
-
+        
         SmartDashboard.putNumber("Target Angle", getAimTargetInDegrees());
         SmartDashboard.putNumber("Target Distance", getAimTargetInDistance());
-        SmartDashboard.putNumber("Target Time Of Flight", TimeOfFlightByDistance.get(getAimTargetInDistance()));
+        SmartDashboard.putNumber("Target Time Of Flight", 0);//TimeOfFlightByDistance.get(getAimTargetInDistance()));
         
         SmartDashboard.putNumber("Adjusted Target Angle", getShootOnMoveAimTarget()[0]);
         SmartDashboard.putNumber("Adjusted Target Distance", getShootOnMoveAimTarget()[1]);
@@ -115,6 +105,13 @@ public class AutoAim extends SubsystemBase {
         SmartDashboard.putNumber("Adjusted Target Top Shooter Speed", getShootOnMoveAimTarget()[3]);
         SmartDashboard.putNumber("Adjusted Target Time Of Flight", getShootOnMoveAimTarget()[4]);
         SmartDashboard.putNumberArray("Adjusted Target Data", getShootOnMoveAimTarget());
+
+        SmartDashboard.putData("Field", field);
+
+        // For visualization of target, NOTE: the target is
+        // above the ground and balls will not land on the 
+        // target, but they will pass through the target
+        field.setRobotPose(goalPose);
     }
 
     /**
@@ -147,7 +144,7 @@ public class AutoAim extends SubsystemBase {
      * @return Aim tagret in degrees
      */
     private double getAimTargetInDegrees() {
-        return robotPose.getRotation().getDegrees() - Math.atan(TurretRotatePointPose.minus(blueGoalPose).getX() / TurretRotatePointPose.minus(blueGoalPose).getY());
+        return robotPose.getRotation().getDegrees() - Math.atan(TurretRotatePointPose.minus(goalPose).getX() / TurretRotatePointPose.minus(goalPose).getY());
     }
     
     /**
@@ -156,7 +153,7 @@ public class AutoAim extends SubsystemBase {
      * @return Aim target in meters
      */
     private double getAimTargetInDistance() {
-        return Math.abs(Math.sqrt(Math.pow(TurretRotatePointPose.minus(blueGoalPose).getX(), 2) + Math.pow(TurretRotatePointPose.minus(blueGoalPose).getY(), 2)));
+        return Math.abs(Math.sqrt(Math.pow(TurretRotatePointPose.minus(goalPose).getX(), 2) + Math.pow(TurretRotatePointPose.minus(goalPose).getY(), 2)));
     }
 
     /**
@@ -171,7 +168,7 @@ public class AutoAim extends SubsystemBase {
         // Code used for if we have a turret for degrees
         //calculatedShot[0] = robotPose.getRotation().getDegrees() - Math.atan(TurretRotatePointPose.minus(adjustedGoalPose).getX() / TurretRotatePointPose.minus(adjustedGoalPose).getY());
         // Code used for if we do not have a turret for degrees
-        calculatedShot[0] = Math.toDegrees(Math.atan2(-(robotPose.getY() - adjustedGoalPose.getY()), -(robotPose.getX() - adjustedGoalPose.getX())));
+        calculatedShot[0] = Math.toDegrees(Math.atan2((robotPose.getY() - adjustedGoalPose.getY()), (robotPose.getX() - adjustedGoalPose.getX())));
         // Gets distance
         calculatedShot[1] = Math.sqrt(Math.pow(Math.abs(robotPose.getX() - adjustedGoalPose.getX()), 2) + Math.pow(Math.abs(robotPose.getY() - adjustedGoalPose.getY()), 2));
         // Interpolates for top shooter
@@ -179,7 +176,7 @@ public class AutoAim extends SubsystemBase {
         // Interpolates for hood shooter
         calculatedShot[3] = HoodShooterSpeedByDistance.get(calculatedShot[1]);
         // Interpolates time of flight
-        calculatedShot[4] = TimeOfFlightByDistance.get(calculatedShot[1]);
+        calculatedShot[4] = 0;//TimeOfFlightByDistance.get(calculatedShot[1]);
         return calculatedShot;
     }
 
@@ -203,6 +200,7 @@ public class AutoAim extends SubsystemBase {
      * Systems In Detail"
      */
     public void setAutoAimDumbControl(double x, double y) {
-        blueGoalPose = new Pose2d(x, y, new Rotation2d(0.00));
+        goalPose = new Pose2d(x, y, new Rotation2d(0.00));
+        state = State.DumbControl;
     }
 }

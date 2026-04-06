@@ -18,7 +18,7 @@ import frc.robot.constants.Constants.ShooterConstants.State;
 
 public class Shooter extends SubsystemBase {
 
-    // Kraken X44
+    // Kraken X60
     private TalonFX bottomRollers = new TalonFX(BottomRollersID);
     private TalonFXConfiguration bottomRollersConfig = new TalonFXConfiguration();
 
@@ -32,7 +32,8 @@ public class Shooter extends SubsystemBase {
 	private TalonFX bottomShooter = new TalonFX(BottomMotorID);
     private TalonFXConfiguration bottomShooterConfig = new TalonFXConfiguration();
 
-	// Reminder: Front is the intake. Why? Idrfk.
+	// Reminder: Front is the intake, for left and right imagine
+	// your in the middle of the robot looking front. Why? Idrfk.
 
 	// Kraken X60
 	// Top 4"
@@ -44,13 +45,12 @@ public class Shooter extends SubsystemBase {
   	private TalonFX rightShooter = new TalonFX(RightMotorID);
   	private TalonFXConfiguration rightShooterConfig = new TalonFXConfiguration();
 
-	// Kraken X44
+	// Kraken X60
 	// 2"
 	private TalonFX hoodShooter = new TalonFX(HoodMotorID);
   	private TalonFXConfiguration hoodShooterConfig = new TalonFXConfiguration();
 
-	// Guess on why we use a pid on the bottom
-	// rollers? I'll wait...
+	// PID EBERY THING
 	private VelocityVoltage rollersVelocityVoltage = new VelocityVoltage(0);
 	private VelocityVoltage feederVelocityVoltage = new VelocityVoltage(0);
     private VelocityVoltage bottomShooterVelocityVoltage = new VelocityVoltage(0);
@@ -144,21 +144,28 @@ public class Shooter extends SubsystemBase {
 			case Spinup:
                 bottomRollers.set(0.00);
 				feeder.set(0.00);
-				bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(topTargetSpeed));
+				bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(BottomShooterSpeed));
 				leftShooter.setControl(leftShooterVelocityVoltage.withVelocity(topTargetSpeed));
 				rightShooter.setControl(rightShooterVelocityVoltage.withVelocity(-topTargetSpeed));
 				hoodShooter.setControl(hoodShooterVelocityVoltage.withVelocity(-hoodTargetSpeed));
 				break;
 			case Shoot:
-                bottomRollers.setControl(rollersVelocityVoltage.withVelocity(BeltsSpeed));
+                bottomRollers.setControl(rollersVelocityVoltage.withVelocity(-BeltsSpeed));
 				feeder.setControl(feederVelocityVoltage.withVelocity(FeedSpeed));
-				bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(topTargetSpeed));
+				bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(BottomShooterSpeed));
 				leftShooter.setControl(leftShooterVelocityVoltage.withVelocity(topTargetSpeed));
 				rightShooter.setControl(rightShooterVelocityVoltage.withVelocity(-topTargetSpeed));
 				hoodShooter.setControl(hoodShooterVelocityVoltage.withVelocity(-hoodTargetSpeed));
 				break;
+			case Unstick: 
+				bottomRollers.setControl(rollersVelocityVoltage.withVelocity(BeltsSpeed));
+				feeder.setControl(feederVelocityVoltage.withVelocity(-FeedSpeed));
+				bottomShooter.setControl(bottomShooterVelocityVoltage.withVelocity(-BottomShooterSpeed));
+				leftShooter.setControl(leftShooterVelocityVoltage.withVelocity(topTargetSpeed));
+				rightShooter.setControl(rightShooterVelocityVoltage.withVelocity(-topTargetSpeed));
+				hoodShooter.setControl(hoodShooterVelocityVoltage.withVelocity(-hoodTargetSpeed));
 			case DumbControl:
-                bottomRollers.set(rollersTargetSpeed);
+                bottomRollers.set(-rollersTargetSpeed);
 				feeder.set(feederTargetSpeed);
 				bottomShooter.set(bottomTargetSpeed);
 				leftShooter.set(topTargetSpeed);

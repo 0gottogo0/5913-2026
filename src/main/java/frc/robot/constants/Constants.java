@@ -11,8 +11,7 @@ public final class Constants {
     public static final class AutoAimConstants {
         public static enum State {
             Goal,
-            NeutralZone,
-            AllianceZone,
+            SnakeDrive,
             DumbControl
         }
 
@@ -36,28 +35,26 @@ public final class Constants {
         
         // Meters, RPS
         public static final InterpolatingDoubleTreeMap TopShooterSpeedByDistance = InterpolatingDoubleTreeMap.ofEntries(
-            Map.entry(0.00, 34.00 * 1.67),
-            Map.entry(1.64, 34.00 * 1.67),
-            Map.entry(2.30, 37.00 * 1.67),
-            Map.entry(3.00, 43.00 * 1.67),
-            Map.entry(3.60, 43.00 * 1.67),
-            Map.entry(4.30, 43.00 * 1.67),
-            Map.entry(4.50, 43.00 * 1.67)
+            Map.entry(0.00, 60.00),
+            Map.entry(1.80, 60.00),
+            Map.entry(2.50, 60.00),
+            Map.entry(3.20, 50.00),
+            Map.entry(4.00, 43.00),
+            Map.entry(5.00, 40.00)
             );
     
         // Meters, RPS
         public static final InterpolatingDoubleTreeMap HoodShooterSpeedByDistance = InterpolatingDoubleTreeMap.ofEntries(
-            Map.entry(0.00, 5.00),
-            Map.entry(1.64, 5.00),
-            Map.entry(2.30, 8.00),
-            Map.entry(3.00, 14.00),
-            Map.entry(3.60, 22.00),
-            Map.entry(4.30, 40.00),
-            Map.entry(4.50, 40.00)
+            Map.entry(0.00, 0.00),
+            Map.entry(1.80, 0.00),
+            Map.entry(2.50, 18.00),
+            Map.entry(3.20, 35.00),
+            Map.entry(4.00, 50.00),
+            Map.entry(5.00, 70.00)
         );
             
         // Meters, Seconds
-        public static final InterpolatingDoubleTreeMap TimeOfFlightByDistance = InterpolatingDoubleTreeMap.ofEntries(
+        /*public static final InterpolatingDoubleTreeMap TimeOfFlightByDistance = InterpolatingDoubleTreeMap.ofEntries(
             Map.entry(0.00, 0.50),
             Map.entry(1.64, 0.50),
             Map.entry(2.30, 0.85),
@@ -65,48 +62,32 @@ public final class Constants {
             Map.entry(3.60, 1.20),
             Map.entry(4.30, 1.30),
             Map.entry(4.50, 1.70)
-        );
+        );*/
 
         public static final double TrackingHubPIDkP = 0.02;
         public static final double TrackingHubPIDkI = 0.00;
         public static final double TrackingHubPIDkD = 0.00;
 
-        public static final double TrackingClimbMovePIDkP = 0.00;
-        public static final double TrackingClimbMovePIDkI = 0.00;
-        public static final double TrackingClimbMovePIDkD = 0.00;
-
-        public static final double TrackingClimbRotPIDkP = 0.00;
-        public static final double TrackingClimbRotPIDkI = 0.00;
-        public static final double TrackingClimbRotPIDkD = 0.00;
-
-        public static final String LimelightLeft = "limelight-left";
-        public static final String LimelightRight = "limelight-right";
+        public static final String LimelightCenter = "limelight-center";
     }
 
     public static final class ControllerConstants {
-        public static enum DrivetrainState {
-            DisabledDrivetrain,
-            BabyMode,
-            SlowTC,
-            EventTC,
-            GoCrazyGoStupid, // Thank you team 4539 for this great
-                             // name idea at the 2025 NMRC Chamionship 
-        }
-
         // Units allowed to change per seccond
         public static final double XSlewRateLimiter = 8.00;
         public static final double YSlewRateLimiter = 8.00;
-        public static final double RotateSlewRateLimiter = 30.00;
+        public static final double RotateSlewRateLimiter = 24.00;
 
         public static final double RotateMagnitude = 0.90;
-        public static final double StickDeadzone = 0.20;
+        public static final double StickDeadzone = 0.10;
+
+        public static final double AutoAimTargetSpeed = 0.2;
 
         public static final int XboxMenuButtonID = 7;
         public static final int XboxShareButtonID = 8;
 
         public static final int DriverControllerID = 0;
         public static final int ManipulatorControllerID = 1;
-        public static final int TestingCOntrollerID = 2;
+        public static final int TestingControllerID = 2;
     }
     
     public static final class IntakeConstants {
@@ -116,6 +97,7 @@ public final class Constants {
             IntakeIn,
             IntakeOut,
             Outtake,
+            Agitate,
             DumbControl
         }
         
@@ -133,11 +115,12 @@ public final class Constants {
         public static final double IntakingSpeed = 0.65;
 
         public static final double PivotRetractSpeed = 0.75;
-        public static final double PivotExtensionSpeed = 0.25;
+        public static final double PivotExtensionSpeed = 0.45;
+        public static final double PivotAgitateSpeed = 0.30;
 
-        public static final double PivotInPos = 0.48;
-        public static final double PivotInTriggerPos = 0.38;
-        public static final double PivotOutPos = 0.08;
+        public static final double PivotInPos = 0.38;
+        public static final double PivotInTriggerPos = 0.02;
+        public static final double PivotOutPos = 0.02;
 
         public static final int IntakeID = 34;
         public static final int PivotID = 37;
@@ -148,43 +131,45 @@ public final class Constants {
             Idle,
             Spinup,
             Shoot,
+            Unstick,
             DumbControl
         }
         
         // Might be a good idea to tune this or something
         public static final double BeltsSpeed = 100.00;
         public static final double FeedSpeed = 100.00;
+        public static final double BottomShooterSpeed = 110.00;
         
         // Used in determing if shooter is up to speed
         public static final double RPSThreshold = 1.25;
 
-        public static final double BeltsPIDkV = 0.11;
-        public static final double BeltsPIDkP = 0.15;
+        public static final double BeltsPIDkV = 0.105;
+        public static final double BeltsPIDkP = 0.20;
         public static final double BeltsPIDkI = 0.00;
         public static final double BeltsPIDkD = 0.00;
         
-        public static final double FeederPIDkV = 0.11;
-        public static final double FeederPIDkP = 0.15;
+        public static final double FeederPIDkV = 0.135;
+        public static final double FeederPIDkP = 0.30;
         public static final double FeederPIDkI = 0.00;
         public static final double FeederPIDkD = 0.00;
 
-        public static final double BottomShooterPIDkV = 0.11;
-        public static final double BottomShooterPIDkP = 0.90;
+        public static final double BottomShooterPIDkV = 0.135;
+        public static final double BottomShooterPIDkP = 0.30;
         public static final double BottomShooterPIDkI = 0.00;
         public static final double BottomShooterPIDkD = 0.00;
 
-        public static final double LeftShooterPIDkV = 0.13;
-        public static final double LeftShooterPIDkP = 0.90;
+        public static final double LeftShooterPIDkV = 0.122;
+        public static final double LeftShooterPIDkP = 0.30;
         public static final double LeftShooterPIDkI = 0.00;
         public static final double LeftShooterPIDkD = 0.00;
 
-        public static final double RightShooterPIDkV = 0.13;
-        public static final double RightShooterPIDkP = 0.90;
+        public static final double RightShooterPIDkV = 0.122;
+        public static final double RightShooterPIDkP = 0.30;
         public static final double RightShooterPIDkI = 0.00;
         public static final double RightShooterPIDkD = 0.00;
 
-        public static final double HoodShooterPIDkV = 0.11;
-        public static final double HoodShooterPIDkP = 0.60;
+        public static final double HoodShooterPIDkV = 0.122;
+        public static final double HoodShooterPIDkP = 0.00;
         public static final double HoodShooterPIDkI = 0.00;
         public static final double HoodShooterPIDkD = 0.00;
 

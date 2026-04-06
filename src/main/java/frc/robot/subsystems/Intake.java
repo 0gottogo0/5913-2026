@@ -103,6 +103,10 @@ public class Intake extends SubsystemBase {
 				pivot.set(pivotPIDOutput);
 				pivotSetpoint = PivotOutPos;
 				break;
+			case Agitate:
+				intake.set(IntakingSpeed);
+				pivot.set(PivotAgitateSpeed);
+				break;
 			case DumbControl:
 				intake.set(intakeTargetSpeed);
 				pivot.set(pivotTargetSpeed);
