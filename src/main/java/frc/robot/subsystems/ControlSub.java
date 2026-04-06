@@ -364,4 +364,12 @@ public class ControlSub extends SubsystemBase {
     public void startShooting() {
         isShooting = true;
     }
+
+    public void stopUnstickShooter() {
+        isUnsticking = false;
+    }
+
+    public void startUnstickShooter() {
+        isUnsticking = true;
+    }
 }

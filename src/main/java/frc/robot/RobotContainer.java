@@ -58,6 +58,14 @@ public class RobotContainer {
             () -> control.startShooting()
         ));
 
+        NamedCommands.registerCommand("Stop Unstick Shooter", control.runOnce(
+            () -> control.stopUnstickShooter()
+        ));
+
+        NamedCommands.registerCommand("Start Unstick Shooter", control.runOnce(
+            () -> control.startUnstickShooter()
+        ));
+
         configureBindings();
 
         control.drivetrain.configureAutoBuilder();

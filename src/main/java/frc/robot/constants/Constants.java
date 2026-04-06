@@ -112,7 +112,7 @@ public final class Constants {
         public static final double PivotPIDkD = 0.00;
 
         public static final int IntakeCurrentLimit = 90;
-        public static final double IntakingSpeed = 0.65;
+        public static final double IntakingSpeed = 0.80;
 
         public static final double PivotRetractSpeed = 0.75;
         public static final double PivotExtensionSpeed = 0.45;
