@@ -50,8 +50,7 @@ public class Shooter extends SubsystemBase {
 	private TalonFX hoodShooter = new TalonFX(HoodMotorID);
   	private TalonFXConfiguration hoodShooterConfig = new TalonFXConfiguration();
 
-	// Guess on why we use a pid on the bottom
-	// rollers? I'll wait...
+	// PID EBERY THING
 	private VelocityVoltage rollersVelocityVoltage = new VelocityVoltage(0);
 	private VelocityVoltage feederVelocityVoltage = new VelocityVoltage(0);
     private VelocityVoltage bottomShooterVelocityVoltage = new VelocityVoltage(0);

@@ -54,7 +54,7 @@ public final class Constants {
         );
             
         // Meters, Seconds
-        public static final InterpolatingDoubleTreeMap TimeOfFlightByDistance = InterpolatingDoubleTreeMap.ofEntries(
+        /*public static final InterpolatingDoubleTreeMap TimeOfFlightByDistance = InterpolatingDoubleTreeMap.ofEntries(
             Map.entry(0.00, 0.50),
             Map.entry(1.64, 0.50),
             Map.entry(2.30, 0.85),
@@ -62,21 +62,11 @@ public final class Constants {
             Map.entry(3.60, 1.20),
             Map.entry(4.30, 1.30),
             Map.entry(4.50, 1.70)
-        );
+        );*/
 
         public static final double TrackingHubPIDkP = 0.02;
         public static final double TrackingHubPIDkI = 0.00;
         public static final double TrackingHubPIDkD = 0.00;
-
-        public static final double TrackingClimbMovePIDkP = 0.00;
-        public static final double TrackingClimbMovePIDkI = 0.00;
-        public static final double TrackingClimbMovePIDkD = 0.00;
-
-        public static final double TrackingClimbRotPIDkP = 0.00;
-        public static final double TrackingClimbRotPIDkI = 0.00;
-        public static final double TrackingClimbRotPIDkD = 0.00;
-        
-        public static final double SnakeDriveDeadzone = 0.2;
 
         public static final String LimelightCenter = "limelight-center";
     }
@@ -85,10 +75,10 @@ public final class Constants {
         // Units allowed to change per seccond
         public static final double XSlewRateLimiter = 8.00;
         public static final double YSlewRateLimiter = 8.00;
-        public static final double RotateSlewRateLimiter = 30.00;
+        public static final double RotateSlewRateLimiter = 24.00;
 
         public static final double RotateMagnitude = 0.90;
-        public static final double StickDeadzone = 0.20;
+        public static final double StickDeadzone = 0.10;
 
         public static final double AutoAimTargetSpeed = 0.2;
 

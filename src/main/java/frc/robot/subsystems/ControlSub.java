@@ -75,6 +75,7 @@ public class ControlSub extends SubsystemBase {
     private boolean isAgitating = false;
     private boolean isSpinup = false;
     private boolean isShooting = false;
+    private boolean isUnsticking = false;
 
     public ControlSub() {
 
@@ -164,12 +165,14 @@ public class ControlSub extends SubsystemBase {
         // Shoot = Right Trig
         // Track = Left Trig
         // Toggle Intake Agitate = Left Bumper
+        // Shooter Unstick = 
         // Set Hub as Target = Pov Right
         // Manual Target = Right Stick
         
         if (DriverStation.isTeleop()) {
             isSpinup = ManipulatorController.x().getAsBoolean();
             isShooting = ManipulatorController.rightTrigger().getAsBoolean();
+            isUnsticking = false; // no control set yet
 
             if (ManipulatorController.leftBumper().getAsBoolean() && !manipulatorLastLeftBumper) {
                 if (isAgitating) {
@@ -185,44 +188,9 @@ public class ControlSub extends SubsystemBase {
                 ManipulatorController.setRumble(RumbleType.kBothRumble, 0.00);
             }
 
-            // Times by delta incase loop overun happens? should be reliable
-            // and stable enough... (wait till manipulator crashes out)
+            // Should we times by a "delta time"?
             autoAimTargetX += ManipulatorController.getRightX() * ControllerConstants.AutoAimTargetSpeed;
             autoAimTargetY += -ManipulatorController.getRightY() * ControllerConstants.AutoAimTargetSpeed;
-        }
-        if (isAgitating) {
-            intake.setIntakeState(IntakeConstants.State.Agitate);
-        } else if (isIntaking) {
-            if (isIntakeRetracted) {
-                intake.setIntakeState(IntakeConstants.State.IntakeIn);
-            } else {
-                intake.setIntakeState(IntakeConstants.State.IntakeOut);
-            }
-        } else {
-            if (isIntakeRetracted) {
-                intake.setIntakeState(IntakeConstants.State.IdleIn);
-            } else {
-                intake.setIntakeState(IntakeConstants.State.IdleOut);
-            }
-        }
-
-        // If we are tracking, do the speed interpolation too
-        if (isTracking) {
-            if (isSpinup && isShooting) {
-                shooter.setShooterState(ShooterConstants.State.Shoot, autoAim.getShootOnMoveAimTarget()[2], autoAim.getShootOnMoveAimTarget()[3]);
-            } else if (isSpinup) {
-                shooter.setShooterState(ShooterConstants.State.Spinup, autoAim.getShootOnMoveAimTarget()[2], autoAim.getShootOnMoveAimTarget()[3]);
-            } else {
-                shooter.setShooterState(State.Idle, 0.00, 0.00);
-            }
-        } else {
-            if (isSpinup && isShooting) {
-                shooter.setShooterState(ShooterConstants.State.Shoot, 60.00, 20.00);
-            } else if (isSpinup) {
-                shooter.setShooterState(ShooterConstants.State.Spinup, 60.00, 20.00);
-            } else {
-                shooter.setShooterState(State.Idle, 0.00, 0.00);
-            }
         }
 
         /* Testing Controls */
@@ -245,6 +213,46 @@ public class ControlSub extends SubsystemBase {
                 shooter.setShooterState(State.Idle, 0.00, 0.00);
             }
         }
+        
+        /* Subsystem Comtrol */
+
+        if (isAgitating) {
+            intake.setIntakeState(IntakeConstants.State.Agitate);
+        } else if (isIntaking) {
+            if (isIntakeRetracted) {
+                intake.setIntakeState(IntakeConstants.State.IntakeIn);
+            } else {
+                intake.setIntakeState(IntakeConstants.State.IntakeOut);
+            }
+        } else {
+            if (isIntakeRetracted) {
+                intake.setIntakeState(IntakeConstants.State.IdleIn);
+            } else {
+                intake.setIntakeState(IntakeConstants.State.IdleOut);
+            }
+        }
+
+        // Unstick if need too
+        if (isUnsticking) {
+            shooter.setShooterState(ShooterConstants.State.Unstick, 60.00, 20.00);
+        // If we are tracking, do the speed interpolation too
+        } else if (isTracking) {
+            if (isSpinup && isShooting) {
+                shooter.setShooterState(ShooterConstants.State.Shoot, autoAim.getShootOnMoveAimTarget()[2], autoAim.getShootOnMoveAimTarget()[3]);
+            } else if (isSpinup) {
+                shooter.setShooterState(ShooterConstants.State.Spinup, autoAim.getShootOnMoveAimTarget()[2], autoAim.getShootOnMoveAimTarget()[3]);
+            } else {
+                shooter.setShooterState(State.Idle, 0.00, 0.00);
+            }
+        } else {
+            if (isSpinup && isShooting) {
+                shooter.setShooterState(ShooterConstants.State.Shoot, 60.00, 20.00);
+            } else if (isSpinup) {
+                shooter.setShooterState(ShooterConstants.State.Spinup, 60.00, 20.00);
+            } else {
+                shooter.setShooterState(State.Idle, 0.00, 0.00);
+            }
+        }
 
         /* Auto Aim Control */
 
@@ -253,13 +261,6 @@ public class ControlSub extends SubsystemBase {
         
         if (DriverStation.isTeleop()) {
             isTracking = DriverController.leftTrigger().getAsBoolean() || ManipulatorController.leftTrigger().getAsBoolean() || DriverController.a().getAsBoolean();
-
-            // If driver needs tracking let them have it, else manipulator can do whatever ig
-            if (DriverController.a().getAsBoolean()) {
-                autoAim.setAutoAimState(AutoAimConstants.State.SnakeDrive);
-            } else {
-                autoAim.setAutoAimDumbControl(autoAimTargetX, autoAimTargetY);
-            }
 
             if (ManipulatorController.povRight().getAsBoolean()) {
                 //autoAim.setAutoAimState(AutoAimConstants.State.Goal); idk figure out a way to make the goal state not useless or sumthin
@@ -272,6 +273,15 @@ public class ControlSub extends SubsystemBase {
                     autoAimTargetX = AutoAimConstants.RedGoal.getX();
                     autoAimTargetY = AutoAimConstants.RedGoal.getY();
                 }
+            }
+
+            // If driver needs tracking let them have it, else manipulator can do whatever ig
+            if (DriverController.a().getAsBoolean()) {
+                autoAim.setAutoAimDumbControl(commandedMoveX, commandedMoveY); // Snake drive!
+                                                                               // Uses controller inputs instead of
+                                                                               // robot speed to remove studdering
+            } else {
+                autoAim.setAutoAimDumbControl(autoAimTargetX, autoAimTargetY);
             }
 
             SmartDashboard.putData("Alliance", AllianceSelecter);

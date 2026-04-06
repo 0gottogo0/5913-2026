@@ -82,6 +82,7 @@ public class AutoAim extends SubsystemBase {
         // by our time of flight, then add that new
         // transform to the goal pose
         adjustedGoalPose = goalPose;//.plus(new Transform2d(robotSpeed.vxMetersPerSecond, robotSpeed.vyMetersPerSecond, new Rotation2d()).times(TimeOfFlightByDistance.get(getAimTargetInDistance())));
+        // we arnt shooting on the move so I commented out a ton of shi lol
 
         SmartDashboard.putNumber("Robot X", robotPose.getX());
         SmartDashboard.putNumber("Robot Y", robotPose.getY());
@@ -96,7 +97,7 @@ public class AutoAim extends SubsystemBase {
         
         SmartDashboard.putNumber("Target Angle", getAimTargetInDegrees());
         SmartDashboard.putNumber("Target Distance", getAimTargetInDistance());
-        SmartDashboard.putNumber("Target Time Of Flight", TimeOfFlightByDistance.get(getAimTargetInDistance()));
+        SmartDashboard.putNumber("Target Time Of Flight", 0);//TimeOfFlightByDistance.get(getAimTargetInDistance()));
         
         SmartDashboard.putNumber("Adjusted Target Angle", getShootOnMoveAimTarget()[0]);
         SmartDashboard.putNumber("Adjusted Target Distance", getShootOnMoveAimTarget()[1]);
@@ -175,7 +176,7 @@ public class AutoAim extends SubsystemBase {
         // Interpolates for hood shooter
         calculatedShot[3] = HoodShooterSpeedByDistance.get(calculatedShot[1]);
         // Interpolates time of flight
-        calculatedShot[4] = TimeOfFlightByDistance.get(calculatedShot[1]);
+        calculatedShot[4] = 0;//TimeOfFlightByDistance.get(calculatedShot[1]);
         return calculatedShot;
     }
 
