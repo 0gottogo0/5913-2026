@@ -280,6 +280,7 @@ public class ControlSub extends SubsystemBase {
                 autoAim.setAutoAimDumbControl(AutoAimConstants.BlueGoal.getX(), AutoAimConstants.BlueGoal.getY());
             } else {
                 autoAim.setAutoAimDumbControl(AutoAimConstants.RedGoal.getX(), AutoAimConstants.RedGoal.getY());
+            }
 
             SmartDashboard.putData("Alliance", AllianceSelecter);
         }
