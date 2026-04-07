@@ -15,6 +15,7 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -34,10 +35,14 @@ public class ControlSub extends SubsystemBase {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     private double maxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
-    private double maxAngularRate = RotationsPerSecond.of(ControllerConstants.RotateMagnitude).in(RadiansPerSecond);
+    public double maxAngularRate = RotationsPerSecond.of(ControllerConstants.RotateMagnitude).in(RadiansPerSecond);
     
     // Drive with controller request
     private final SwerveRequest.FieldCentric ControllerDrive = new SwerveRequest.FieldCentric()
+        //.withDeadband(maxSpeed * Controllers.StickDeadzone).withRotationalDeadband(maxAngularRate * Controllers.StickDeadzone)
+        .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+
+    public final SwerveRequest.FieldCentric AutoTrackDrive = new SwerveRequest.FieldCentric()
         //.withDeadband(maxSpeed * Controllers.StickDeadzone).withRotationalDeadband(maxAngularRate * Controllers.StickDeadzone)
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
@@ -45,7 +50,7 @@ public class ControlSub extends SubsystemBase {
     private final SlewRateLimiter YSlewRateLimiter = new SlewRateLimiter(ControllerConstants.YSlewRateLimiter);
     private final SlewRateLimiter RotateSlewRateLimiter = new SlewRateLimiter(ControllerConstants.RotateSlewRateLimiter);
 
-    private final PIDController HubTrackingPidController = new PIDController(AutoAimConstants.TrackingHubPIDkP, AutoAimConstants.TrackingHubPIDkI, AutoAimConstants.TrackingHubPIDkD);
+    public final PIDController HubTrackingPidController = new PIDController(AutoAimConstants.TrackingHubPIDkP, AutoAimConstants.TrackingHubPIDkI, AutoAimConstants.TrackingHubPIDkD);
     
     private final CommandXboxController DriverController = new CommandXboxController(ControllerConstants.DriverControllerID);
     private final CommandXboxController ManipulatorController = new CommandXboxController(ControllerConstants.ManipulatorControllerID);
@@ -55,25 +60,25 @@ public class ControlSub extends SubsystemBase {
     
     private boolean driverLastLeftBumper = DriverController.leftBumper().getAsBoolean();
     private boolean driverLastRightTrigger = DriverController.leftTrigger().getAsBoolean();
-    private boolean manipulatorLastLeftBumper = ManipulatorController.leftBumper().getAsBoolean();
 
     public AutoAim autoAim = new AutoAim();
     public Intake intake = new Intake();
     public Shooter shooter = new Shooter();
 
-    private double commandedMoveX = 0.00;
-    private double commandedMoveY = 0.00;
-    private double commandedRotate = 0.00;
-    private double hubPIDOutput = 0.00;
+    private Timer agitateTimer = new Timer();
 
-    private double autoAimTargetX = 0.00;
-    private double autoAimTargetY = 0.00;
-    
+    public double commandedMoveX = 0.00;
+    public double commandedMoveY = 0.00;
+    public double commandedRotate = 0.00;
+    public double hubPIDOutput = 0.00;
+
     private boolean isTracking = false;
+    public boolean isAutoTracking = false;
     private boolean isIntakeRetracted = false;
     private boolean isIntaking = false;
     private boolean isAgitating = false;
     private boolean isSpinup = false;
+    private boolean isPassing = false;
     private boolean isShooting = false;
     private boolean isUnsticking = false;
 
@@ -112,6 +117,8 @@ public class ControlSub extends SubsystemBase {
         // to work with the fms
         AllianceSelecter.setDefaultOption("Blue Alliance", Alliance.Blue);
         AllianceSelecter.addOption("Red Alliance", Alliance.Red);
+
+        agitateTimer.reset();
     }
 
     @Override
@@ -165,21 +172,22 @@ public class ControlSub extends SubsystemBase {
         // Shoot = Right Trig
         // Track = Left Trig
         // Toggle Intake Agitate = Left Bumper
-        // Shooter Unstick = 
-        // Set Hub as Target = Pov Right
-        // Manual Target = Right Stick
+        // Shooter Unstick = Right Bumper
+        // Pass Spinup = B
+        
         
         if (DriverStation.isTeleop()) {
             isSpinup = ManipulatorController.x().getAsBoolean();
+            isPassing = ManipulatorController.b().getAsBoolean();
             isShooting = ManipulatorController.rightTrigger().getAsBoolean();
-            isUnsticking = false; // no control set yet
+            isAgitating = ManipulatorController.rightTrigger().getAsBoolean() && agitateTimer.get() > 0.5;
+            isUnsticking = ManipulatorController.rightBumper().getAsBoolean(); // no control set yet
 
-            if (ManipulatorController.leftBumper().getAsBoolean() && !manipulatorLastLeftBumper) {
-                if (isAgitating) {
-                    isAgitating = false;
-                } else {
-                    isAgitating = true;
-                }
+            if (isShooting) {
+                agitateTimer.start();
+            } else {
+                agitateTimer.stop();
+                agitateTimer.reset();
             }
 
             if (shooter.isShooterAtSpeed()) {
@@ -187,10 +195,6 @@ public class ControlSub extends SubsystemBase {
             } else {
                 ManipulatorController.setRumble(RumbleType.kBothRumble, 0.00);
             }
-
-            // Should we times by a "delta time"?
-            autoAimTargetX += ManipulatorController.getRightX() * ControllerConstants.AutoAimTargetSpeed;
-            autoAimTargetY += -ManipulatorController.getRightY() * ControllerConstants.AutoAimTargetSpeed;
         }
 
         /* Testing Controls */
@@ -234,9 +238,13 @@ public class ControlSub extends SubsystemBase {
 
         // Unstick if need too
         if (isUnsticking) {
-            shooter.setShooterState(ShooterConstants.State.Unstick, 60.00, 20.00);
+            //shooter.setShooterState(ShooterConstants.State.Unstick, 60.00, 18.00);
         // If we are tracking, do the speed interpolation too
-        } else if (isTracking) {
+        } else if (isPassing && isShooting) {
+            shooter.setShooterState(ShooterConstants.State.Shoot, 50.00, 70.00);
+        } else if (isPassing) {
+            shooter.setShooterState(ShooterConstants.State.Spinup, 50.00, 70.00);
+        } else if (isTracking || isAutoTracking) {
             if (isSpinup && isShooting) {
                 shooter.setShooterState(ShooterConstants.State.Shoot, autoAim.getShootOnMoveAimTarget()[2], autoAim.getShootOnMoveAimTarget()[3]);
             } else if (isSpinup) {
@@ -246,9 +254,9 @@ public class ControlSub extends SubsystemBase {
             }
         } else {
             if (isSpinup && isShooting) {
-                shooter.setShooterState(ShooterConstants.State.Shoot, 60.00, 20.00);
+                shooter.setShooterState(ShooterConstants.State.Shoot, 60.00, 0.00);
             } else if (isSpinup) {
-                shooter.setShooterState(ShooterConstants.State.Spinup, 60.00, 20.00);
+                shooter.setShooterState(ShooterConstants.State.Spinup, 60.00, 0.00);
             } else {
                 shooter.setShooterState(State.Idle, 0.00, 0.00);
             }
@@ -261,28 +269,17 @@ public class ControlSub extends SubsystemBase {
         
         if (DriverStation.isTeleop()) {
             isTracking = DriverController.leftTrigger().getAsBoolean() || ManipulatorController.leftTrigger().getAsBoolean() || DriverController.a().getAsBoolean();
-
-            if (ManipulatorController.povRight().getAsBoolean()) {
-                //autoAim.setAutoAimState(AutoAimConstants.State.Goal); idk figure out a way to make the goal state not useless or sumthin
-                if (AllianceSelecter.getSelected() == Alliance.Blue) {
-                    //autoAim.setAutoAimDumbControl(AutoAimConstants.BlueGoal.getX(), AutoAimConstants.BlueGoal.getY());
-                    autoAimTargetX = AutoAimConstants.BlueGoal.getX();
-                    autoAimTargetY = AutoAimConstants.BlueGoal.getY();
-                } else {
-                    //autoAim.setAutoAimDumbControl(AutoAimConstants.RedGoal.getX(), AutoAimConstants.RedGoal.getY());
-                    autoAimTargetX = AutoAimConstants.RedGoal.getX();
-                    autoAimTargetY = AutoAimConstants.RedGoal.getY();
-                }
-            }
-
+            //autoAim.setAutoAimState(AutoAimConstants.State.Goal); idk figure out a way to make the goal state not useless or sumthin
             // If driver needs tracking let them have it, else manipulator can do whatever ig
             if (DriverController.a().getAsBoolean()) {
-                autoAim.setAutoAimDumbControl(commandedMoveX, commandedMoveY); // Snake drive!
+                isTracking = true;
+                autoAim.setAutoAimDumbControl(commandedMoveX + drivetrain.getState().Pose.getX(), commandedMoveY + drivetrain.getState().Pose.getY()); // Snake drive!
                                                                                // Uses controller inputs instead of
                                                                                // robot speed to remove studdering
+            } else if (AllianceSelecter.getSelected() == Alliance.Blue) {
+                autoAim.setAutoAimDumbControl(AutoAimConstants.BlueGoal.getX(), AutoAimConstants.BlueGoal.getY());
             } else {
-                autoAim.setAutoAimDumbControl(autoAimTargetX, autoAimTargetY);
-            }
+                autoAim.setAutoAimDumbControl(AutoAimConstants.RedGoal.getX(), AutoAimConstants.RedGoal.getY());
 
             SmartDashboard.putData("Alliance", AllianceSelecter);
         }
@@ -300,10 +297,6 @@ public class ControlSub extends SubsystemBase {
             hubPIDOutput = HubTrackingPidController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), autoAim.getShootOnMoveAimTarget()[0]);
         }
 
-        if (DriverStation.isTeleop()) {
-            isTracking = DriverController.leftTrigger().getAsBoolean() || ManipulatorController.leftTrigger().getAsBoolean();
-        }
-
         if (isTracking) {
             commandedRotate += hubPIDOutput;
         }
@@ -315,7 +308,6 @@ public class ControlSub extends SubsystemBase {
         // Inputs are now "outdated" and can be compared with new ones next scheduler run
         driverLastLeftBumper = DriverController.leftBumper().getAsBoolean();
         driverLastRightTrigger = DriverController.leftTrigger().getAsBoolean();
-        manipulatorLastLeftBumper = ManipulatorController.leftBumper().getAsBoolean();
     }
 
     // Atleast get rid of these variables and
@@ -341,14 +333,6 @@ public class ControlSub extends SubsystemBase {
         isIntaking = true;
     }
 
-    public void startIntakeAgitating() {
-        isAgitating = true;
-    }
-
-    public void stopIntakeAgitating() {
-        isAgitating = false;
-    }
-
     public void stopSpinup() {
         isSpinup = false;
     }
@@ -358,18 +342,20 @@ public class ControlSub extends SubsystemBase {
     }
 
     public void stopShooting() {
+        isAutoTracking = false;
         isShooting = false;
+        agitateTimer.stop();
+        agitateTimer.reset();
+        isAgitating = false;
     }
 
-    public void startShooting() {
+    public void startShoot() {
+        drivetrain.applyRequest(
+            () -> AutoTrackDrive
+            .withRotationalRate(commandedRotate * maxAngularRate));
+        isAutoTracking = true;
         isShooting = true;
-    }
-
-    public void stopUnstickShooter() {
-        isUnsticking = false;
-    }
-
-    public void startUnstickShooter() {
-        isUnsticking = true;
+        agitateTimer.start();
+        isAgitating = agitateTimer.get() > 0.5;
     }
 }

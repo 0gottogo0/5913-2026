@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.2599451754385966,
-        "y": 1.6694078947368416
+        "x": 3.086853070175439,
+        "y": 2.249393693355091
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.2599451754385966,
-        "y": 0.6694078947368416
+        "x": 3.086853070175439,
+        "y": 1.249393693355091
       },
       "isLocked": false,
       "linkedName": "R Score"
@@ -96,12 +96,12 @@
     },
     {
       "anchor": {
-        "x": 3.2599451754385966,
-        "y": 1.6694078947368416
+        "x": 3.086853070175439,
+        "y": 2.249393693355091
       },
       "prevControl": {
-        "x": 3.2599451754385966,
-        "y": 3.1694078947368416
+        "x": 3.086853070175439,
+        "y": 3.749393693355091
       },
       "nextControl": null,
       "isLocked": false,
@@ -147,13 +147,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -119.99999999999999
+    "rotation": -127.00000000000001
   },
   "reversed": false,
   "folder": "Right Comp",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -119.99999999999999
+    "rotation": -127.00000000000001
   },
   "useDefaultConstraints": true
 }

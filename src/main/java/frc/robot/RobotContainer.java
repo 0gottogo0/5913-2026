@@ -17,6 +17,8 @@ public class RobotContainer {
 
     ControlSub control = new ControlSub();
 
+    private double autoHubPIDOutput;
+
     public RobotContainer() {
         NamedCommands.registerCommand("Stop Intake Out", control.runOnce(
             () -> control.stopIntakeOut()
@@ -34,14 +36,6 @@ public class RobotContainer {
             () -> control.startIntakeIn()
         ));
 
-        NamedCommands.registerCommand("Start Agitate Intake", control.runOnce(
-            () -> control.startIntakeAgitating()
-        ));
-
-        NamedCommands.registerCommand("Stop Agitate Intake", control.runOnce(
-            () -> control.stopIntakeAgitating()
-        ));
-
         NamedCommands.registerCommand("Stop Spinup", control.runOnce(
             () -> control.stopSpinup()
         ));
@@ -54,16 +48,8 @@ public class RobotContainer {
             () -> control.stopShooting()
         ));
 
-        NamedCommands.registerCommand("Start Shooting", control.runOnce(
-            () -> control.startShooting()
-        ));
-
-        NamedCommands.registerCommand("Stop Unstick Shooter", control.runOnce(
-            () -> control.stopUnstickShooter()
-        ));
-
-        NamedCommands.registerCommand("Start Unstick Shooter", control.runOnce(
-            () -> control.startUnstickShooter()
+        NamedCommands.registerCommand("Start Shooting", control.run(
+            () -> control.startShoot()
         ));
 
         configureBindings();
