@@ -120,6 +120,7 @@ public final class Constants {
 
         public static final double PivotInPos = 0.38;
         public static final double PivotInTriggerPos = 0.28;
+        public static final double PivotRunIntakeTriggerPos = 0.15;
         public static final double PivotOutPos = 0.02;
 
         public static final int IntakeID = 34;
