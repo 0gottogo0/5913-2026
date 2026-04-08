@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -32,12 +33,14 @@ public class AutoAim extends SubsystemBase {
 
     PoseEstimate LimelightCenterMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(LimelightCenter);
 
+    State state = State.Goal;
+    
+    Field2d field = new Field2d();
+    
     double calculatedShot[] = {0.00, 0.00, 0.00, 0.00, 0.00};
     double distanceFromClimb[] = {0.00, 0.00};
 
-    State state = State.Goal;
-
-    Field2d field = new Field2d();
+    boolean lostLimelight = false;
 
     public AutoAim() {
         
@@ -111,7 +114,14 @@ public class AutoAim extends SubsystemBase {
         // For visualization of target, NOTE: the target is
         // above the ground and balls will not land on the 
         // target, but they will pass through the target
-        field.setRobotPose(goalPose);
+        field.setRobotPose(adjustedGoalPose);
+
+        if (LimelightCenterMeasurement == null) {
+            DataLogManager.log("Reef Camera Lost!");
+            lostLimelight = true;
+        } else {
+            lostLimelight = false;
+        }
     }
 
     /**
@@ -136,6 +146,14 @@ public class AutoAim extends SubsystemBase {
             return alliance.get() == DriverStation.Alliance.Blue;
         }
         return false;
+    }
+
+    /** Vro we lost tracking :(
+     * 
+     * @return true if limelight has disconnected (this gets logged via WPI anyways but good for driver feedback or whatever)
+     */
+    public boolean hasLostLimelight() {
+        return lostLimelight;
     }
 
     /**

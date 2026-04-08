@@ -19,7 +19,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "R Start Neutral 1"
+            "pathName": "L Start Neutral 1st Pass"
           }
         },
         {
@@ -56,7 +56,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "R Neutral 4"
+            "pathName": "L Neutral 2nd Pass"
           }
         },
         {

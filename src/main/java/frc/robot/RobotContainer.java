@@ -16,9 +16,7 @@ public class RobotContainer {
     private final SendableChooser<Command> autoChooser;
 
     ControlSub control = new ControlSub();
-
-    private double autoHubPIDOutput;
-
+    
     public RobotContainer() {
         NamedCommands.registerCommand("Stop Intake Out", control.runOnce(
             () -> control.stopIntakeOut()

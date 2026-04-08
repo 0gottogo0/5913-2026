@@ -161,9 +161,16 @@ public class ControlSub extends SubsystemBase {
             isIntaking = DriverController.rightTrigger().getAsBoolean();
             
             if (isTracking) {
-                DriverController.setRumble(RumbleType.kBothRumble, 0.20);
+                DriverController.setRumble(RumbleType.kLeftRumble, 0.20);
             } else {
-                DriverController.setRumble(RumbleType.kBothRumble, 0.00);
+                DriverController.setRumble(RumbleType.kLeftRumble, 0.00);
+            }
+
+            // Gotta warn because the robot aiming at the stands wasnt enough
+            if (autoAim.hasLostLimelight()) {
+                DriverController.setRumble(RumbleType.kRightRumble, 0.50);
+            } else {
+                DriverController.setRumble(RumbleType.kRightRumble, 0.00);
             }
         }
 
@@ -181,7 +188,7 @@ public class ControlSub extends SubsystemBase {
             isPassing = ManipulatorController.b().getAsBoolean();
             isShooting = ManipulatorController.rightTrigger().getAsBoolean();
             isAgitating = ManipulatorController.rightTrigger().getAsBoolean() && agitateTimer.get() > 0.5;
-            isUnsticking = ManipulatorController.rightBumper().getAsBoolean(); // no control set yet
+            isUnsticking = ManipulatorController.rightBumper().getAsBoolean();
 
             if (isShooting) {
                 agitateTimer.start();
@@ -191,9 +198,16 @@ public class ControlSub extends SubsystemBase {
             }
 
             if (shooter.isShooterAtSpeed()) {
-                ManipulatorController.setRumble(RumbleType.kBothRumble, 0.20);
+                ManipulatorController.setRumble(RumbleType.kLeftRumble, 0.20);
             } else {
-                ManipulatorController.setRumble(RumbleType.kBothRumble, 0.00);
+                ManipulatorController.setRumble(RumbleType.kLeftRumble, 0.00);
+            }
+
+            // Gotta warn because the robot aiming at the stands wasnt enough
+            if (autoAim.hasLostLimelight()) {
+                ManipulatorController.setRumble(RumbleType.kRightRumble, 0.50);
+            } else {
+                ManipulatorController.setRumble(RumbleType.kRightRumble, 0.00);
             }
         }
 
@@ -305,6 +319,8 @@ public class ControlSub extends SubsystemBase {
         /* Output */
 
         SmartDashboard.putNumber("Hub Tracking Pid Output", hubPIDOutput);
+
+        /* Input Trigger Stuffs */
 
         // Inputs are now "outdated" and can be compared with new ones next scheduler run
         driverLastLeftBumper = DriverController.leftBumper().getAsBoolean();
