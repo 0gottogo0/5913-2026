@@ -114,7 +114,7 @@ public class AutoAim extends SubsystemBase {
         // For visualization of target, NOTE: the target is
         // above the ground and balls will not land on the 
         // target, but they will pass through the target
-        field.setRobotPose(adjustedGoalPose);
+        field.setRobotPose(robotPose);
 
         if (LimelightCenterMeasurement == null) {
             DataLogManager.log("Reef Camera Lost!");

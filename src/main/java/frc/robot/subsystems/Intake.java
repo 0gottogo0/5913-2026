@@ -4,8 +4,10 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.*;
 import static frc.robot.constants.Constants.IntakeConstants.*;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -58,6 +60,9 @@ public class Intake extends SubsystemBase {
 		pivotConfig.Slot0.kP = PivotPIDkP;
 		pivotConfig.Slot0.kI = PivotPIDkI;
 		pivotConfig.Slot0.kD = PivotPIDkD;
+		pivotConfig.withCurrentLimits(new CurrentLimitsConfigs()
+            .withStatorCurrentLimit(Amps.of(PivotCurrentLimit))
+            .withStatorCurrentLimitEnable(true));
 
 		pivot.clearStickyFaults();
 		pivot.getConfigurator().apply(pivotConfig);

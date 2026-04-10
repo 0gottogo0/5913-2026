@@ -4,8 +4,10 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.*;
 import static frc.robot.constants.Constants.ShooterConstants.*;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -73,6 +75,9 @@ public class Shooter extends SubsystemBase {
 		bottomRollersConfig.Slot0.kP = BeltsPIDkP;
 		bottomRollersConfig.Slot0.kI = BeltsPIDkI;
 		bottomRollersConfig.Slot0.kD = BeltsPIDkD;
+		bottomRollersConfig.withCurrentLimits(new CurrentLimitsConfigs()
+            .withStatorCurrentLimit(Amps.of(BeltsCurrentLimit))
+            .withStatorCurrentLimitEnable(true));
 
   	  	bottomRollers.clearStickyFaults();
   	  	bottomRollers.getConfigurator().apply(bottomRollersConfig);
@@ -83,6 +88,9 @@ public class Shooter extends SubsystemBase {
 		feederConfig.Slot0.kP = FeederPIDkP;
 		feederConfig.Slot0.kI = FeederPIDkI;
 		feederConfig.Slot0.kD = FeederPIDkD;
+		feederConfig.withCurrentLimits(new CurrentLimitsConfigs()
+            .withStatorCurrentLimit(Amps.of(FeederCurrentLimit))
+            .withStatorCurrentLimitEnable(true));
 
         feeder.clearStickyFaults();
   	  	feeder.getConfigurator().apply(feederConfig);
@@ -93,6 +101,9 @@ public class Shooter extends SubsystemBase {
 		bottomShooterConfig.Slot0.kP = BottomShooterPIDkP;
 		bottomShooterConfig.Slot0.kI = BottomShooterPIDkI;
 		bottomShooterConfig.Slot0.kD = BottomShooterPIDkD;
+		bottomShooterConfig.withCurrentLimits(new CurrentLimitsConfigs()
+            .withStatorCurrentLimit(Amps.of(BottomShooterCurrentLimit))
+            .withStatorCurrentLimitEnable(true));
 
         bottomShooter.clearStickyFaults();
   	  	bottomShooter.getConfigurator().apply(bottomShooterConfig);
@@ -103,6 +114,9 @@ public class Shooter extends SubsystemBase {
 		leftShooterConfig.Slot0.kP = LeftShooterPIDkP;
 		leftShooterConfig.Slot0.kI = LeftShooterPIDkI;
 		leftShooterConfig.Slot0.kD = LeftShooterPIDkD;
+		leftShooterConfig.withCurrentLimits(new CurrentLimitsConfigs()
+            .withStatorCurrentLimit(Amps.of(LeftShooterCurrentLimit))
+            .withStatorCurrentLimitEnable(true));
 
   	  	leftShooter.clearStickyFaults();
   	  	leftShooter.getConfigurator().apply(leftShooterConfig);
@@ -113,6 +127,9 @@ public class Shooter extends SubsystemBase {
 		rightShooterConfig.Slot0.kP = RightShooterPIDkP;
 		rightShooterConfig.Slot0.kI = RightShooterPIDkI;
 		rightShooterConfig.Slot0.kD = RightShooterPIDkD;
+		rightShooterConfig.withCurrentLimits(new CurrentLimitsConfigs()
+            .withStatorCurrentLimit(Amps.of(RightShooterCurrentLimit))
+            .withStatorCurrentLimitEnable(true));
 
   	  	rightShooter.clearStickyFaults();
   	  	rightShooter.getConfigurator().apply(rightShooterConfig);
@@ -125,6 +142,9 @@ public class Shooter extends SubsystemBase {
 		hoodShooterConfig.Slot0.kP = HoodShooterPIDkP;
 		hoodShooterConfig.Slot0.kI = HoodShooterPIDkI;
 		hoodShooterConfig.Slot0.kD = HoodShooterPIDkD;
+		hoodShooterConfig.withCurrentLimits(new CurrentLimitsConfigs()
+            .withStatorCurrentLimit(Amps.of(HoodShooterCurrentLimit))
+            .withStatorCurrentLimitEnable(true));
 
   	  	hoodShooter.clearStickyFaults();
 		hoodShooter.getConfigurator().apply(hoodShooterConfig);

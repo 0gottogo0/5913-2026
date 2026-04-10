@@ -105,20 +105,21 @@ public final class Constants {
         public static final double IntakePIDkP = 0.20;
         public static final double IntakePIDkI = 0.00;
         public static final double IntakePIDkD = 0.00;
+        public static final int IntakeCurrentLimit = 80;
 
         public static final double PivotPIDkG = 0.00;
-        public static final double PivotPIDkP = 0.20;
+        public static final double PivotPIDkP = 0.38;
         public static final double PivotPIDkI = 0.00;
         public static final double PivotPIDkD = 0.00;
+        public static final double PivotCurrentLimit = 60;
 
-        public static final int IntakeCurrentLimit = 90;
-        public static final double IntakingSpeed = 0.80;
+        public static final double IntakingSpeed = 0.80; 
 
         public static final double PivotRetractSpeed = 1.00;
         public static final double PivotExtensionSpeed = 0.75;
         public static final double PivotAgitateSpeed = 0.30;
 
-        public static final double PivotInPos = 0.38;
+        public static final double PivotInPos = 0.40;
         public static final double PivotInTriggerPos = 0.28;
         public static final double PivotRunIntakeTriggerPos = 0.15;
         public static final double PivotOutPos = 0.02;
@@ -137,9 +138,9 @@ public final class Constants {
         }
         
         // Might be a good idea to tune this or something
-        public static final double BeltsSpeed = 100.00;
-        public static final double FeedSpeed = 85.00;
-        public static final double BottomShooterSpeed = 110.00;
+        public static final double BeltsSpeed = 60.00;
+        public static final double FeedSpeed = 60.00;
+        public static final double BottomShooterSpeed = 67.50;
         
         // Used in determing if shooter is up to speed
         public static final double RPSThreshold = 1.25;
@@ -148,31 +149,37 @@ public final class Constants {
         public static final double BeltsPIDkP = 0.20;
         public static final double BeltsPIDkI = 0.00;
         public static final double BeltsPIDkD = 0.00;
+        public static final double BeltsCurrentLimit = 40;
         
         public static final double FeederPIDkV = 0.135;
         public static final double FeederPIDkP = 0.30;
         public static final double FeederPIDkI = 0.00;
         public static final double FeederPIDkD = 0.00;
+        public static final double FeederCurrentLimit = 80;
 
         public static final double BottomShooterPIDkV = 0.135;
         public static final double BottomShooterPIDkP = 0.30;
         public static final double BottomShooterPIDkI = 0.00;
         public static final double BottomShooterPIDkD = 0.00;
+        public static final double BottomShooterCurrentLimit = 40;
 
         public static final double LeftShooterPIDkV = 0.122;
         public static final double LeftShooterPIDkP = 0.30;
         public static final double LeftShooterPIDkI = 0.00;
         public static final double LeftShooterPIDkD = 0.00;
+        public static final double LeftShooterCurrentLimit = 80;
 
         public static final double RightShooterPIDkV = 0.122;
         public static final double RightShooterPIDkP = 0.30;
         public static final double RightShooterPIDkI = 0.00;
         public static final double RightShooterPIDkD = 0.00;
+        public static final double RightShooterCurrentLimit = 80;
 
         public static final double HoodShooterPIDkV = 0.122;
         public static final double HoodShooterPIDkP = 0.00;
         public static final double HoodShooterPIDkI = 0.00;
         public static final double HoodShooterPIDkD = 0.00;
+        public static final double HoodShooterCurrentLimit = 70;
 
         public static final int BottomRollersID = 45;
         public static final int FeederMotorID = 43;
