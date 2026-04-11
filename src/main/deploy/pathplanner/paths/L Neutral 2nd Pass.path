@@ -48,15 +48,15 @@
     },
     {
       "anchor": {
-        "x": 6.333617763853909,
+        "x": 6.534,
         "y": 3.532
       },
       "prevControl": {
-        "x": 7.247396052781073,
+        "x": 7.4477782889271635,
         "y": 3.532
       },
       "nextControl": {
-        "x": 6.083617763853909,
+        "x": 6.284,
         "y": 3.532
       },
       "isLocked": false,
@@ -68,7 +68,7 @@
         "y": 5.367
       },
       "prevControl": {
-        "x": 6.4702964826055,
+        "x": 6.870647760223925,
         "y": 5.367
       },
       "nextControl": {
@@ -102,7 +102,7 @@
       "rotationDegrees": 180.0
     },
     {
-      "waypointRelativePos": 2.0,
+      "waypointRelativePos": 1.7511013215859044,
       "rotationDegrees": -90.0
     },
     {
@@ -114,7 +114,21 @@
       "rotationDegrees": 119.99999999999999
     }
   ],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 1.5,
+      "maxWaypointRelativePos": 3.0,
+      "constraints": {
+        "maxVelocity": 1.5,
+        "maxAcceleration": 4.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 180.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
   "pointTowardsZones": [],
   "eventMarkers": [
     {
@@ -125,7 +139,7 @@
     },
     {
       "name": "Stop Idle Camera",
-      "waypointRelativePos": 4.0,
+      "waypointRelativePos": 3.75,
       "endWaypointRelativePos": null,
       "command": null
     }

@@ -54,7 +54,7 @@ public class RobotContainer {
             () -> control.autoAim.shouldIdleLimelight(true)
         ));
 
-        NamedCommands.registerCommand("Start Idle Camera", control.run(
+        NamedCommands.registerCommand("Start Idle Camera", control.runOnce(
             () -> control.autoAim.shouldIdleLimelight(false)
         ));
 

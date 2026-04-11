@@ -73,6 +73,7 @@ public class ControlSub extends SubsystemBase {
     public double hubPIDOutput = 0.00;
 
     private boolean isTracking = false;
+    public boolean isAutoTracking = false;
     private boolean isIntakeRetracted = false;
     private boolean isIntaking = false;
     private boolean isAgitating = false;
@@ -258,10 +259,10 @@ public class ControlSub extends SubsystemBase {
             //shooter.setShooterState(ShooterConstants.State.Unstick, 60.00, 18.00);
         // If we are tracking, do the speed interpolation too
         } else if (isPassing && isShooting) {
-            shooter.setShooterState(ShooterConstants.State.Shoot, 50.00, 70.00);
+            shooter.setShooterState(ShooterConstants.State.Shoot, 65.00, 0.00);
         } else if (isPassing) {
-            shooter.setShooterState(ShooterConstants.State.Spinup, 50.00, 70.00);
-        } else if (isTracking) {
+            shooter.setShooterState(ShooterConstants.State.Spinup, 65.00, 0.00);
+        } else if (isTracking || isAutoTracking) {
             if (isSpinup && isShooting) {
                 shooter.setShooterState(ShooterConstants.State.Shoot, autoAim.getShootOnMoveAimTarget()[2], autoAim.getShootOnMoveAimTarget()[3]);
             } else if (isSpinup) {
@@ -359,7 +360,7 @@ public class ControlSub extends SubsystemBase {
     }
 
     public void stopShooting() {
-        isTracking = false;
+        isAutoTracking = false;
         isShooting = false;
         autoAim.shouldIdleLimelight(true);
         agitateTimer.stop();
@@ -370,8 +371,8 @@ public class ControlSub extends SubsystemBase {
     public void startShoot() {
         drivetrain.applyRequest(
             () -> AutoTrackDrive
-            .withRotationalRate(commandedRotate * maxAngularRate));
-        isTracking = true;
+            .withRotationalRate(hubPIDOutput * maxAngularRate));
+        isAutoTracking = false;
         isShooting = true;
         autoAim.shouldIdleLimelight(false);
         agitateTimer.start();
