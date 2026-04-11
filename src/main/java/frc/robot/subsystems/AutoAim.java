@@ -41,6 +41,7 @@ public class AutoAim extends SubsystemBase {
     double distanceFromClimb[] = {0.00, 0.00};
 
     boolean lostLimelight = false;
+    boolean idleLimelight = false;
 
     public AutoAim() {
         
@@ -50,7 +51,8 @@ public class AutoAim extends SubsystemBase {
     public void periodic() {
 
         // Change pipeline depending on robot state
-        if (DriverStation.isDisabled()) {
+        // Disable in auto till I fix limelight messing up pose from other hub
+        if (DriverStation.isDisabled() || idleLimelight) {
             NetworkTableInstance.getDefault().getTable(LimelightCenter).getEntry("pipeline").setNumber(1);
         } else {
             NetworkTableInstance.getDefault().getTable(LimelightCenter).getEntry("pipeline").setNumber(0);
@@ -114,7 +116,7 @@ public class AutoAim extends SubsystemBase {
         // For visualization of target, NOTE: the target is
         // above the ground and balls will not land on the 
         // target, but they will pass through the target
-        field.setRobotPose(robotPose);
+        field.setRobotPose(adjustedGoalPose);
 
         if (LimelightCenterMeasurement == null) {
             DataLogManager.log("Reef Camera Lost!");
@@ -154,6 +156,11 @@ public class AutoAim extends SubsystemBase {
      */
     public boolean hasLostLimelight() {
         return lostLimelight;
+    }
+
+    /** true if no camera */
+    public void shouldIdleLimelight(boolean idle) {
+        idleLimelight = idle;
     }
 
     /**

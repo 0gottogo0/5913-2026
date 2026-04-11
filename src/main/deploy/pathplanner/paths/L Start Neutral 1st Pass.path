@@ -64,11 +64,11 @@
     },
     {
       "anchor": {
-        "x": 3.087,
+        "x": 2.987,
         "y": 5.511
       },
       "prevControl": {
-        "x": 4.048622853938564,
+        "x": 3.948622853938564,
         "y": 5.049421150383717
       },
       "nextControl": null,
@@ -102,7 +102,20 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "Start Idle Camera",
+      "waypointRelativePos": 0.3,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Stop Idle Camera",
+      "waypointRelativePos": 3.0,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 5.67,
     "maxAcceleration": 4.0,
@@ -113,7 +126,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 127.00000000000001
+    "rotation": 137.0
   },
   "reversed": false,
   "folder": "Left Comp",

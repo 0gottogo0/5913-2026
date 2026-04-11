@@ -65,7 +65,9 @@ public class Robot extends TimedRobot {
     }
 
     @Override
-    public void teleopPeriodic() {}
+    public void teleopPeriodic() {
+        RobotContainer.control.autoAim.shouldIdleLimelight(false); // camera work :)
+    }
 
     @Override
     public void teleopExit() {}

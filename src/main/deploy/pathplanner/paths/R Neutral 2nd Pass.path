@@ -3,12 +3,12 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.086853070175439,
+        "x": 2.987,
         "y": 2.549
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.0330247148972695,
+        "x": 2.933171644721831,
         "y": 0.6757732363197329
       },
       "isLocked": false,
@@ -80,11 +80,11 @@
     },
     {
       "anchor": {
-        "x": 3.086853070175439,
+        "x": 2.987,
         "y": 2.549
       },
       "prevControl": {
-        "x": 3.4812411292954772,
+        "x": 3.3813880591200385,
         "y": 3.1453916991571305
       },
       "nextControl": null,
@@ -116,7 +116,20 @@
   ],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "Start Idle Camera",
+      "waypointRelativePos": 0.45,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Stop Idle Camera",
+      "waypointRelativePos": 4.0,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 5.67,
     "maxAcceleration": 4.0,
@@ -127,13 +140,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -127.00000000000001
+    "rotation": -137.0
   },
   "reversed": false,
   "folder": "Right Comp",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -127.00000000000001
+    "rotation": -137.0
   },
   "useDefaultConstraints": true
 }

@@ -159,19 +159,23 @@ public class ControlSub extends SubsystemBase {
             }
 
             isIntaking = DriverController.rightTrigger().getAsBoolean();
+            if (DriverController.rightTrigger().getAsBoolean()) {
+                commandedMoveX = commandedMoveX * 0.50;
+                commandedMoveY = commandedMoveY * 0.50;
+            }
             
-            if (isTracking) {
-                DriverController.setRumble(RumbleType.kLeftRumble, 0.20);
+            if (isTracking && autoAim.getShootOnMoveAimTarget()[1] >= 1.8) {
+                DriverController.setRumble(RumbleType.kBothRumble, 0.50);
             } else {
-                DriverController.setRumble(RumbleType.kLeftRumble, 0.00);
+                DriverController.setRumble(RumbleType.kBothRumble, 0.00);
             }
 
             // Gotta warn because the robot aiming at the stands wasnt enough
-            if (autoAim.hasLostLimelight()) {
+            /*if (autoAim.hasLostLimelight()) {
                 DriverController.setRumble(RumbleType.kRightRumble, 0.50);
             } else {
                 DriverController.setRumble(RumbleType.kRightRumble, 0.00);
-            }
+            }*/
         }
 
         /* Manipulator Controls */
@@ -187,7 +191,7 @@ public class ControlSub extends SubsystemBase {
             isSpinup = ManipulatorController.x().getAsBoolean();
             isPassing = ManipulatorController.b().getAsBoolean();
             isShooting = ManipulatorController.rightTrigger().getAsBoolean();
-            isAgitating = ManipulatorController.rightTrigger().getAsBoolean() && agitateTimer.get() > 0.5;
+            isAgitating = ManipulatorController.rightTrigger().getAsBoolean() && agitateTimer.get() > ControllerConstants.IntakeAgitateTime;
             isUnsticking = ManipulatorController.rightBumper().getAsBoolean();
 
             if (isShooting) {
@@ -198,17 +202,17 @@ public class ControlSub extends SubsystemBase {
             }
 
             if (shooter.isShooterAtSpeed()) {
-                ManipulatorController.setRumble(RumbleType.kLeftRumble, 0.20);
+                ManipulatorController.setRumble(RumbleType.kBothRumble, 0.50);
             } else {
-                ManipulatorController.setRumble(RumbleType.kLeftRumble, 0.00);
+                ManipulatorController.setRumble(RumbleType.kBothRumble, 0.00);
             }
 
             // Gotta warn because the robot aiming at the stands wasnt enough
-            if (autoAim.hasLostLimelight()) {
+            /*if (autoAim.hasLostLimelight()) {
                 ManipulatorController.setRumble(RumbleType.kRightRumble, 0.50);
             } else {
                 ManipulatorController.setRumble(RumbleType.kRightRumble, 0.00);
-            }
+            }*/
         }
 
         /* Testing Controls */
@@ -268,9 +272,9 @@ public class ControlSub extends SubsystemBase {
             }
         } else {
             if (isSpinup && isShooting) {
-                shooter.setShooterState(ShooterConstants.State.Shoot, 60.00, 0.00);
+                shooter.setShooterState(ShooterConstants.State.Shoot, 65.00, 0.00);
             } else if (isSpinup) {
-                shooter.setShooterState(ShooterConstants.State.Spinup, 60.00, 0.00);
+                shooter.setShooterState(ShooterConstants.State.Spinup, 65.00, 0.00);
             } else {
                 shooter.setShooterState(State.Idle, 0.00, 0.00);
             }
@@ -361,6 +365,7 @@ public class ControlSub extends SubsystemBase {
     public void stopShooting() {
         isAutoTracking = false;
         isShooting = false;
+        autoAim.shouldIdleLimelight(true);
         agitateTimer.stop();
         agitateTimer.reset();
         isAgitating = false;
@@ -372,6 +377,7 @@ public class ControlSub extends SubsystemBase {
             .withRotationalRate(commandedRotate * maxAngularRate));
         isAutoTracking = true;
         isShooting = true;
+        autoAim.shouldIdleLimelight(false);
         agitateTimer.start();
         isAgitating = agitateTimer.get() > 0.5;
     }

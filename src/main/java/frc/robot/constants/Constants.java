@@ -23,8 +23,8 @@ public final class Constants {
         // more, and better information can be found in the
         // Limelight docs under "3D Coordinate Systems In
         // Detail"
-        public static final Pose2d BlueGoal = new Pose2d(4.00,  4.07, new Rotation2d(0));
-        public static final Pose2d RedGoal = new Pose2d(12.00, 4.07, new Rotation2d(0));
+        public static final Pose2d BlueGoal = new Pose2d(4.50,  4.07, new Rotation2d(0));
+        public static final Pose2d RedGoal = new Pose2d(11.90, 4.07, new Rotation2d(0));
         public static final Pose2d NeutralZone = new Pose2d(8.27, 4.07, new Rotation2d(0));
         public static final Pose2d BlueZone = new Pose2d(3.20, 4.07, new Rotation2d(0));
         public static final Pose2d RedZone = new Pose2d(13.40, 4.07, new Rotation2d(0));
@@ -35,21 +35,21 @@ public final class Constants {
         
         // Meters, RPS
         public static final InterpolatingDoubleTreeMap TopShooterSpeedByDistance = InterpolatingDoubleTreeMap.ofEntries(
-            Map.entry(0.00, 60.00),
-            Map.entry(1.80, 60.00),
-            Map.entry(2.30, 64.00),
-            Map.entry(2.70, 57.00),
-            Map.entry(3.20, 50.00) // Trench
+            Map.entry(0.00, 55.00),
+            Map.entry(1.30, 55.00),
+            Map.entry(1.70, 57.00),
+            Map.entry(2.10, 65.00),
+            Map.entry(3.40, 87.00) // Tower
             //Map.entry(5.00, 40.00)
             );
     
         // Meters, RPS
         public static final InterpolatingDoubleTreeMap HoodShooterSpeedByDistance = InterpolatingDoubleTreeMap.ofEntries(
             Map.entry(0.00, 0.00),
-            Map.entry(1.80, 0.00),
-            Map.entry(2.30, 14.00),
-            Map.entry(2.70, 27.00),
-            Map.entry(3.20, 40.00) // Trench
+            Map.entry(1.30, 0.00),
+            Map.entry(1.70, 0.00),
+            Map.entry(2.10, 0.00),
+            Map.entry(3.40, 0.00) // Tower
             //Map.entry(5.00, 70.00)
         );
             
@@ -80,7 +80,7 @@ public final class Constants {
         public static final double RotateMagnitude = 0.90;
         public static final double StickDeadzone = 0.10;
 
-        public static final double IntakeAgitateTime = 0.5;
+        public static final double IntakeAgitateTime = 1.00;
 
         public static final int XboxMenuButtonID = 7;
         public static final int XboxShareButtonID = 8;
@@ -137,10 +137,9 @@ public final class Constants {
             DumbControl
         }
         
-        // Might be a good idea to tune this or something
-        public static final double BeltsSpeed = 60.00;
-        public static final double FeedSpeed = 60.00;
-        public static final double BottomShooterSpeed = 67.50;
+        public static final double BeltsSpeed = 35.00;
+        public static final double FeedSpeed = 35.00;
+        public static final double BottomShooterSpeed = 38.50;
         
         // Used in determing if shooter is up to speed
         public static final double RPSThreshold = 1.25;
