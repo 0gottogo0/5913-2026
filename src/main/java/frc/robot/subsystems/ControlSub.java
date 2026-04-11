@@ -73,7 +73,6 @@ public class ControlSub extends SubsystemBase {
     public double hubPIDOutput = 0.00;
 
     private boolean isTracking = false;
-    public boolean isAutoTracking = false;
     private boolean isIntakeRetracted = false;
     private boolean isIntaking = false;
     private boolean isAgitating = false;
@@ -262,7 +261,7 @@ public class ControlSub extends SubsystemBase {
             shooter.setShooterState(ShooterConstants.State.Shoot, 50.00, 70.00);
         } else if (isPassing) {
             shooter.setShooterState(ShooterConstants.State.Spinup, 50.00, 70.00);
-        } else if (isTracking || isAutoTracking) {
+        } else if (isTracking) {
             if (isSpinup && isShooting) {
                 shooter.setShooterState(ShooterConstants.State.Shoot, autoAim.getShootOnMoveAimTarget()[2], autoAim.getShootOnMoveAimTarget()[3]);
             } else if (isSpinup) {
@@ -304,8 +303,7 @@ public class ControlSub extends SubsystemBase {
         }
 
         // Check if we need to go further then half a rotation and if
-        // we do than we can add or subtract an entire rotation depending
-        // on which is least 
+        // we need to select a coterminal angle depending on which is least 
         if (Math.abs(drivetrain.getState().Pose.getRotation().getDegrees() - autoAim.getShootOnMoveAimTarget()[0]) > 180) {
             if (drivetrain.getState().Pose.getRotation().getDegrees() > autoAim.getShootOnMoveAimTarget()[0]) {
                 hubPIDOutput = HubTrackingPidController.calculate(drivetrain.getState().Pose.getRotation().getDegrees(), autoAim.getShootOnMoveAimTarget()[0] + 360);
@@ -331,9 +329,7 @@ public class ControlSub extends SubsystemBase {
         driverLastRightTrigger = DriverController.leftTrigger().getAsBoolean();
     }
 
-    // Atleast get rid of these variables and
-    // have these functions call the subsystem
-    // function calls themself
+    // Auto functions
     public void stopIntakeOut() {
         isIntakeRetracted = false;
         isIntaking = false;
@@ -363,7 +359,7 @@ public class ControlSub extends SubsystemBase {
     }
 
     public void stopShooting() {
-        isAutoTracking = false;
+        isTracking = false;
         isShooting = false;
         autoAim.shouldIdleLimelight(true);
         agitateTimer.stop();
@@ -375,7 +371,7 @@ public class ControlSub extends SubsystemBase {
         drivetrain.applyRequest(
             () -> AutoTrackDrive
             .withRotationalRate(commandedRotate * maxAngularRate));
-        isAutoTracking = true;
+        isTracking = true;
         isShooting = true;
         autoAim.shouldIdleLimelight(false);
         agitateTimer.start();

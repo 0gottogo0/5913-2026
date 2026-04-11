@@ -52,13 +52,10 @@ public class Robot extends TimedRobot {
     public void autonomousPeriodic() {}
 
     @Override
-    public void autonomousExit() {
-        RobotContainer.control.isAutoTracking = false;
-    }
+    public void autonomousExit() {}
 
     @Override
     public void teleopInit() {
-        RobotContainer.control.isAutoTracking = false;
         if (autonomousCommand != null) {
             CommandScheduler.getInstance().cancel(autonomousCommand);
         }
