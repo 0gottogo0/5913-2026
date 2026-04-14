@@ -101,10 +101,10 @@ public final class Constants {
             DumbControl
         }
         
-        // Tune this
-        public static final double IntakePIDkP = 0.0003;
+        public static final double IntakePIDkV = 0.00;
+        public static final double IntakePIDkP = 0.00;
         public static final double IntakePIDkI = 0.00;
-        public static final double IntakePIDkD = 0.0000;
+        public static final double IntakePIDkD = 0.00;
         public static final int IntakeCurrentLimit = 80;
 
         public static final double PivotPIDkP = 3.00;

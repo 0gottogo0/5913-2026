@@ -14,6 +14,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -40,18 +41,13 @@ public class Intake extends SubsystemBase {
 	private TalonFX pivot = new TalonFX(PivotID);
 	private TalonFXConfiguration pivotConfig = new TalonFXConfiguration(); 
 
-	private PIDController intakeLeftController = new PIDController(IntakePIDkP, IntakePIDkI, IntakePIDkD);
-	private PIDController intakeRightController = new PIDController(IntakePIDkP, IntakePIDkI, IntakePIDkD);
 	private PIDController pivotController = new PIDController(PivotPIDkP, PivotPIDkI, PivotPIDkD);
 
 	private DutyCycleEncoder pivotEncoder = new DutyCycleEncoder(0);
 	
 	private double intakeTargetSpeed = 0;
 	private double pivotTargetSpeed = 0;
-	private double intakeSetpoint = 0;
     private double pivotSetpoint = 0;
-	private double intakeLeftPIDOutput = 0;
-	private double intakeRightPIDOutput = 0;
 	private double pivotPIDOutput = 0;
 
 	public State state = State.IdleIn;
@@ -60,12 +56,22 @@ public class Intake extends SubsystemBase {
 		intakeLeftConfig.idleMode(IdleMode.kCoast);
         intakeLeftConfig.inverted(false);
 		intakeLeftConfig.smartCurrentLimit(IntakeCurrentLimit);
+		intakeLeftConfig.closedLoop
+    		.p(IntakePIDkP)
+    		.i(IntakePIDkI)
+    		.d(IntakePIDkD)
+			.feedForward.kV(IntakePIDkV);
 
         intakeLeft.configure(intakeLeftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
 		intakeRightConfig.idleMode(IdleMode.kCoast);
         intakeRightConfig.inverted(false);
 		intakeRightConfig.smartCurrentLimit(IntakeCurrentLimit);
+		intakeRightConfig.closedLoop
+    		.p(IntakePIDkP)
+    		.i(IntakePIDkI)
+    		.d(IntakePIDkD)
+			.feedForward.kV(IntakePIDkV);
 
         intakeRight.configure(intakeRightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
@@ -92,54 +98,45 @@ public class Intake extends SubsystemBase {
   	@Override
   	public void periodic() {
 		pivotPIDOutput = MathUtil.clamp(pivotController.calculate(pivotEncoder.get(), pivotSetpoint), -PivotExtensionSpeed, PivotRetractSpeed);
-		intakeLeftPIDOutput = intakeLeftController.calculate(intakeLeft.getEncoder().getVelocity(), intakeSetpoint);
-		intakeRightPIDOutput = intakeRightController.calculate(intakeRight.getEncoder().getVelocity(), -intakeSetpoint);
 
 		switch (state) {
 			case IdleIn:
 				intakeLeft.set(0.00);
 				intakeRight.set(0.00);
 				pivot.set(pivotPIDOutput);
-				intakeSetpoint = 0.00;
 				pivotSetpoint = PivotInPos;
 				break;
             case IdleOut:
                 intakeLeft.set(0.00);
 				intakeRight.set(0.00);
 				pivot.set(pivotPIDOutput);
-				intakeSetpoint = 0.00;
 				pivotSetpoint = PivotOutPos;
                 break;
 			case IntakeIn:
-				intakeLeft.set(1);
-				intakeRight.set(-1);
+				intakeLeft.getClosedLoopController().setSetpoint(IntakingSpeed, ControlType.kVelocity);
+				intakeRight.getClosedLoopController().setSetpoint(-IntakingSpeed, ControlType.kVelocity);
 				pivot.set(pivotPIDOutput);
-				intakeSetpoint = IntakingSpeed;
 				pivotSetpoint = PivotInPos;
 				break;
 			case IntakeOut:
-				intakeLeft.set(1);
-				intakeRight.set(-1);
+				intakeLeft.getClosedLoopController().setSetpoint(IntakingSpeed, ControlType.kVelocity);
+				intakeRight.getClosedLoopController().setSetpoint(-IntakingSpeed, ControlType.kVelocity);
 				pivot.set(pivotPIDOutput);
-				intakeSetpoint = IntakingSpeed;
 				pivotSetpoint = PivotOutPos;
 				break;
 			case Outtake:
-				intakeLeft.set(-1);
-				intakeRight.set(1);
+				intakeLeft.getClosedLoopController().setSetpoint(-IntakingSpeed, ControlType.kVelocity);
+				intakeRight.getClosedLoopController().setSetpoint(IntakingSpeed, ControlType.kVelocity);
 				pivot.set(pivotPIDOutput);
-				intakeSetpoint = IntakingSpeed;
 				pivotSetpoint = PivotOutPos;
 				break;
 			case Agitate:
 				if (pivotEncoder.get() >= PivotRunIntakeTriggerPos) {
 					intakeLeft.set(0.00);
 					intakeRight.set(0.00);
-					intakeSetpoint = 0.00;
 				} else {
-					intakeLeft.set(1);
-					intakeRight.set(-1);
-					intakeSetpoint = IntakingSpeed;
+					intakeLeft.getClosedLoopController().setSetpoint(IntakingSpeed, ControlType.kVelocity);
+					intakeRight.getClosedLoopController().setSetpoint(-IntakingSpeed, ControlType.kVelocity);
 				}
 				if (pivotEncoder.get() >= PivotInTriggerPos) {
 					pivot.set(0.00);
