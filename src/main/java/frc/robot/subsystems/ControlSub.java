@@ -259,9 +259,9 @@ public class ControlSub extends SubsystemBase {
             //shooter.setShooterState(ShooterConstants.State.Unstick, 60.00, 18.00);
         // If we are tracking, do the speed interpolation too
         } else if (isPassing && isShooting) {
-            shooter.setShooterState(ShooterConstants.State.Shoot, 65.00, 0.00);
+            shooter.setShooterState(ShooterConstants.State.Shoot, 40.00, 40.00);
         } else if (isPassing) {
-            shooter.setShooterState(ShooterConstants.State.Spinup, 65.00, 0.00);
+            shooter.setShooterState(ShooterConstants.State.Spinup, 40.00, 40.00);
         } else if (isTracking || isAutoTracking) {
             if (isSpinup && isShooting) {
                 shooter.setShooterState(ShooterConstants.State.Shoot, autoAim.getShootOnMoveAimTarget()[2], autoAim.getShootOnMoveAimTarget()[3]);

@@ -101,30 +101,30 @@ public final class Constants {
             DumbControl
         }
         
-        public static final double IntakePIDkV = 0.00;
-        public static final double IntakePIDkP = 0.20;
+        // Tune this
+        public static final double IntakePIDkP = 0.0003;
         public static final double IntakePIDkI = 0.00;
-        public static final double IntakePIDkD = 0.00;
+        public static final double IntakePIDkD = 0.0000;
         public static final int IntakeCurrentLimit = 80;
 
-        public static final double PivotPIDkG = 0.00;
-        public static final double PivotPIDkP = 0.38;
+        public static final double PivotPIDkP = 3.00;
         public static final double PivotPIDkI = 0.00;
         public static final double PivotPIDkD = 0.00;
         public static final double PivotCurrentLimit = 60;
 
-        public static final double IntakingSpeed = 0.80; 
+        public static final double IntakingSpeed = 5000.00; 
 
         public static final double PivotRetractSpeed = 1.00;
         public static final double PivotExtensionSpeed = 0.75;
         public static final double PivotAgitateSpeed = 0.30;
 
-        public static final double PivotInPos = 0.57;
-        public static final double PivotInTriggerPos = 0.45;
-        public static final double PivotRunIntakeTriggerPos = 0.32;
-        public static final double PivotOutPos = 0.19;
+        public static final double PivotInPos = 0.60;
+        public static final double PivotInTriggerPos = 0.48;
+        public static final double PivotRunIntakeTriggerPos = 0.35;
+        public static final double PivotOutPos = 0.24;
 
-        public static final int IntakeID = 34;
+        public static final int IntakeLeftID = 34;
+        public static final int IntakeRightID = 50;
         public static final int PivotID = 37;
     }
 
@@ -175,7 +175,7 @@ public final class Constants {
         public static final double RightShooterCurrentLimit = 80;
 
         public static final double HoodShooterPIDkV = 0.122;
-        public static final double HoodShooterPIDkP = 0.00;
+        public static final double HoodShooterPIDkP = 0.30;
         public static final double HoodShooterPIDkI = 0.00;
         public static final double HoodShooterPIDkD = 0.00;
         public static final double HoodShooterCurrentLimit = 70;

@@ -29,37 +29,48 @@ import frc.robot.constants.Constants.IntakeConstants.State;
 public class Intake extends SubsystemBase {
 
 	// Neo Vortex
-  	private SparkFlex intake = new SparkFlex(IntakeID, MotorType.kBrushless);
-  	private SparkFlexConfig intakeConfig = new SparkFlexConfig();
+  	private SparkFlex intakeLeft = new SparkFlex(IntakeLeftID, MotorType.kBrushless);
+  	private SparkFlexConfig intakeLeftConfig = new SparkFlexConfig();
+
+	// Neo Vortex
+	private SparkFlex intakeRight = new SparkFlex(IntakeRightID, MotorType.kBrushless);
+  	private SparkFlexConfig intakeRightConfig = new SparkFlexConfig(); 
 
 	// Kraken X44
 	private TalonFX pivot = new TalonFX(PivotID);
 	private TalonFXConfiguration pivotConfig = new TalonFXConfiguration(); 
 
-	private PIDController pivotController = new PIDController(1.50, 0.00, 0.00);
+	private PIDController intakeLeftController = new PIDController(IntakePIDkP, IntakePIDkI, IntakePIDkD);
+	private PIDController intakeRightController = new PIDController(IntakePIDkP, IntakePIDkI, IntakePIDkD);
+	private PIDController pivotController = new PIDController(PivotPIDkP, PivotPIDkI, PivotPIDkD);
 
 	private DutyCycleEncoder pivotEncoder = new DutyCycleEncoder(0);
 	
-  	private double intakeTargetSpeed = 0;
+	private double intakeTargetSpeed = 0;
 	private double pivotTargetSpeed = 0;
+	private double intakeSetpoint = 0;
     private double pivotSetpoint = 0;
+	private double intakeLeftPIDOutput = 0;
+	private double intakeRightPIDOutput = 0;
 	private double pivotPIDOutput = 0;
 
 	public State state = State.IdleIn;
 
   	public Intake() {
-		intakeConfig.idleMode(IdleMode.kCoast);
-        intakeConfig.inverted(false);
-		intakeConfig.smartCurrentLimit(IntakeCurrentLimit);
+		intakeLeftConfig.idleMode(IdleMode.kCoast);
+        intakeLeftConfig.inverted(false);
+		intakeLeftConfig.smartCurrentLimit(IntakeCurrentLimit);
 
-        intake.configure(intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        intakeLeft.configure(intakeLeftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+		intakeRightConfig.idleMode(IdleMode.kCoast);
+        intakeRightConfig.inverted(false);
+		intakeRightConfig.smartCurrentLimit(IntakeCurrentLimit);
+
+        intakeRight.configure(intakeRightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
 		pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 		pivotConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-		pivotConfig.Slot0.kG = PivotPIDkG;			
-		pivotConfig.Slot0.kP = PivotPIDkP;
-		pivotConfig.Slot0.kI = PivotPIDkI;
-		pivotConfig.Slot0.kD = PivotPIDkD;
 		pivotConfig.withCurrentLimits(new CurrentLimitsConfigs()
             .withStatorCurrentLimit(Amps.of(PivotCurrentLimit))
             .withStatorCurrentLimitEnable(true));
@@ -81,38 +92,54 @@ public class Intake extends SubsystemBase {
   	@Override
   	public void periodic() {
 		pivotPIDOutput = MathUtil.clamp(pivotController.calculate(pivotEncoder.get(), pivotSetpoint), -PivotExtensionSpeed, PivotRetractSpeed);
+		intakeLeftPIDOutput = intakeLeftController.calculate(intakeLeft.getEncoder().getVelocity(), intakeSetpoint);
+		intakeRightPIDOutput = intakeRightController.calculate(intakeRight.getEncoder().getVelocity(), -intakeSetpoint);
 
 		switch (state) {
 			case IdleIn:
-				intake.set(0.00);
+				intakeLeft.set(0.00);
+				intakeRight.set(0.00);
 				pivot.set(pivotPIDOutput);
+				intakeSetpoint = 0.00;
 				pivotSetpoint = PivotInPos;
 				break;
             case IdleOut:
-                intake.set(0.00);
+                intakeLeft.set(0.00);
+				intakeRight.set(0.00);
 				pivot.set(pivotPIDOutput);
+				intakeSetpoint = 0.00;
 				pivotSetpoint = PivotOutPos;
                 break;
 			case IntakeIn:
-				intake.set(IntakingSpeed);
+				intakeLeft.set(1);
+				intakeRight.set(-1);
 				pivot.set(pivotPIDOutput);
+				intakeSetpoint = IntakingSpeed;
 				pivotSetpoint = PivotInPos;
 				break;
 			case IntakeOut:
-				intake.set(IntakingSpeed);
+				intakeLeft.set(1);
+				intakeRight.set(-1);
 				pivot.set(pivotPIDOutput);
+				intakeSetpoint = IntakingSpeed;
 				pivotSetpoint = PivotOutPos;
 				break;
 			case Outtake:
-				intake.set(-IntakingSpeed);
+				intakeLeft.set(-1);
+				intakeRight.set(1);
 				pivot.set(pivotPIDOutput);
+				intakeSetpoint = IntakingSpeed;
 				pivotSetpoint = PivotOutPos;
 				break;
 			case Agitate:
 				if (pivotEncoder.get() >= PivotRunIntakeTriggerPos) {
-					intake.set(0.00);
+					intakeLeft.set(0.00);
+					intakeRight.set(0.00);
+					intakeSetpoint = 0.00;
 				} else {
-					intake.set(IntakingSpeed);
+					intakeLeft.set(1);
+					intakeRight.set(-1);
+					intakeSetpoint = IntakingSpeed;
 				}
 				if (pivotEncoder.get() >= PivotInTriggerPos) {
 					pivot.set(0.00);
@@ -121,13 +148,17 @@ public class Intake extends SubsystemBase {
 				}
 				break;
 			case DumbControl:
-				intake.set(intakeTargetSpeed);
+				intakeLeft.set(intakeTargetSpeed);
+				intakeRight.set(intakeTargetSpeed);
 				pivot.set(pivotTargetSpeed);
 				break;
 		}
 
 		SmartDashboard.putNumber("Intake Pivot Position", pivotEncoder.get());
 		SmartDashboard.putNumber("Intake Pivot PID Output", pivotPIDOutput);
+
+		SmartDashboard.putNumber("Intake Left Speed", intakeLeft.getEncoder().getVelocity());
+		SmartDashboard.putNumber("Intake Right Speed", intakeRight.getEncoder().getVelocity());
 
         SmartDashboard.putString("Intake State", state.toString());
   	}
