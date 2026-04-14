@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
@@ -14,6 +16,10 @@ import frc.robot.subsystems.ControlSub;
 
 public class RobotContainer {
     private final SendableChooser<Command> autoChooser;
+
+    public final SwerveRequest.FieldCentric AutoTrackDrive = new SwerveRequest.FieldCentric()
+        //.withDeadband(maxSpeed * Controllers.StickDeadzone).withRotationalDeadband(maxAngularRate * Controllers.StickDeadzone)
+        .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     ControlSub control = new ControlSub();
     
@@ -47,8 +53,11 @@ public class RobotContainer {
         ));
 
         NamedCommands.registerCommand("Start Shooting", control.run(
-            () -> control.startShoot()
-        ));
+            () -> control.startShoot())
+        .alongWith(control.drivetrain.applyRequest(
+            () -> AutoTrackDrive
+                .withRotationalRate(control.getTrackingOutput() * control.maxAngularRate)
+        )));
 
         NamedCommands.registerCommand("Stop Idle Camera", control.runOnce(
             () -> control.autoAim.shouldIdleLimelight(true)

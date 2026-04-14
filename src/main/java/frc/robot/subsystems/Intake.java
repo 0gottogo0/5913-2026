@@ -4,8 +4,27 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.*;
-import static frc.robot.constants.Constants.IntakeConstants.*;
+import static edu.wpi.first.units.Units.Amps;
+import static frc.robot.constants.Constants.IntakeConstants.IntakeCurrentLimit;
+import static frc.robot.constants.Constants.IntakeConstants.IntakeLeftID;
+import static frc.robot.constants.Constants.IntakeConstants.IntakePIDkD;
+import static frc.robot.constants.Constants.IntakeConstants.IntakePIDkI;
+import static frc.robot.constants.Constants.IntakeConstants.IntakePIDkP;
+import static frc.robot.constants.Constants.IntakeConstants.IntakePIDkV;
+import static frc.robot.constants.Constants.IntakeConstants.IntakeRightID;
+import static frc.robot.constants.Constants.IntakeConstants.IntakingSpeed;
+import static frc.robot.constants.Constants.IntakeConstants.PivotAgitateSpeed;
+import static frc.robot.constants.Constants.IntakeConstants.PivotCurrentLimit;
+import static frc.robot.constants.Constants.IntakeConstants.PivotExtensionSpeed;
+import static frc.robot.constants.Constants.IntakeConstants.PivotID;
+import static frc.robot.constants.Constants.IntakeConstants.PivotInPos;
+import static frc.robot.constants.Constants.IntakeConstants.PivotInTriggerPos;
+import static frc.robot.constants.Constants.IntakeConstants.PivotOutPos;
+import static frc.robot.constants.Constants.IntakeConstants.PivotPIDkD;
+import static frc.robot.constants.Constants.IntakeConstants.PivotPIDkI;
+import static frc.robot.constants.Constants.IntakeConstants.PivotPIDkP;
+import static frc.robot.constants.Constants.IntakeConstants.PivotRetractSpeed;
+import static frc.robot.constants.Constants.IntakeConstants.PivotRunIntakeTriggerPos;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -153,9 +172,10 @@ public class Intake extends SubsystemBase {
 
 		SmartDashboard.putNumber("Intake Pivot Position", pivotEncoder.get());
 		SmartDashboard.putNumber("Intake Pivot PID Output", pivotPIDOutput);
-
 		SmartDashboard.putNumber("Intake Left Speed", intakeLeft.getEncoder().getVelocity());
 		SmartDashboard.putNumber("Intake Right Speed", intakeRight.getEncoder().getVelocity());
+		SmartDashboard.putNumber("Intake Left Current Draw", intakeLeft.getOutputCurrent());
+		SmartDashboard.putNumber("Intake Right Current Draw", intakeRight.getOutputCurrent());
 
         SmartDashboard.putString("Intake State", state.toString());
   	}

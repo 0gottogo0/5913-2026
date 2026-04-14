@@ -34,15 +34,11 @@ public class ControlSub extends SubsystemBase {
     // I dont know what it is
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    private double maxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
+    public double maxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
     public double maxAngularRate = RotationsPerSecond.of(ControllerConstants.RotateMagnitude).in(RadiansPerSecond);
     
     // Drive with controller request
     private final SwerveRequest.FieldCentric ControllerDrive = new SwerveRequest.FieldCentric()
-        //.withDeadband(maxSpeed * Controllers.StickDeadzone).withRotationalDeadband(maxAngularRate * Controllers.StickDeadzone)
-        .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
-
-    public final SwerveRequest.FieldCentric AutoTrackDrive = new SwerveRequest.FieldCentric()
         //.withDeadband(maxSpeed * Controllers.StickDeadzone).withRotationalDeadband(maxAngularRate * Controllers.StickDeadzone)
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
@@ -80,7 +76,6 @@ public class ControlSub extends SubsystemBase {
     private boolean isSpinup = false;
     private boolean isPassing = false;
     private boolean isShooting = false;
-    private boolean isUnsticking = false;
 
     public ControlSub() {
 
@@ -164,7 +159,7 @@ public class ControlSub extends SubsystemBase {
                 commandedMoveY = commandedMoveY * 0.50;
             }
             
-            if (isTracking && autoAim.getShootOnMoveAimTarget()[1] >= 1.8) {
+            if (isTracking) {
                 DriverController.setRumble(RumbleType.kBothRumble, 0.50);
             } else {
                 DriverController.setRumble(RumbleType.kBothRumble, 0.00);
@@ -180,11 +175,9 @@ public class ControlSub extends SubsystemBase {
 
         /* Manipulator Controls */
         // Spinup = X
+        // Pass Spinup = B
         // Shoot = Right Trig
         // Track = Left Trig
-        // Toggle Intake Agitate = Left Bumper
-        // Shooter Unstick = Right Bumper
-        // Pass Spinup = B
         
         
         if (DriverStation.isTeleop()) {
@@ -192,7 +185,6 @@ public class ControlSub extends SubsystemBase {
             isPassing = ManipulatorController.b().getAsBoolean();
             isShooting = ManipulatorController.rightTrigger().getAsBoolean();
             isAgitating = ManipulatorController.rightTrigger().getAsBoolean() && agitateTimer.get() > ControllerConstants.IntakeAgitateTime;
-            isUnsticking = ManipulatorController.rightBumper().getAsBoolean();
 
             if (isShooting) {
                 agitateTimer.start();
@@ -254,15 +246,19 @@ public class ControlSub extends SubsystemBase {
             }
         }
 
-        // Unstick if need too
-        if (isUnsticking) {
-            //shooter.setShooterState(ShooterConstants.State.Unstick, 60.00, 18.00);
-        // If we are tracking, do the speed interpolation too
-        } else if (isPassing && isShooting) {
+        if (isPassing && isShooting) {
             shooter.setShooterState(ShooterConstants.State.Shoot, 40.00, 40.00);
         } else if (isPassing) {
             shooter.setShooterState(ShooterConstants.State.Spinup, 40.00, 40.00);
-        } else if (isTracking || isAutoTracking) {
+        } else if (isAutoTracking) {
+            if (isSpinup && isShooting) {
+                shooter.setShooterState(ShooterConstants.State.Shoot, autoAim.getShootOnMoveAimTarget()[2], autoAim.getShootOnMoveAimTarget()[3]);
+            } else if (isSpinup) {
+                shooter.setShooterState(ShooterConstants.State.Spinup, autoAim.getShootOnMoveAimTarget()[2], autoAim.getShootOnMoveAimTarget()[3]);
+            } else {
+                shooter.setShooterState(State.Idle, 0.00, 0.00);
+            }
+        } else if (isTracking) {
             if (isSpinup && isShooting) {
                 shooter.setShooterState(ShooterConstants.State.Shoot, autoAim.getShootOnMoveAimTarget()[2], autoAim.getShootOnMoveAimTarget()[3]);
             } else if (isSpinup) {
@@ -272,9 +268,9 @@ public class ControlSub extends SubsystemBase {
             }
         } else {
             if (isSpinup && isShooting) {
-                shooter.setShooterState(ShooterConstants.State.Shoot, 65.00, 0.00);
+                shooter.setShooterState(ShooterConstants.State.Shoot, 35.00, 35.00);
             } else if (isSpinup) {
-                shooter.setShooterState(ShooterConstants.State.Spinup, 65.00, 0.00);
+                shooter.setShooterState(ShooterConstants.State.Spinup, 35.00, 35.00);
             } else {
                 shooter.setShooterState(State.Idle, 0.00, 0.00);
             }
@@ -330,6 +326,10 @@ public class ControlSub extends SubsystemBase {
         driverLastRightTrigger = DriverController.leftTrigger().getAsBoolean();
     }
 
+    public double getTrackingOutput() {
+        return hubPIDOutput;
+    }
+
     // Auto functions
     public void stopIntakeOut() {
         isIntakeRetracted = false;
@@ -362,19 +362,14 @@ public class ControlSub extends SubsystemBase {
     public void stopShooting() {
         isAutoTracking = false;
         isShooting = false;
-        autoAim.shouldIdleLimelight(true);
         agitateTimer.stop();
         agitateTimer.reset();
         isAgitating = false;
     }
 
     public void startShoot() {
-        drivetrain.applyRequest(
-            () -> AutoTrackDrive
-            .withRotationalRate(hubPIDOutput * maxAngularRate));
-        isAutoTracking = false;
+        isAutoTracking = true;
         isShooting = true;
-        autoAim.shouldIdleLimelight(false);
         agitateTimer.start();
         isAgitating = agitateTimer.get() > 0.5;
     }

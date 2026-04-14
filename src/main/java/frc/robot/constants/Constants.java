@@ -80,7 +80,7 @@ public final class Constants {
         public static final double RotateMagnitude = 0.90;
         public static final double StickDeadzone = 0.10;
 
-        public static final double IntakeAgitateTime = 1.00;
+        public static final double IntakeAgitateTime = 2.00;
 
         public static final int XboxMenuButtonID = 7;
         public static final int XboxShareButtonID = 8;
@@ -101,7 +101,7 @@ public final class Constants {
             DumbControl
         }
         
-        public static final double IntakePIDkV = 0.00;
+        public static final double IntakePIDkV = 0.002;
         public static final double IntakePIDkP = 0.00;
         public static final double IntakePIDkI = 0.00;
         public static final double IntakePIDkD = 0.00;
@@ -139,7 +139,7 @@ public final class Constants {
         
         public static final double BeltsSpeed = 35.00;
         public static final double FeedSpeed = 35.00;
-        public static final double BottomShooterSpeed = 38.50;
+        public static final double BottomShooterSpeed = 0.00;//38.50;
         
         // Used in determing if shooter is up to speed
         public static final double RPSThreshold = 1.25;

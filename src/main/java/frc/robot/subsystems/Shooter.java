@@ -4,8 +4,47 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.*;
-import static frc.robot.constants.Constants.ShooterConstants.*;
+import static edu.wpi.first.units.Units.Amps;
+import static frc.robot.constants.Constants.ShooterConstants.BeltsCurrentLimit;
+import static frc.robot.constants.Constants.ShooterConstants.BeltsPIDkD;
+import static frc.robot.constants.Constants.ShooterConstants.BeltsPIDkI;
+import static frc.robot.constants.Constants.ShooterConstants.BeltsPIDkP;
+import static frc.robot.constants.Constants.ShooterConstants.BeltsPIDkV;
+import static frc.robot.constants.Constants.ShooterConstants.BeltsSpeed;
+import static frc.robot.constants.Constants.ShooterConstants.BottomMotorID;
+import static frc.robot.constants.Constants.ShooterConstants.BottomRollersID;
+import static frc.robot.constants.Constants.ShooterConstants.BottomShooterCurrentLimit;
+import static frc.robot.constants.Constants.ShooterConstants.BottomShooterPIDkD;
+import static frc.robot.constants.Constants.ShooterConstants.BottomShooterPIDkI;
+import static frc.robot.constants.Constants.ShooterConstants.BottomShooterPIDkP;
+import static frc.robot.constants.Constants.ShooterConstants.BottomShooterPIDkV;
+import static frc.robot.constants.Constants.ShooterConstants.BottomShooterSpeed;
+import static frc.robot.constants.Constants.ShooterConstants.FeedSpeed;
+import static frc.robot.constants.Constants.ShooterConstants.FeederCurrentLimit;
+import static frc.robot.constants.Constants.ShooterConstants.FeederMotorID;
+import static frc.robot.constants.Constants.ShooterConstants.FeederPIDkD;
+import static frc.robot.constants.Constants.ShooterConstants.FeederPIDkI;
+import static frc.robot.constants.Constants.ShooterConstants.FeederPIDkP;
+import static frc.robot.constants.Constants.ShooterConstants.FeederPIDkV;
+import static frc.robot.constants.Constants.ShooterConstants.HoodMotorID;
+import static frc.robot.constants.Constants.ShooterConstants.HoodShooterCurrentLimit;
+import static frc.robot.constants.Constants.ShooterConstants.HoodShooterPIDkD;
+import static frc.robot.constants.Constants.ShooterConstants.HoodShooterPIDkI;
+import static frc.robot.constants.Constants.ShooterConstants.HoodShooterPIDkP;
+import static frc.robot.constants.Constants.ShooterConstants.HoodShooterPIDkV;
+import static frc.robot.constants.Constants.ShooterConstants.LeftMotorID;
+import static frc.robot.constants.Constants.ShooterConstants.LeftShooterCurrentLimit;
+import static frc.robot.constants.Constants.ShooterConstants.LeftShooterPIDkD;
+import static frc.robot.constants.Constants.ShooterConstants.LeftShooterPIDkI;
+import static frc.robot.constants.Constants.ShooterConstants.LeftShooterPIDkP;
+import static frc.robot.constants.Constants.ShooterConstants.LeftShooterPIDkV;
+import static frc.robot.constants.Constants.ShooterConstants.RPSThreshold;
+import static frc.robot.constants.Constants.ShooterConstants.RightMotorID;
+import static frc.robot.constants.Constants.ShooterConstants.RightShooterCurrentLimit;
+import static frc.robot.constants.Constants.ShooterConstants.RightShooterPIDkD;
+import static frc.robot.constants.Constants.ShooterConstants.RightShooterPIDkI;
+import static frc.robot.constants.Constants.ShooterConstants.RightShooterPIDkP;
+import static frc.robot.constants.Constants.ShooterConstants.RightShooterPIDkV;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -194,29 +233,35 @@ public class Shooter extends SubsystemBase {
 				break;
 		}
 
-        SmartDashboard.putNumber("Belts RPS", getBeltsSpeed());
-		SmartDashboard.putNumber("Belts Target RPS", rollersTargetSpeed);
-		SmartDashboard.putNumber("Belts Target Diff", rollersTargetSpeed - getBeltsSpeed());
+        SmartDashboard.putNumber("Rollers RPS", getBeltsSpeed());
+		SmartDashboard.putNumber("Rollers Target RPS", rollersTargetSpeed);
+		SmartDashboard.putNumber("Rollers Target Diff", rollersTargetSpeed - getBeltsSpeed());
+		SmartDashboard.putNumber("Rollers Current Draw", bottomRollers.getStatorCurrent().getValueAsDouble());
 
         SmartDashboard.putNumber("Feeder Shooter RPS", getFeederShooterSpeed());
 		SmartDashboard.putNumber("Feeder Shooter Target RPS", feederTargetSpeed);
 		SmartDashboard.putNumber("Feeder Shooter Target Diff", feederTargetSpeed - getFeederShooterSpeed());
+		SmartDashboard.putNumber("Feeder Current Draw", feeder.getStatorCurrent().getValueAsDouble());
 
         SmartDashboard.putNumber("Bottom Shooter RPS", getBottomShooterSpeed());
 		SmartDashboard.putNumber("Bottom Shooter Target RPS", bottomTargetSpeed);
 		SmartDashboard.putNumber("Bottom Shooter Target Diff", (bottomTargetSpeed) - getBottomShooterSpeed());
+		SmartDashboard.putNumber("Bottom Shooter Current Draw", bottomShooter.getStatorCurrent().getValueAsDouble());
 
 		SmartDashboard.putNumber("Left Shooter RPS", getLeftShooterSpeed());
 		SmartDashboard.putNumber("Left Shooter Target RPS", topTargetSpeed);
 		SmartDashboard.putNumber("Left Shooter Target Diff", topTargetSpeed - getLeftShooterSpeed());
+		SmartDashboard.putNumber("Left Shooter Current Draw", leftShooter.getStatorCurrent().getValueAsDouble());
         
         SmartDashboard.putNumber("Right Shooter RPS", getRightShooterSpeed());
 		SmartDashboard.putNumber("Right Shooter Target RPS", topTargetSpeed);
 		SmartDashboard.putNumber("Right Shooter Target Diff", topTargetSpeed - getRightShooterSpeed());
+		SmartDashboard.putNumber("Right Shooter Current Draw", rightShooter.getStatorCurrent().getValueAsDouble());
 
 		SmartDashboard.putNumber("Hood Shooter RPS", getHoodShooterSpeed());
 		SmartDashboard.putNumber("Hood Shooter Target RPS", hoodTargetSpeed);
 		SmartDashboard.putNumber("Hood Shooter Target Diff", hoodTargetSpeed - getHoodShooterSpeed());
+		SmartDashboard.putNumber("Hood Shooter Current Draw", hoodShooter.getStatorCurrent().getValueAsDouble());
         
 		SmartDashboard.putString("Shooter State", state.toString());
 
