@@ -59,6 +59,13 @@ public class RobotContainer {
                 .withRotationalRate(control.getTrackingOutput() * control.maxAngularRate)
         )));
 
+        NamedCommands.registerCommand("Start Shooting 2nd Shot", control.run(
+            () -> control.startShoot2ndShot())
+        .alongWith(control.drivetrain.applyRequest(
+            () -> AutoTrackDrive
+                .withRotationalRate(control.getTrackingOutput() * control.maxAngularRate)
+        )));
+
         NamedCommands.registerCommand("Stop Idle Camera", control.runOnce(
             () -> control.autoAim.shouldIdleLimelight(true)
         ));

@@ -369,8 +369,16 @@ public class ControlSub extends SubsystemBase {
 
     public void startShoot() {
         isAutoTracking = true;
-        isShooting = agitateTimer.get() > 0.5;
+        isShooting = agitateTimer.get() > 0.25;
         agitateTimer.start();
         isAgitating = agitateTimer.get() > ControllerConstants.IntakeAgitateTime;
+    }
+
+    // agitate sooner because we will have less balls
+    public void startShoot2ndShot() {
+        isAutoTracking = true;
+        isShooting = agitateTimer.get() > 0.25;
+        agitateTimer.start();
+        isAgitating = agitateTimer.get() > ControllerConstants.IntakeAgitateTime - 0.75;
     }
 }

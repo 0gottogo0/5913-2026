@@ -117,7 +117,7 @@ public final class Constants {
         public static final double PivotInPos = 0.60;
         public static final double PivotInTriggerPos = 0.48;
         public static final double PivotRunIntakeTriggerPos = 0.35;
-        public static final double PivotOutPos = 0.24;
+        public static final double PivotOutPos = 0.22;
 
         public static final int IntakeLeftID = 34;
         public static final int IntakeRightID = 50;
@@ -133,8 +133,8 @@ public final class Constants {
             DumbControl
         }
         
-        public static final double BeltsSpeed = 35.00;
-        public static final double FeedSpeed = 45.00;
+        public static final double BeltsSpeed = 40.00;
+        public static final double FeedSpeed = 50.00;
         public static final double BottomShooterSpeed = 0.00;//38.50;
         
         // Used in determing if shooter is up to speed
