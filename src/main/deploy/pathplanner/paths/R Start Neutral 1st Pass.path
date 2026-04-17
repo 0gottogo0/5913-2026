@@ -16,15 +16,15 @@
     },
     {
       "anchor": {
-        "x": 7.703,
+        "x": 8.0,
         "y": 2.218
       },
       "prevControl": {
-        "x": 7.703,
+        "x": 8.0,
         "y": 0.968
       },
       "nextControl": {
-        "x": 7.703,
+        "x": 8.0,
         "y": 2.968
       },
       "isLocked": false,
@@ -69,7 +69,7 @@
       },
       "prevControl": {
         "x": 3.948622807017544,
-        "y": 3.010578947368421
+        "y": 3.0105789473684212
       },
       "nextControl": null,
       "isLocked": false,
@@ -83,7 +83,7 @@
     },
     {
       "waypointRelativePos": 3.0,
-      "rotationDegrees": -119.99999999999999
+      "rotationDegrees": -100.0
     }
   ],
   "constraintZones": [
@@ -110,7 +110,19 @@
       "command": null
     },
     {
+      "name": "Stop Spinup",
+      "waypointRelativePos": 0.3,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
       "name": "Stop Idle Camera",
+      "waypointRelativePos": 3.0,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Start Spinup",
       "waypointRelativePos": 3.0,
       "endWaypointRelativePos": null,
       "command": null

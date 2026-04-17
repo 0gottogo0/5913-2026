@@ -35,22 +35,18 @@ public final class Constants {
         
         // Meters, RPS
         public static final InterpolatingDoubleTreeMap TopShooterSpeedByDistance = InterpolatingDoubleTreeMap.ofEntries(
-            Map.entry(0.00, 55.00),
             Map.entry(1.30, 55.00),
-            Map.entry(1.70, 57.00),
-            Map.entry(2.10, 65.00),
-            Map.entry(3.40, 87.00) // Tower
-            //Map.entry(5.00, 40.00)
+            Map.entry(2.40, 55.00),
+            Map.entry(4.00, 55.00),
+            Map.entry(5.00, 55.00)
             );
     
         // Meters, RPS
         public static final InterpolatingDoubleTreeMap HoodShooterSpeedByDistance = InterpolatingDoubleTreeMap.ofEntries(
-            Map.entry(0.00, 0.00),
             Map.entry(1.30, 0.00),
-            Map.entry(1.70, 0.00),
-            Map.entry(2.10, 0.00),
-            Map.entry(3.40, 0.00) // Tower
-            //Map.entry(5.00, 70.00)
+            Map.entry(2.40, 15.00),
+            Map.entry(4.00, 33.50),
+            Map.entry(5.00, 40.00)
         );
             
         // Meters, Seconds
@@ -80,7 +76,7 @@ public final class Constants {
         public static final double RotateMagnitude = 0.90;
         public static final double StickDeadzone = 0.10;
 
-        public static final double IntakeAgitateTime = 2.00;
+        public static final double IntakeAgitateTime = 2.50;
 
         public static final int XboxMenuButtonID = 7;
         public static final int XboxShareButtonID = 8;
@@ -101,7 +97,7 @@ public final class Constants {
             DumbControl
         }
         
-        public static final double IntakePIDkV = 0.002;
+        public static final double IntakePIDkV = 0.0018;
         public static final double IntakePIDkP = 0.00;
         public static final double IntakePIDkI = 0.00;
         public static final double IntakePIDkD = 0.00;
@@ -138,7 +134,7 @@ public final class Constants {
         }
         
         public static final double BeltsSpeed = 35.00;
-        public static final double FeedSpeed = 35.00;
+        public static final double FeedSpeed = 45.00;
         public static final double BottomShooterSpeed = 0.00;//38.50;
         
         // Used in determing if shooter is up to speed

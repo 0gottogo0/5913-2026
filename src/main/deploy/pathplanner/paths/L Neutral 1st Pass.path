@@ -3,28 +3,44 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.395,
-        "y": 7.179
+        "x": 2.987,
+        "y": 5.511
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.326851652578136,
-        "y": 7.696638090205042
+        "x": 2.987,
+        "y": 7.511
+      },
+      "isLocked": false,
+      "linkedName": "L Score"
+    },
+    {
+      "anchor": {
+        "x": 4.577368421052632,
+        "y": 7.506
+      },
+      "prevControl": {
+        "x": 3.3588332284443094,
+        "y": 7.506
+      },
+      "nextControl": {
+        "x": 5.795903613660954,
+        "y": 7.506
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 8.0,
+        "x": 7.703,
         "y": 5.842
       },
       "prevControl": {
-        "x": 8.0,
+        "x": 7.703,
         "y": 7.092
       },
       "nextControl": {
-        "x": 8.0,
+        "x": 7.703,
         "y": 5.092
       },
       "isLocked": false,
@@ -68,7 +84,7 @@
         "y": 5.511
       },
       "prevControl": {
-        "x": 3.948622853938564,
+        "x": 3.9486228539385646,
         "y": 5.049421150383717
       },
       "nextControl": null,
@@ -78,19 +94,23 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 1.0,
+      "waypointRelativePos": 0.8,
+      "rotationDegrees": 0.0
+    },
+    {
+      "waypointRelativePos": 2.0,
       "rotationDegrees": -90.0
     },
     {
-      "waypointRelativePos": 3.0,
+      "waypointRelativePos": 4.0,
       "rotationDegrees": 100.0
     }
   ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.75,
-      "maxWaypointRelativePos": 2.0,
+      "minWaypointRelativePos": 1.75,
+      "maxWaypointRelativePos": 3.0,
       "constraints": {
         "maxVelocity": 1.75,
         "maxAcceleration": 4.0,
@@ -105,25 +125,25 @@
   "eventMarkers": [
     {
       "name": "Start Idle Camera",
-      "waypointRelativePos": 0.3,
+      "waypointRelativePos": 0.25,
       "endWaypointRelativePos": null,
       "command": null
     },
     {
       "name": "Stop Spinup",
-      "waypointRelativePos": 0.3,
+      "waypointRelativePos": 0.25,
       "endWaypointRelativePos": null,
       "command": null
     },
     {
       "name": "Stop Idle Camera",
-      "waypointRelativePos": 3.0,
+      "waypointRelativePos": 4.0,
       "endWaypointRelativePos": null,
       "command": null
     },
     {
       "name": "Start Spinup",
-      "waypointRelativePos": 3.0,
+      "waypointRelativePos": 4.0,
       "endWaypointRelativePos": null,
       "command": null
     }
@@ -144,7 +164,7 @@
   "folder": "Left Comp",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 100.0
   },
   "useDefaultConstraints": true
 }

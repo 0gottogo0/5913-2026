@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.controls.jni.ControlConfigJNI;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.MathUtil;
@@ -179,7 +180,6 @@ public class ControlSub extends SubsystemBase {
         // Shoot = Right Trig
         // Track = Left Trig
         
-        
         if (DriverStation.isTeleop()) {
             isSpinup = ManipulatorController.x().getAsBoolean();
             isPassing = ManipulatorController.b().getAsBoolean();
@@ -214,6 +214,7 @@ public class ControlSub extends SubsystemBase {
         // All = X
         // All W/ PID = Y
 
+        // Never fires?
         if (DriverStation.isTeleop() && TestingController.isConnected()) {
             if (TestingController.a().getAsBoolean()) {
                 shooter.setShooterDumbControl(1.00, 0.50, 0.00, 0.00, 0.00);
@@ -369,8 +370,8 @@ public class ControlSub extends SubsystemBase {
 
     public void startShoot() {
         isAutoTracking = true;
-        isShooting = true;
+        isShooting = agitateTimer.get() > 0.5;
         agitateTimer.start();
-        isAgitating = agitateTimer.get() > 0.5;
+        isAgitating = agitateTimer.get() > ControllerConstants.IntakeAgitateTime;
     }
 }
