@@ -37,6 +37,7 @@ public final class Constants {
         public static final InterpolatingDoubleTreeMap TopShooterSpeedByDistance = InterpolatingDoubleTreeMap.ofEntries(
             Map.entry(1.30, 55.00),
             Map.entry(2.40, 55.00),
+            Map.entry(3.60, 55.00),
             Map.entry(4.00, 55.00),
             Map.entry(5.00, 55.00)
             );
@@ -45,6 +46,7 @@ public final class Constants {
         public static final InterpolatingDoubleTreeMap HoodShooterSpeedByDistance = InterpolatingDoubleTreeMap.ofEntries(
             Map.entry(1.30, 0.00),
             Map.entry(2.40, 15.00),
+            Map.entry(3.60, 31.00),
             Map.entry(4.00, 33.50),
             Map.entry(5.00, 40.00)
         );
@@ -133,8 +135,8 @@ public final class Constants {
             DumbControl
         }
         
-        public static final double BeltsSpeed = 40.00;
-        public static final double FeedSpeed = 90.00;
+        public static final double BeltsSpeed = 60.00;
+        public static final double FeedSpeed = 95.00;
         public static final double BottomShooterSpeed = 0.00;//38.50;
         
         // Used in determing if shooter is up to speed
@@ -146,8 +148,8 @@ public final class Constants {
         public static final double BeltsPIDkD = 0.00;
         public static final double BeltsCurrentLimit = 40;
         
-        public static final double FeederPIDkV = 0.135;
-        public static final double FeederPIDkP = 0.30;
+        public static final double FeederPIDkV = 0.12;
+        public static final double FeederPIDkP = 0.20;
         public static final double FeederPIDkI = 0.00;
         public static final double FeederPIDkD = 0.00;
         public static final double FeederCurrentLimit = 80;
@@ -171,7 +173,7 @@ public final class Constants {
         public static final double RightShooterCurrentLimit = 55;
 
         public static final double HoodShooterPIDkV = 0.122;
-        public static final double HoodShooterPIDkP = 0.30;
+        public static final double HoodShooterPIDkP = 0.37;
         public static final double HoodShooterPIDkI = 0.00;
         public static final double HoodShooterPIDkD = 0.00;
         public static final double HoodShooterCurrentLimit = 40;
