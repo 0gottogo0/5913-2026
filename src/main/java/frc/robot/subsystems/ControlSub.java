@@ -177,13 +177,14 @@ public class ControlSub extends SubsystemBase {
         // Spinup = X
         // Pass Spinup = B
         // Shoot = Right Trig
+        // Agitate = Left Bumper
         // Track = Left Trig
         
         if (DriverStation.isTeleop()) {
             isSpinup = ManipulatorController.x().getAsBoolean();
             isPassing = ManipulatorController.b().getAsBoolean();
             isShooting = ManipulatorController.rightTrigger().getAsBoolean();
-            isAgitating = ManipulatorController.rightTrigger().getAsBoolean() && agitateTimer.get() > ControllerConstants.IntakeAgitateTime;
+            isAgitating = ManipulatorController.leftBumper().getAsBoolean();
 
             if (isShooting) {
                 agitateTimer.start();
@@ -247,9 +248,9 @@ public class ControlSub extends SubsystemBase {
         }
 
         if (isPassing && isShooting) {
-            shooter.setShooterState(ShooterConstants.State.Shoot, 40.00, 40.00);
+            shooter.setShooterState(ShooterConstants.State.Shoot, 50.00, 75.00);
         } else if (isPassing) {
-            shooter.setShooterState(ShooterConstants.State.Spinup, 40.00, 40.00);
+            shooter.setShooterState(ShooterConstants.State.Spinup, 50.00, 75.00);
         } else if (isAutoTracking) {
             if (isSpinup && isShooting) {
                 shooter.setShooterState(ShooterConstants.State.Shoot, autoAim.getShootOnMoveAimTarget()[2], autoAim.getShootOnMoveAimTarget()[3]);
@@ -287,9 +288,15 @@ public class ControlSub extends SubsystemBase {
             // If driver needs tracking let them have it, else manipulator can do whatever ig
             if (DriverController.a().getAsBoolean()) {
                 isTracking = true;
+                if (AllianceSelecter.getSelected() == Alliance.Blue) {
+                autoAim.setAutoAimDumbControl(-commandedMoveX + drivetrain.getState().Pose.getX(), -commandedMoveY + drivetrain.getState().Pose.getY()); // Snake drive!
+                                                                               // Uses controller inputs instead of
+                                                                               // robot speed to remove studdering
+                } else {
                 autoAim.setAutoAimDumbControl(commandedMoveX + drivetrain.getState().Pose.getX(), commandedMoveY + drivetrain.getState().Pose.getY()); // Snake drive!
                                                                                // Uses controller inputs instead of
                                                                                // robot speed to remove studdering
+                }
             } else if (AllianceSelecter.getSelected() == Alliance.Blue) {
                 autoAim.setAutoAimDumbControl(AutoAimConstants.BlueGoal.getX(), AutoAimConstants.BlueGoal.getY());
             } else {

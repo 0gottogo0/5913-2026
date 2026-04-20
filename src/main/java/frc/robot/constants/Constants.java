@@ -76,7 +76,7 @@ public final class Constants {
         public static final double RotateMagnitude = 0.90;
         public static final double StickDeadzone = 0.10;
 
-        public static final double IntakeAgitateTime = 2.50;
+        public static final double IntakeAgitateTime = 3.00;
 
         public static final int XboxMenuButtonID = 7;
         public static final int XboxShareButtonID = 8;
@@ -134,7 +134,7 @@ public final class Constants {
         }
         
         public static final double BeltsSpeed = 40.00;
-        public static final double FeedSpeed = 50.00;
+        public static final double FeedSpeed = 90.00;
         public static final double BottomShooterSpeed = 0.00;//38.50;
         
         // Used in determing if shooter is up to speed
@@ -162,19 +162,19 @@ public final class Constants {
         public static final double LeftShooterPIDkP = 0.30;
         public static final double LeftShooterPIDkI = 0.00;
         public static final double LeftShooterPIDkD = 0.00;
-        public static final double LeftShooterCurrentLimit = 80;
+        public static final double LeftShooterCurrentLimit = 55;
 
         public static final double RightShooterPIDkV = 0.122;
         public static final double RightShooterPIDkP = 0.30;
         public static final double RightShooterPIDkI = 0.00;
         public static final double RightShooterPIDkD = 0.00;
-        public static final double RightShooterCurrentLimit = 80;
+        public static final double RightShooterCurrentLimit = 55;
 
         public static final double HoodShooterPIDkV = 0.122;
         public static final double HoodShooterPIDkP = 0.30;
         public static final double HoodShooterPIDkI = 0.00;
         public static final double HoodShooterPIDkD = 0.00;
-        public static final double HoodShooterCurrentLimit = 70;
+        public static final double HoodShooterCurrentLimit = 40;
 
         public static final int BottomRollersID = 45;
         public static final int FeederMotorID = 43;
