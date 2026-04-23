@@ -103,12 +103,12 @@ public class Intake extends SubsystemBase {
 		pivot.clearStickyFaults();
 		pivot.getConfigurator().apply(pivotConfig);
 		
-		pivotSetpoint = pivotEncoder.get();
+		pivotSetpoint = getPivotEncoder();
 
 		new Thread(() -> {
     		try {
     		    Thread.sleep(3000);
-    		    pivotSetpoint = pivotEncoder.get();
+    		    pivotSetpoint = getPivotEncoder();
     		} catch (Exception e) {
     		}
     	}).start();
@@ -116,7 +116,7 @@ public class Intake extends SubsystemBase {
 
   	@Override
   	public void periodic() {
-		pivotPIDOutput = MathUtil.clamp(pivotController.calculate(pivotEncoder.get(), pivotSetpoint), -PivotExtensionSpeed, PivotRetractSpeed);
+		pivotPIDOutput = MathUtil.clamp(pivotController.calculate(getPivotEncoder(), pivotSetpoint), -PivotExtensionSpeed, PivotRetractSpeed);
 
 		switch (state) {
 			case IdleIn:
@@ -150,14 +150,14 @@ public class Intake extends SubsystemBase {
 				pivotSetpoint = PivotOutPos;
 				break;
 			case Agitate:
-				if (pivotEncoder.get() >= PivotRunIntakeTriggerPos) {
+				if (getPivotEncoder() >= PivotRunIntakeTriggerPos) {
 					intakeLeft.set(0.00);
 					intakeRight.set(0.00);
 				} else {
 					intakeLeft.getClosedLoopController().setSetpoint(IntakingSpeed, ControlType.kVelocity);
 					intakeRight.getClosedLoopController().setSetpoint(-IntakingSpeed, ControlType.kVelocity);
 				}
-				if (pivotEncoder.get() >= PivotInTriggerPos) {
+				if (getPivotEncoder() >= PivotInTriggerPos) {
 					pivot.set(0.00);
 				} else {
 					pivot.set(PivotAgitateSpeed);
@@ -170,7 +170,7 @@ public class Intake extends SubsystemBase {
 				break;
 		}
 
-		SmartDashboard.putNumber("Intake Pivot Position", pivotEncoder.get());
+		SmartDashboard.putNumber("Intake Pivot Position", getPivotEncoder());
 		SmartDashboard.putNumber("Intake Pivot PID Output", pivotPIDOutput);
 		SmartDashboard.putNumber("Intake Left Speed", intakeLeft.getEncoder().getVelocity());
 		SmartDashboard.putNumber("Intake Right Speed", intakeRight.getEncoder().getVelocity());
@@ -180,13 +180,25 @@ public class Intake extends SubsystemBase {
         SmartDashboard.putString("Intake State", state.toString());
   	}
 
+	public double getPivotEncoder() {
+
+		// Should unhard code this value
+		// We get a coterminal angle because encoder wraps around after 1.00
+		// and we only realy need 0.6 - 1.1 or sumthin
+		if (pivotEncoder.get() < 0.4) {
+			return pivotEncoder.get() + 1.00;
+		} else {
+			return pivotEncoder.get();
+		}
+	}
+
 	/**
 	 * Gets the position of the intake.
 	
 	 * @return true if intake is in
 	 */
 	public Boolean getIntakePosition() {
-		if (pivotEncoder.get() > PivotInTriggerPos) {
+		if (getPivotEncoder() > PivotInTriggerPos) {
 			return true;
 		} else {
 			return false;

@@ -68,6 +68,24 @@ public final class Constants {
     }
 
     public static final class ControllerConstants {
+        public static enum ManipulatorControllerType{
+            Guitar,
+            Xbox
+        }
+
+        public static final class GuitarButtons {
+            public static final int Green = 1;
+            public static final int Red = 2;
+            public static final int Yellow = 4;
+            public static final int Blue = 3;
+            public static final int Orange = 5;
+            public static final int Select = 7;
+            public static final int Start = 8;
+            public static final int UsingBottomButtons = 9;
+            public static final int AxisAdjusterThing = 2; // Idk what this thing is called
+            public static final int AxisWhammyBar = 4;
+        }
+
         // Units allowed to change per seccond
         public static final double XSlewRateLimiter = 8.00;
         public static final double YSlewRateLimiter = 8.00;
@@ -82,8 +100,9 @@ public final class Constants {
         public static final int XboxShareButtonID = 8;
 
         public static final int DriverControllerID = 0;
-        public static final int ManipulatorControllerID = 1;
-        public static final int TestingControllerID = 2;
+        public static final int ManipulatorXboxControllerID = 1;
+        public static final int ManipulatorGuitarControllerID = 2;
+        public static final int TestingControllerID = 3;
     }
     
     public static final class IntakeConstants {
@@ -114,10 +133,10 @@ public final class Constants {
         public static final double PivotExtensionSpeed = 0.75;
         public static final double PivotAgitateSpeed = 0.30;
 
-        public static final double PivotInPos = 0.60;
-        public static final double PivotInTriggerPos = 0.48;
-        public static final double PivotRunIntakeTriggerPos = 0.35;
-        public static final double PivotOutPos = 0.22;
+        public static final double PivotInPos = 1.03; // Note we have too do some coterminal shinaigins to fix this
+        public static final double PivotInTriggerPos = 0.92;
+        public static final double PivotRunIntakeTriggerPos = 0.80;
+        public static final double PivotOutPos = 0.67;
 
         public static final int IntakeLeftID = 34;
         public static final int IntakeRightID = 50;

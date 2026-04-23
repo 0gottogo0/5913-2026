@@ -26,6 +26,8 @@ import frc.robot.constants.Constants.ControllerConstants;
 import frc.robot.constants.Constants.IntakeConstants;
 import frc.robot.constants.Constants.ShooterConstants.State;
 import frc.robot.constants.Constants.ShooterConstants;
+import frc.robot.constants.Constants.ControllerConstants.GuitarButtons;
+import frc.robot.constants.Constants.ControllerConstants.ManipulatorControllerType;
 import frc.robot.constants.TunerConstants;
 
 public class ControlSub extends SubsystemBase {
@@ -49,10 +51,12 @@ public class ControlSub extends SubsystemBase {
     public final PIDController HubTrackingPidController = new PIDController(AutoAimConstants.TrackingHubPIDkP, AutoAimConstants.TrackingHubPIDkI, AutoAimConstants.TrackingHubPIDkD);
     
     private final CommandXboxController DriverController = new CommandXboxController(ControllerConstants.DriverControllerID);
-    private final CommandXboxController ManipulatorController = new CommandXboxController(ControllerConstants.ManipulatorControllerID);
+    private final CommandXboxController ManipulatorXboxController = new CommandXboxController(ControllerConstants.ManipulatorXboxControllerID);
+    private final CommandXboxController ManipulatorGuitarController = new CommandXboxController(ControllerConstants.ManipulatorGuitarControllerID);
     private final CommandXboxController TestingController = new CommandXboxController(ControllerConstants.TestingControllerID);
 
     private final SendableChooser<Alliance> AllianceSelecter = new SendableChooser<>();
+    private final SendableChooser<ManipulatorControllerType> ManipulatorControllerSelecter = new SendableChooser<>();
     
     private boolean driverLastLeftBumper = DriverController.leftBumper().getAsBoolean();
     private boolean driverLastRightTrigger = DriverController.leftTrigger().getAsBoolean();
@@ -92,7 +96,7 @@ public class ControlSub extends SubsystemBase {
             drivetrain.applyRequest(() -> new SwerveRequest.Idle())
         );
 
-        ManipulatorController.y().whileTrue(
+        ManipulatorXboxController.y().whileTrue(
             drivetrain.applyRequest(() -> new SwerveRequest.Idle())
         );
 
@@ -106,6 +110,10 @@ public class ControlSub extends SubsystemBase {
                 .withVelocityX(commandedMoveX * maxSpeed) // Drive forward with negative Y (forward)
                 .withVelocityY(commandedMoveY * maxSpeed) // Drive left with negative X (left)
                 .withRotationalRate(commandedRotate * maxAngularRate)));
+
+        /* Manipulator Controls */
+        ManipulatorControllerSelecter.setDefaultOption("Guitar Controller", ManipulatorControllerType.Guitar);
+        ManipulatorControllerSelecter.addOption("Xbox Controller", ManipulatorControllerType.Xbox);
 
         /* AutoAim Controls */
         // Should make this work on its own but idk I cant get it
@@ -179,12 +187,21 @@ public class ControlSub extends SubsystemBase {
         // Shoot = Right Trig
         // Agitate = Left Bumper
         // Track = Left Trig
+
+        // or...
+
+        // Spinup = Red
+        // Pass Spinup = Blue
+        // Shoot = Strum Up/Down
+        // Agitate = Green
+        // Track = Yellow
         
-        if (DriverStation.isTeleop()) {
-            isSpinup = ManipulatorController.x().getAsBoolean();
-            isPassing = ManipulatorController.b().getAsBoolean();
-            isShooting = ManipulatorController.rightTrigger().getAsBoolean();
-            isAgitating = ManipulatorController.leftBumper().getAsBoolean();
+        if (DriverStation.isTeleop() && ManipulatorControllerSelecter.getSelected() == ManipulatorControllerType.Xbox) {
+            System.out.println("hello");
+            isSpinup = ManipulatorXboxController.x().getAsBoolean();
+            isPassing = ManipulatorXboxController.b().getAsBoolean();
+            isShooting = ManipulatorXboxController.rightTrigger().getAsBoolean();
+            isAgitating = ManipulatorXboxController.leftBumper().getAsBoolean();
 
             if (isShooting) {
                 agitateTimer.start();
@@ -194,9 +211,9 @@ public class ControlSub extends SubsystemBase {
             }
 
             if (shooter.isShooterAtSpeed()) {
-                ManipulatorController.setRumble(RumbleType.kBothRumble, 0.50);
+                ManipulatorXboxController.setRumble(RumbleType.kBothRumble, 0.50);
             } else {
-                ManipulatorController.setRumble(RumbleType.kBothRumble, 0.00);
+                ManipulatorXboxController.setRumble(RumbleType.kBothRumble, 0.00);
             }
 
             // Gotta warn because the robot aiming at the stands wasnt enough
@@ -205,6 +222,20 @@ public class ControlSub extends SubsystemBase {
             } else {
                 ManipulatorController.setRumble(RumbleType.kRightRumble, 0.00);
             }*/
+        }
+
+        if (DriverStation.isTeleop() && ManipulatorControllerSelecter.getSelected() == ManipulatorControllerType.Guitar) {
+            isSpinup = ManipulatorGuitarController.button(GuitarButtons.Red).getAsBoolean();
+            isPassing = ManipulatorGuitarController.button(GuitarButtons.Blue).getAsBoolean();
+            isShooting = ManipulatorGuitarController.povUp().getAsBoolean() || ManipulatorGuitarController.povDown().getAsBoolean();
+            isAgitating = ManipulatorGuitarController.button(GuitarButtons.Green).getAsBoolean();
+
+            if (isShooting) {
+                agitateTimer.start();
+            } else {
+                agitateTimer.stop();
+                agitateTimer.reset();
+            }
         }
 
         /* Testing Controls */
@@ -283,7 +314,10 @@ public class ControlSub extends SubsystemBase {
         autoAim.setAutoAimDrivetrainState(drivetrain);
         
         if (DriverStation.isTeleop()) {
-            isTracking = DriverController.leftTrigger().getAsBoolean() || ManipulatorController.leftTrigger().getAsBoolean() || DriverController.a().getAsBoolean();
+            isTracking = DriverController.leftTrigger().getAsBoolean() || 
+                         DriverController.a().getAsBoolean() ||
+                         ManipulatorXboxController.leftTrigger().getAsBoolean() || 
+                         ManipulatorGuitarController.button(GuitarButtons.Yellow).getAsBoolean();
             //autoAim.setAutoAimState(AutoAimConstants.State.Goal); idk figure out a way to make the goal state not useless or sumthin
             // If driver needs tracking let them have it, else manipulator can do whatever ig
             if (DriverController.a().getAsBoolean()) {
@@ -304,6 +338,7 @@ public class ControlSub extends SubsystemBase {
             }
 
             SmartDashboard.putData("Alliance", AllianceSelecter);
+            SmartDashboard.putData("Manipulator Controller", ManipulatorControllerSelecter);
         }
 
         // Check if we need to go further then half a rotation and if
