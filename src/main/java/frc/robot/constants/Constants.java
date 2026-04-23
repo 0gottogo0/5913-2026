@@ -37,7 +37,6 @@ public final class Constants {
         public static final InterpolatingDoubleTreeMap TopShooterSpeedByDistance = InterpolatingDoubleTreeMap.ofEntries(
             Map.entry(1.30, 55.00),
             Map.entry(2.40, 55.00),
-            Map.entry(3.60, 55.00),
             Map.entry(4.00, 55.00),
             Map.entry(5.00, 55.00)
             );
@@ -46,8 +45,7 @@ public final class Constants {
         public static final InterpolatingDoubleTreeMap HoodShooterSpeedByDistance = InterpolatingDoubleTreeMap.ofEntries(
             Map.entry(1.30, 0.00),
             Map.entry(2.40, 15.00),
-            Map.entry(3.60, 31.00),
-            Map.entry(4.00, 33.50),
+            Map.entry(4.00, 35.00),
             Map.entry(5.00, 40.00)
         );
             
@@ -135,8 +133,8 @@ public final class Constants {
             DumbControl
         }
         
-        public static final double BeltsSpeed = 60.00;
-        public static final double FeedSpeed = 95.00;
+        public static final double BeltsSpeed = 80.00;
+        public static final double FeedSpeed = 70.00;
         public static final double BottomShooterSpeed = 0.00;//38.50;
         
         // Used in determing if shooter is up to speed
@@ -149,7 +147,7 @@ public final class Constants {
         public static final double BeltsCurrentLimit = 40;
         
         public static final double FeederPIDkV = 0.12;
-        public static final double FeederPIDkP = 0.20;
+        public static final double FeederPIDkP = 0.60;
         public static final double FeederPIDkI = 0.00;
         public static final double FeederPIDkD = 0.00;
         public static final double FeederCurrentLimit = 80;

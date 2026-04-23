@@ -248,9 +248,9 @@ public class ControlSub extends SubsystemBase {
         }
 
         if (isPassing && isShooting) {
-            shooter.setShooterState(ShooterConstants.State.Shoot, 50.00, 75.00);
+            shooter.setShooterState(ShooterConstants.State.Shoot, 33.00, 44.00);
         } else if (isPassing) {
-            shooter.setShooterState(ShooterConstants.State.Spinup, 50.00, 75.00);
+            shooter.setShooterState(ShooterConstants.State.Spinup, 30.00, 40.00);
         } else if (isAutoTracking) {
             if (isSpinup && isShooting) {
                 shooter.setShooterState(ShooterConstants.State.Shoot, autoAim.getShootOnMoveAimTarget()[2], autoAim.getShootOnMoveAimTarget()[3]);
