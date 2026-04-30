@@ -279,9 +279,9 @@ public class ControlSub extends SubsystemBase {
         }
 
         if (isPassing && isShooting) {
-            shooter.setShooterState(ShooterConstants.State.Shoot, 33.00, 44.00);
+            shooter.setShooterState(ShooterConstants.State.Shoot, 50.00, 75.00);
         } else if (isPassing) {
-            shooter.setShooterState(ShooterConstants.State.Spinup, 30.00, 40.00);
+            shooter.setShooterState(ShooterConstants.State.Spinup, 50.00, 75.00);
         } else if (isAutoTracking) {
             if (isSpinup && isShooting) {
                 shooter.setShooterState(ShooterConstants.State.Shoot, autoAim.getShootOnMoveAimTarget()[2], autoAim.getShootOnMoveAimTarget()[3]);
@@ -313,6 +313,12 @@ public class ControlSub extends SubsystemBase {
         // This works ig
         autoAim.setAutoAimDrivetrainState(drivetrain);
         
+        if (AllianceSelecter.getSelected() == Alliance.Blue) {
+            autoAim.setAutoAimDumbControl(AutoAimConstants.BlueGoal.getX(), AutoAimConstants.BlueGoal.getY());
+        } else {
+            autoAim.setAutoAimDumbControl(AutoAimConstants.RedGoal.getX(), AutoAimConstants.RedGoal.getY());
+        }
+
         if (DriverStation.isTeleop()) {
             isTracking = DriverController.leftTrigger().getAsBoolean() || 
                          DriverController.a().getAsBoolean() ||
@@ -320,6 +326,7 @@ public class ControlSub extends SubsystemBase {
                          ManipulatorGuitarController.button(GuitarButtons.Yellow).getAsBoolean();
             //autoAim.setAutoAimState(AutoAimConstants.State.Goal); idk figure out a way to make the goal state not useless or sumthin
             // If driver needs tracking let them have it, else manipulator can do whatever ig
+            // This will also override hub target
             if (DriverController.a().getAsBoolean()) {
                 isTracking = true;
                 if (AllianceSelecter.getSelected() == Alliance.Blue) {
@@ -331,14 +338,7 @@ public class ControlSub extends SubsystemBase {
                                                                                // Uses controller inputs instead of
                                                                                // robot speed to remove studdering
                 }
-            } else if (AllianceSelecter.getSelected() == Alliance.Blue) {
-                autoAim.setAutoAimDumbControl(AutoAimConstants.BlueGoal.getX(), AutoAimConstants.BlueGoal.getY());
-            } else {
-                autoAim.setAutoAimDumbControl(AutoAimConstants.RedGoal.getX(), AutoAimConstants.RedGoal.getY());
             }
-
-            SmartDashboard.putData("Alliance", AllianceSelecter);
-            SmartDashboard.putData("Manipulator Controller", ManipulatorControllerSelecter);
         }
 
         // Check if we need to go further then half a rotation and if
@@ -360,6 +360,9 @@ public class ControlSub extends SubsystemBase {
         /* Output */
 
         SmartDashboard.putNumber("Hub Tracking Pid Output", hubPIDOutput);
+
+        SmartDashboard.putData("Alliance", AllianceSelecter);
+        SmartDashboard.putData("Manipulator Controller", ManipulatorControllerSelecter);
 
         /* Input Trigger Stuffs */
 
