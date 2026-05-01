@@ -88,7 +88,7 @@ public class ControlSub extends SubsystemBase {
             drivetrain.runOnce(drivetrain::seedFieldCentric)
         );
 
-        DriverController.button(ControllerConstants.XboxShareButtonID).whileTrue(
+        DriverController.b().whileTrue(
             drivetrain.applyRequest(() -> new SwerveRequest.SwerveDriveBrake())
         );
 
@@ -133,9 +133,10 @@ public class ControlSub extends SubsystemBase {
         // Toggle Intake Pos = Left Bumper
         // Track = Left Trig
         // Snake Drive = A
-        // GoCrazyGoStupid = B
+        // Lock Swerves = B
+        // GoCrazyGoStupid = Y
 
-        if (DriverController.b().getAsBoolean()) {
+        if (DriverController.button(ControllerConstants.XboxShareButtonID).getAsBoolean()) {
             commandedMoveX = MathUtil.applyDeadband(-DriverController.getLeftY(), ControllerConstants.StickDeadzone);
             commandedMoveY = MathUtil.applyDeadband(-DriverController.getLeftX(), ControllerConstants.StickDeadzone);
             commandedRotate = MathUtil.applyDeadband(-DriverController.getRightX(), ControllerConstants.StickDeadzone);
