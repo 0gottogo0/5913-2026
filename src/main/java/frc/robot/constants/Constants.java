@@ -23,11 +23,11 @@ public final class Constants {
         // more, and better information can be found in the
         // Limelight docs under "3D Coordinate Systems In
         // Detail"
-        public static final Pose2d BlueGoal = new Pose2d(4.50,  4.07, new Rotation2d(0));
-        public static final Pose2d RedGoal = new Pose2d(11.90, 4.07, new Rotation2d(0));
-        public static final Pose2d NeutralZone = new Pose2d(8.27, 4.07, new Rotation2d(0));
-        public static final Pose2d BlueZone = new Pose2d(3.20, 4.07, new Rotation2d(0));
-        public static final Pose2d RedZone = new Pose2d(13.40, 4.07, new Rotation2d(0));
+        public static final Pose2d BlueGoal = new Pose2d(4.50,  4.03, new Rotation2d(0));
+        public static final Pose2d RedGoal = new Pose2d(12.02, 4.03, new Rotation2d(0));
+        public static final Pose2d NeutralZone = new Pose2d(8.27, 4.03, new Rotation2d(0));
+        public static final Pose2d BlueZone = new Pose2d(3.20, 4.03, new Rotation2d(0));
+        public static final Pose2d RedZone = new Pose2d(13.40, 4.03, new Rotation2d(0));
 
         // Set to x:0, y:0, r:0 for no turret because
         // the "turret" is just our swerve
