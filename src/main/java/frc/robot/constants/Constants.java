@@ -133,10 +133,10 @@ public final class Constants {
         public static final double PivotExtensionSpeed = 0.75;
         public static final double PivotAgitateSpeed = 0.30;
 
-        public static final double PivotInPos = 1.03; // Note we have too do some coterminal shinaigins to fix this
-        public static final double PivotInTriggerPos = 0.92;
-        public static final double PivotRunIntakeTriggerPos = 0.80;
-        public static final double PivotOutPos = 0.67;
+        public static final double PivotInPos = 0.50;
+        public static final double PivotInTriggerPos = 0.38;
+        public static final double PivotRunIntakeTriggerPos = 0.30;
+        public static final double PivotOutPos = 0.15;
 
         public static final int IntakeLeftID = 34;
         public static final int IntakeRightID = 50;

@@ -185,11 +185,13 @@ public class Intake extends SubsystemBase {
 		// Should unhard code this value
 		// We get a coterminal angle because encoder wraps around after 1.00
 		// and we only realy need 0.6 - 1.1 or sumthin
-		if (pivotEncoder.get() < 0.4) {
+		/*if (pivotEncoder.get() < 0.8) {
 			return pivotEncoder.get() + 1.00;
 		} else {
 			return pivotEncoder.get();
-		}
+		}*/
+
+		return pivotEncoder.get();
 	}
 
 	/**
