@@ -163,10 +163,10 @@ public class ControlSub extends SubsystemBase {
             }
 
             isIntaking = DriverController.rightTrigger().getAsBoolean();
-            if (DriverController.rightTrigger().getAsBoolean()) {
+            /*if (DriverController.rightTrigger().getAsBoolean()) {
                 commandedMoveX = commandedMoveX * 0.50;
                 commandedMoveY = commandedMoveY * 0.50;
-            }
+            }*/
             
             if (isTracking) {
                 DriverController.setRumble(RumbleType.kBothRumble, 0.50);
